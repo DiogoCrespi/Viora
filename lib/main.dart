@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:viora/theme/app_theme.dart';
 import 'package:viora/screens/onboarding_screen.dart';
 import 'package:viora/screens/main_screen.dart';
+import 'package:viora/game/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
@@ -31,6 +32,7 @@ class VioraApp extends StatelessWidget {
       routes: {
         '/': (context) => const OnboardingScreen(),
         '/main': (context) => const MainScreen(),
+        '/game': (context) => const SpaceShooterGame(),
       },
     );
   }

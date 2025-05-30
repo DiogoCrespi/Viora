@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora/theme/app_theme.dart';
+import 'package:viora/screens/status_screen.dart';
 import 'package:viora/screens/main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -97,8 +98,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder:
-            (context, animation, secondaryAnimation) => const MainScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const MainScreen(selectedIndex: 0),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -168,9 +169,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               child: Text(
                 page.title,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppTheme.metallicGold,
-                  fontFamily: 'Orbitron',
-                ),
+                      color: AppTheme.metallicGold,
+                      fontFamily: 'Orbitron',
+                    ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -183,9 +184,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               child: Text(
                 page.description,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppTheme.agedBeige,
-                  fontFamily: 'Exo2',
-                ),
+                      color: AppTheme.agedBeige,
+                      fontFamily: 'Exo2',
+                    ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -211,10 +212,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 height: 8,
                 width: _currentPage == index ? 24 : 8,
                 decoration: BoxDecoration(
-                  color:
-                      _currentPage == index
-                          ? AppTheme.metallicGold
-                          : AppTheme.agedBeige.withOpacity(0.3),
+                  color: _currentPage == index
+                      ? AppTheme.metallicGold
+                      : AppTheme.agedBeige.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -228,12 +228,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 opacity: _currentPage == _pages.length - 1 ? 0.0 : 1.0,
                 duration: const Duration(milliseconds: 300),
                 child: TextButton(
-                  onPressed:
-                      () => _pageController.animateToPage(
-                        _pages.length - 1,
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOutCubic,
-                      ),
+                  onPressed: () => _pageController.animateToPage(
+                    _pages.length - 1,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOutCubic,
+                  ),
                   child: Text(
                     'Pular',
                     style: TextStyle(
@@ -247,66 +246,64 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               // Botão Avançar ou Vamos Começar
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                child:
-                    _currentPage == _pages.length - 1
-                        ? ElevatedButton(
-                          key: const ValueKey('start'),
-                          onPressed: _navigateToMain,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.metallicGold,
-                            foregroundColor: AppTheme.geometricBlack,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
+                child: _currentPage == _pages.length - 1
+                    ? ElevatedButton(
+                        key: const ValueKey('start'),
+                        onPressed: _navigateToMain,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.metallicGold,
+                          foregroundColor: AppTheme.geometricBlack,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
                           ),
-                          child: const Text(
-                            'Vamos Começar',
-                            style: TextStyle(
-                              fontFamily: 'Orbitron',
-                              fontSize: 16,
-                            ),
-                          ),
-                        )
-                        : ElevatedButton(
-                          key: const ValueKey('next'),
-                          onPressed:
-                              () => _pageController.nextPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeInOutCubic,
-                              ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.metallicGold,
-                            foregroundColor: AppTheme.geometricBlack,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Avançar',
-                                style: TextStyle(
-                                  fontFamily: 'Orbitron',
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.arrow_forward,
-                                color: AppTheme.geometricBlack,
-                              ),
-                            ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        child: const Text(
+                          'Vamos Começar',
+                          style: TextStyle(
+                            fontFamily: 'Orbitron',
+                            fontSize: 16,
+                          ),
+                        ),
+                      )
+                    : ElevatedButton(
+                        key: const ValueKey('next'),
+                        onPressed: () => _pageController.nextPage(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOutCubic,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.metallicGold,
+                          foregroundColor: AppTheme.geometricBlack,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Avançar',
+                              style: TextStyle(
+                                fontFamily: 'Orbitron',
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: AppTheme.geometricBlack,
+                            ),
+                          ],
+                        ),
+                      ),
               ),
             ],
           ),

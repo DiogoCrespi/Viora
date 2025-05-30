@@ -6,7 +6,8 @@ import 'package:viora/screens/missions_screen.dart';
 import 'package:viora/screens/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int selectedIndex;
+  const MainScreen({super.key, this.selectedIndex = 0});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -15,7 +16,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _drawerAnimationController;
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   final List<String> _sections = ['Status', 'Missões', 'Configurações'];
 
@@ -26,6 +27,7 @@ class _MainScreenState extends State<MainScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _selectedIndex = widget.selectedIndex;
   }
 
   @override
@@ -43,13 +45,12 @@ class _MainScreenState extends State<MainScreen>
           style: Theme.of(context).textTheme.titleLarge,
         ),
         leading: Builder(
-          builder:
-              (context) => IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
         ),
         actions: [
           IconButton(
@@ -76,19 +77,18 @@ class _MainScreenState extends State<MainScreen>
           Navigator.pop(context);
         },
       ),
-      body:
-          _selectedIndex == 0
-              ? const StatusScreen()
-              : _selectedIndex == 1
+      body: _selectedIndex == 0
+          ? const StatusScreen()
+          : _selectedIndex == 1
               ? const MissionsScreen()
               : _selectedIndex == 2
-              ? const SettingsScreen()
-              : Center(
-                child: Text(
-                  'Conteúdo da seção ${_sections[_selectedIndex]}',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
+                  ? const SettingsScreen()
+                  : Center(
+                      child: Text(
+                        'Conteúdo da seção ${_sections[_selectedIndex]}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Implementar ação principal
