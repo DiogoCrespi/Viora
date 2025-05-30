@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:viora/theme/app_theme.dart';
+import 'package:viora/screens/onboarding_screen.dart';
 import 'package:viora/screens/main_screen.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-void main() {
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Simular carregamento inicial
+  await Future.delayed(const Duration(seconds: 2));
+
+  // Remover splash screen
+  FlutterNativeSplash.remove();
+
   runApp(const VioraApp());
 }
 
@@ -16,7 +27,11 @@ class VioraApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const MainScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const OnboardingScreen(),
+        '/main': (context) => const MainScreen(),
+      },
     );
   }
 }
