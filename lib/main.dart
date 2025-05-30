@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora/theme/app_theme.dart';
+import 'package:viora/screens/main_screen.dart';
 
 void main() {
   runApp(const VioraApp());
@@ -15,7 +16,7 @@ class VioraApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
@@ -26,9 +27,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Viora'),
-      ),
+      appBar: AppBar(title: const Text('Viora')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -43,10 +42,7 @@ class HomeScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Get Started'),
-            ),
+            ElevatedButton(onPressed: () {}, child: const Text('Get Started')),
           ],
         ),
       ),
