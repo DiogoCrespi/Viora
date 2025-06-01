@@ -259,17 +259,16 @@ class SpaceGame extends FlameGame
   }
 }
 
-class BackgroundComponent extends Component {
+class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
   @override
   void render(Canvas canvas) {
-    final rect = Rect.fromLTWH(0, 0, 800, 600);
     final gradient = LinearGradient(
       colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
-    final paint = Paint()..shader = gradient.createShader(rect);
-    canvas.drawRect(rect, paint);
+    final paint = Paint()..shader = gradient.createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
+    canvas.drawRect(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y), paint);
   }
 }
 
