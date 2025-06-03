@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
+import 'package:viora/core/constants/app_theme.dart';
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
+import 'package:viora/core/constants/app_theme.dart';
 
 class FuturisticDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -83,17 +83,17 @@ class FuturisticDrawer extends StatelessWidget {
                       style: Theme.of(
                         context,
                       ).textTheme.displayMedium?.copyWith(
-                        color: AppTheme.metallicGold,
-                        letterSpacing: 1.2,
-                      ),
+                            color: AppTheme.metallicGold,
+                            letterSpacing: 1.2,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Sistema de Missões',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.agedBeige,
-                        letterSpacing: 0.5,
-                      ),
+                            color: AppTheme.agedBeige,
+                            letterSpacing: 0.5,
+                          ),
                     ),
                   ],
                 ),
@@ -115,16 +115,14 @@ class FuturisticDrawer extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? AppTheme.metallicGold.withOpacity(0.1)
-                    : Colors.transparent,
+            color: isSelected
+                ? AppTheme.metallicGold.withOpacity(0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color:
-                  isSelected
-                      ? AppTheme.metallicGold.withOpacity(0.3)
-                      : Colors.transparent,
+              color: isSelected
+                  ? AppTheme.metallicGold.withOpacity(0.3)
+                  : Colors.transparent,
               width: 1,
             ),
           ),
@@ -134,10 +132,9 @@ class FuturisticDrawer extends StatelessWidget {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color:
-                    isSelected
-                        ? AppTheme.metallicGold.withOpacity(0.2)
-                        : Colors.transparent,
+                color: isSelected
+                    ? AppTheme.metallicGold.withOpacity(0.2)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -148,9 +145,10 @@ class FuturisticDrawer extends StatelessWidget {
             title: Text(
               sections[index],
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: isSelected ? AppTheme.metallicGold : AppTheme.agedBeige,
-                letterSpacing: 0.5,
-              ),
+                    color:
+                        isSelected ? AppTheme.metallicGold : AppTheme.agedBeige,
+                    letterSpacing: 0.5,
+                  ),
             ),
             onTap: () => onSectionSelected(index),
           ),
@@ -176,8 +174,8 @@ class FuturisticDrawer extends StatelessWidget {
           Text(
             'v1.0.0',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.agedBeige.withOpacity(0.5),
-            ),
+                  color: AppTheme.agedBeige.withOpacity(0.5),
+                ),
           ),
           IconButton(
             icon: const Icon(Icons.logout_outlined, color: AppTheme.agedBeige),

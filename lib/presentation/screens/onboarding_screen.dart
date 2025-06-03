@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
-import 'package:viora/screens/status_screen.dart';
-import 'package:viora/screens/main_screen.dart';
+import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/presentation/screens/status_screen.dart';
+import 'package:viora/presentation/screens/main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

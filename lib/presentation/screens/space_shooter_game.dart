@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
-import 'package:viora/screens/status_screen.dart';
-import 'package:viora/screens/missions_screen.dart';
-import 'package:viora/screens/main_screen.dart';
+import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/presentation/screens/status_screen.dart';
+import 'package:viora/presentation/screens/missions_screen.dart';
+import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
@@ -267,7 +267,9 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
-    final paint = Paint()..shader = gradient.createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
+    final paint = Paint()
+      ..shader = gradient
+          .createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
     canvas.drawRect(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y), paint);
   }
 }

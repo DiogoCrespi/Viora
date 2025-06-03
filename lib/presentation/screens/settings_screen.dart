@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
+import 'package:viora/core/constants/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,9 +43,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     'Configurações',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.metallicGold,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: AppTheme.metallicGold,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ],
               ),
@@ -155,9 +155,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppTheme.metallicGold,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: AppTheme.metallicGold,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ),
         Card(
@@ -228,10 +228,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       trailing: DropdownButton<String>(
         value: value,
-        items:
-            items.map((String item) {
-              return DropdownMenuItem<String>(value: item, child: Text(item));
-            }).toList(),
+        items: items.map((String item) {
+          return DropdownMenuItem<String>(value: item, child: Text(item));
+        }).toList(),
         onChanged: onChanged,
         underline: Container(height: 2, color: AppTheme.metallicGold),
       ),
@@ -298,10 +297,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          color:
-              isDestructive
-                  ? Colors.red.withOpacity(0.7)
-                  : AppTheme.deepBrown.withOpacity(0.7),
+          color: isDestructive
+              ? Colors.red.withOpacity(0.7)
+              : AppTheme.deepBrown.withOpacity(0.7),
         ),
       ),
       trailing: Icon(

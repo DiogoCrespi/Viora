@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
-import 'package:viora/game/space_shooter_game.dart';
-import 'package:viora/screens/missions_screen.dart';
+import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/presentation/screens/space_shooter_game.dart';
+import 'package:viora/presentation/screens/missions_screen.dart';
 
 class StatusScreen extends StatelessWidget {
   const StatusScreen({super.key});

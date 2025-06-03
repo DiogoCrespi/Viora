@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
-import 'package:viora/screens/onboarding_screen.dart';
-import 'package:viora/screens/main_screen.dart';
-import 'package:viora/game/space_shooter_game.dart';
+import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/presentation/screens/onboarding_screen.dart';
+import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:viora/presentation/screens/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {

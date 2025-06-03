@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:viora/theme/app_theme.dart';
-import 'package:viora/widgets/futuristic_drawer.dart';
-import 'package:viora/screens/status_screen.dart';
-import 'package:viora/screens/missions_screen.dart';
-import 'package:viora/screens/settings_screen.dart';
+import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/presentation/widgets/futuristic_drawer.dart';
+import 'package:viora/presentation/screens/status_screen.dart';
+import 'package:viora/presentation/screens/missions_screen.dart';
+import 'package:viora/presentation/screens/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
