@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/providers/theme_provider.dart';
+import 'package:viora/core/providers/font_size_provider.dart';
 import 'package:viora/presentation/screens/onboarding_screen.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:viora/presentation/screens/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
 
-  // Simular carregamento inicial
-  await Future.delayed(const Duration(seconds: 2));
-
-  // Remover splash screen
-  FlutterNativeSplash.remove();
-
-  runApp(const VioraApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FontSizeProvider(prefs),
+        ),
+      ],
+      child: const VioraApp(),
+    ),
+  );
 }
 
 class VioraApp extends StatelessWidget {
@@ -23,16 +33,32 @@ class VioraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Viora',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const OnboardingScreen(),
-        '/main': (context) => const MainScreen(),
-        '/game': (context) => const SpaceShooterGame(),
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'Viora',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaleFactor: fontSizeProvider.fontSize,
+              ),
+              child: child!,
+            );
+          },
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const OnboardingScreen(),
+            '/main': (context) => const MainScreen(),
+            '/game': (context) => const SpaceShooterGame(),
+          },
+        );
       },
     );
   }

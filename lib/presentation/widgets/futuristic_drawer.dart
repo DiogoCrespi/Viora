@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
 
 class FuturisticDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -15,14 +16,12 @@ class FuturisticDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
-          stops: const [0.0, 1.0],
-        ),
+        gradient: theme.brightness == Brightness.light
+            ? AppTheme.sunsetGradient
+            : AppTheme.nightGradient,
       ),
       child: Column(
         children: [
@@ -40,6 +39,7 @@ class FuturisticDrawer extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -80,20 +80,20 @@ class FuturisticDrawer extends StatelessWidget {
                   children: [
                     Text(
                       'Viora',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.displayMedium?.copyWith(
-                            color: AppTheme.metallicGold,
-                            letterSpacing: 1.2,
-                          ),
+                      style: theme.textTheme.displayMedium?.copyWith(
+                        color: AppTheme.metallicGold,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Sistema de Missões',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.agedBeige,
-                            letterSpacing: 0.5,
-                          ),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.brightness == Brightness.light
+                            ? Colors.black
+                            : Colors.white,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -106,6 +106,7 @@ class FuturisticDrawer extends StatelessWidget {
   }
 
   Widget _buildSections(BuildContext context) {
+    final theme = Theme.of(context);
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: sections.length,
@@ -139,16 +140,23 @@ class FuturisticDrawer extends StatelessWidget {
               ),
               child: Icon(
                 _getIconForIndex(index),
-                color: isSelected ? AppTheme.metallicGold : AppTheme.agedBeige,
+                color: isSelected
+                    ? AppTheme.metallicGold
+                    : (theme.brightness == Brightness.light
+                        ? Colors.black
+                        : Colors.white),
               ),
             ),
             title: Text(
               sections[index],
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color:
-                        isSelected ? AppTheme.metallicGold : AppTheme.agedBeige,
-                    letterSpacing: 0.5,
-                  ),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: isSelected
+                    ? AppTheme.metallicGold
+                    : (theme.brightness == Brightness.light
+                        ? Colors.black
+                        : Colors.white),
+                letterSpacing: 0.5,
+              ),
             ),
             onTap: () => onSectionSelected(index),
           ),
@@ -158,6 +166,7 @@ class FuturisticDrawer extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -173,12 +182,17 @@ class FuturisticDrawer extends StatelessWidget {
         children: [
           Text(
             'v1.0.0',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.agedBeige.withOpacity(0.5),
-                ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.brightness == Brightness.light
+                  ? Colors.black.withOpacity(0.5)
+                  : Colors.white.withOpacity(0.5),
+            ),
           ),
           IconButton(
-            icon: const Icon(Icons.logout_outlined, color: AppTheme.agedBeige),
+            icon: Icon(Icons.logout_outlined,
+                color: theme.brightness == Brightness.light
+                    ? Colors.black
+                    : Colors.white),
             onPressed: () {
               // TODO: Implementar logout
             },

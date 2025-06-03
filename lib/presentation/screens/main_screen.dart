@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/widgets/futuristic_drawer.dart';
 import 'package:viora/presentation/screens/status_screen.dart';
 import 'package:viora/presentation/screens/missions_screen.dart';
@@ -25,9 +26,15 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
     _drawerAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 800),
     );
     _selectedIndex = widget.selectedIndex;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _drawerAnimationController.duration = Theme.of(context).themeChangeDuration;
   }
 
   @override
@@ -38,11 +45,13 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _sections[_selectedIndex],
-          style: Theme.of(context).textTheme.titleLarge,
+          style: theme.futuristicTitle,
         ),
         leading: Builder(
           builder: (context) => IconButton(
@@ -77,23 +86,26 @@ class _MainScreenState extends State<MainScreen>
           Navigator.pop(context);
         },
       ),
-      body: _selectedIndex == 0
-          ? const StatusScreen()
-          : _selectedIndex == 1
-              ? const MissionsScreen()
-              : _selectedIndex == 2
-                  ? const SettingsScreen()
-                  : Center(
-                      child: Text(
-                        'Conteúdo da seção ${_sections[_selectedIndex]}',
-                        style: Theme.of(context).textTheme.bodyLarge,
+      body: Container(
+        decoration: theme.gradientDecoration,
+        child: _selectedIndex == 0
+            ? const StatusScreen()
+            : _selectedIndex == 1
+                ? const MissionsScreen()
+                : _selectedIndex == 2
+                    ? const SettingsScreen()
+                    : Center(
+                        child: Text(
+                          'Conteúdo da seção ${_sections[_selectedIndex]}',
+                          style: theme.futuristicBody,
+                        ),
                       ),
-                    ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Implementar ação principal
         },
-        backgroundColor: AppTheme.metallicGold,
+        backgroundColor: theme.sunsetOrange,
         child: const Icon(Icons.add, color: AppTheme.deepBrown),
       ),
     );

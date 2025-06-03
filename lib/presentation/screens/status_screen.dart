@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/space_shooter_game.dart';
 import 'package:viora/presentation/screens/missions_screen.dart';
 
@@ -8,14 +9,10 @@ class StatusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      decoration: theme.gradientDecoration,
       child: SafeArea(
         child: Column(
           children: [
@@ -30,12 +27,12 @@ class StatusScreen extends StatelessWidget {
                       children: [
                         // Card de Boas-vindas
                         Card(
-                          color: AppTheme.agedBeige.withOpacity(0.95),
+                          color: theme.primarySurface.withOpacity(0.95),
                           elevation: 8,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
-                            side: const BorderSide(
-                              color: AppTheme.metallicGold,
+                            side: BorderSide(
+                              color: theme.sunsetOrange,
                               width: 2,
                             ),
                           ),
@@ -47,28 +44,17 @@ class StatusScreen extends StatelessWidget {
                                 Icon(
                                   Icons.rocket_launch,
                                   size: 64,
-                                  color: AppTheme.metallicGold,
+                                  color: theme.sunsetOrange,
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
                                   'Bem-vindo ao Viora',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineMedium?.copyWith(
-                                        color: AppTheme.deepBrown,
-                                        fontFamily: 'Orbitron',
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  style: theme.futuristicTitle,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   'Prepare-se para uma jornada espacial épica!',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium?.copyWith(
-                                        color: AppTheme.deepBrown,
-                                        fontFamily: 'Exo2',
-                                      ),
+                                  style: theme.futuristicSubtitle,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 32),
@@ -81,7 +67,7 @@ class StatusScreen extends StatelessWidget {
                                     ),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.metallicGold,
+                                    backgroundColor: theme.sunsetOrange,
                                     foregroundColor: AppTheme.geometricBlack,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 48,
@@ -91,13 +77,9 @@ class StatusScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'JOGAR',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: 'Orbitron',
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: theme.futuristicSubtitle,
                                   ),
                                 ),
                               ],
@@ -107,12 +89,12 @@ class StatusScreen extends StatelessWidget {
                         const SizedBox(height: 32),
                         // Card de Status do Personagem
                         Card(
-                          color: AppTheme.geometricBlack.withOpacity(0.8),
+                          color: theme.primarySurface.withOpacity(0.8),
                           elevation: 8,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                             side: BorderSide(
-                              color: AppTheme.metallicGold.withOpacity(0.5),
+                              color: theme.sunsetOrange.withOpacity(0.5),
                               width: 1,
                             ),
                           ),
@@ -123,12 +105,7 @@ class StatusScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'Status do Personagem',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleLarge?.copyWith(
-                                        color: AppTheme.metallicGold,
-                                        fontFamily: 'Orbitron',
-                                      ),
+                                  style: theme.futuristicSubtitle,
                                 ),
                                 const SizedBox(height: 16),
                                 _buildStatRow(
@@ -177,27 +154,22 @@ class StatusScreen extends StatelessWidget {
     String value,
     IconData icon,
   ) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.agedBeige, size: 24),
+          Icon(icon, color: theme.primaryText, size: 24),
           const SizedBox(width: 12),
           Text(
             label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.agedBeige,
-                  fontFamily: 'Exo2',
-                ),
+            style: theme.futuristicBody,
           ),
           const Spacer(),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.metallicGold,
-                  fontFamily: 'Orbitron',
-                  fontWeight: FontWeight.bold,
-                ),
+            style: theme.futuristicSubtitle,
           ),
         ],
       ),

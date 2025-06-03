@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
+import 'package:viora/core/providers/theme_provider.dart';
+import 'package:viora/core/providers/font_size_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -10,20 +14,16 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
   String _selectedLanguage = 'Português';
-  double _fontSize = 1.0;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      decoration: theme.gradientDecoration,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -37,15 +37,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icon(
                     Icons.settings_outlined,
                     size: 32,
-                    color: AppTheme.metallicGold,
+                    color: theme.sunsetOrange,
                   ),
                   const SizedBox(width: 12),
                   Text(
                     'Configurações',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppTheme.metallicGold,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: theme.futuristicTitle,
                   ),
                 ],
               ),
@@ -71,16 +68,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Modo Escuro',
                       'Alternar entre tema claro e escuro',
                       Icons.dark_mode_outlined,
-                      _darkModeEnabled,
+                      themeProvider.isDarkMode,
                       (value) {
-                        setState(() {
-                          _darkModeEnabled = value;
-                        });
+                        themeProvider.toggleTheme();
                       },
                     ),
                   ]),
                   const SizedBox(height: 24),
-                  _buildSection(context, 'Personalização', [
+                  _buildSection(context, 'Acessibilidade', [
+                    _buildSliderTile(
+                      'Tamanho da Fonte',
+                      'Ajuste o tamanho do texto',
+                      Icons.format_size_outlined,
+                      fontSizeProvider.fontSize,
+                      (value) {
+                        fontSizeProvider.setFontSize(value);
+                      },
+                    ),
+                  ]),
+                  const SizedBox(height: 24),
+                  _buildSection(context, 'Idioma', [
                     _buildDropdownTile(
                       'Idioma',
                       'Selecione o idioma do aplicativo',
@@ -90,17 +97,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       (value) {
                         setState(() {
                           _selectedLanguage = value!;
-                        });
-                      },
-                    ),
-                    _buildSliderTile(
-                      'Tamanho da Fonte',
-                      'Ajuste o tamanho do texto',
-                      Icons.format_size_outlined,
-                      _fontSize,
-                      (value) {
-                        setState(() {
-                          _fontSize = value;
                         });
                       },
                     ),
@@ -147,6 +143,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String title,
     List<Widget> children,
   ) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -154,19 +152,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.metallicGold,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: theme.futuristicSubtitle,
           ),
         ),
         Card(
-          color: AppTheme.agedBeige.withOpacity(0.95),
+          color: theme.primarySurface.withOpacity(0.95),
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: AppTheme.metallicGold.withOpacity(0.5),
+              color: theme.sunsetOrange.withOpacity(0.5),
               width: 1,
             ),
           ),
@@ -183,24 +178,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool value,
     ValueChanged<bool> onChanged,
   ) {
+    final theme = Theme.of(context);
+
     return ListTile(
-      leading: Icon(icon, color: AppTheme.metallicGold),
+      leading: Icon(icon, color: theme.sunsetOrange),
       title: Text(
         title,
-        style: TextStyle(
-          color: AppTheme.deepBrown,
-          fontWeight: FontWeight.bold,
-        ),
+        style: theme.futuristicSubtitle,
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: AppTheme.deepBrown.withOpacity(0.7)),
+        style: theme.futuristicBody,
       ),
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: AppTheme.metallicGold,
-        activeTrackColor: AppTheme.deepBrown.withOpacity(0.5),
+        activeColor: theme.sunsetOrange,
+        activeTrackColor: theme.primaryText.withOpacity(0.5),
       ),
     );
   }
@@ -213,26 +207,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     List<String> items,
     ValueChanged<String?> onChanged,
   ) {
+    final theme = Theme.of(context);
+
     return ListTile(
-      leading: Icon(icon, color: AppTheme.metallicGold),
+      leading: Icon(icon, color: theme.sunsetOrange),
       title: Text(
         title,
-        style: TextStyle(
-          color: AppTheme.deepBrown,
-          fontWeight: FontWeight.bold,
-        ),
+        style: theme.futuristicSubtitle,
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: AppTheme.deepBrown.withOpacity(0.7)),
+        style: theme.futuristicBody,
       ),
       trailing: DropdownButton<String>(
         value: value,
         items: items.map((String item) {
-          return DropdownMenuItem<String>(value: item, child: Text(item));
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(item, style: theme.futuristicBody),
+          );
         }).toList(),
         onChanged: onChanged,
-        underline: Container(height: 2, color: AppTheme.metallicGold),
+        underline: Container(height: 2, color: theme.sunsetOrange),
       ),
     );
   }
@@ -244,27 +240,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double value,
     ValueChanged<double> onChanged,
   ) {
+    final theme = Theme.of(context);
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+
     return ListTile(
-      leading: Icon(icon, color: AppTheme.metallicGold),
+      leading: Icon(icon, color: theme.sunsetOrange),
       title: Text(
         title,
-        style: TextStyle(
-          color: AppTheme.deepBrown,
-          fontWeight: FontWeight.bold,
-        ),
+        style: theme.futuristicSubtitle,
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             subtitle,
-            style: TextStyle(color: AppTheme.deepBrown.withOpacity(0.7)),
+            style: theme.futuristicBody,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'A-',
+                style: theme.futuristicBody.copyWith(
+                  fontSize: 14 * fontSizeProvider.fontSize,
+                ),
+              ),
+              Text(
+                'A+',
+                style: theme.futuristicBody.copyWith(
+                  fontSize: 18 * fontSizeProvider.fontSize,
+                ),
+              ),
+            ],
           ),
           Slider(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.metallicGold,
-            inactiveColor: AppTheme.deepBrown.withOpacity(0.3),
+            activeColor: theme.sunsetOrange,
+            inactiveColor: theme.primaryText.withOpacity(0.3),
             min: 0.8,
             max: 1.2,
             divisions: 4,
@@ -282,29 +296,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     VoidCallback onTap, {
     bool isDestructive = false,
   }) {
+    final theme = Theme.of(context);
+
     return ListTile(
       leading: Icon(
         icon,
-        color: isDestructive ? Colors.red : AppTheme.metallicGold,
+        color: isDestructive ? Colors.red : theme.sunsetOrange,
       ),
       title: Text(
         title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : AppTheme.deepBrown,
-          fontWeight: FontWeight.bold,
+        style: theme.futuristicSubtitle.copyWith(
+          color: isDestructive
+              ? Colors.red
+              : (theme.brightness == Brightness.light
+                  ? Colors.black
+                  : Colors.white),
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
+        style: theme.futuristicBody.copyWith(
           color: isDestructive
               ? Colors.red.withOpacity(0.7)
-              : AppTheme.deepBrown.withOpacity(0.7),
+              : (theme.brightness == Brightness.light
+                  ? Colors.black.withOpacity(0.7)
+                  : Colors.white.withOpacity(0.7)),
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: isDestructive ? Colors.red : AppTheme.metallicGold,
+        color: isDestructive ? Colors.red : theme.sunsetOrange,
       ),
       onTap: onTap,
     );

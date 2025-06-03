@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Material(
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: theme.gradientDecoration,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -28,16 +25,12 @@ class MissionsScreen extends StatelessWidget {
                     Icon(
                       Icons.assignment_outlined,
                       size: 32,
-                      color: AppTheme.metallicGold,
+                      color: theme.sunsetOrange,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Missões',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: AppTheme.metallicGold,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      style: theme.futuristicTitle,
                     ),
                   ],
                 ),
@@ -61,7 +54,7 @@ class MissionsScreen extends StatelessWidget {
               // Lista de Missões
               Expanded(
                 child: ListView.builder(
-                  itemCount: 5, // Exemplo com 5 missões
+                  itemCount: 5,
                   itemBuilder: (context, index) {
                     return _buildMissionCard(context, index);
                   },
@@ -75,6 +68,8 @@ class MissionsScreen extends StatelessWidget {
   }
 
   Widget _buildFilterChip(BuildContext context, String label, bool isSelected) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: FilterChip(
@@ -82,12 +77,12 @@ class MissionsScreen extends StatelessWidget {
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppTheme.deepBrown : AppTheme.metallicGold,
+            color: isSelected ? theme.primaryText : theme.sunsetOrange,
           ),
         ),
-        backgroundColor: AppTheme.geometricBlack,
-        selectedColor: AppTheme.metallicGold,
-        checkmarkColor: AppTheme.deepBrown,
+        backgroundColor: theme.primarySurface,
+        selectedColor: theme.sunsetOrange,
+        checkmarkColor: theme.primaryText,
         onSelected: (bool selected) {
           // TODO: Implementar filtro
         },
@@ -96,17 +91,22 @@ class MissionsScreen extends StatelessWidget {
   }
 
   Widget _buildMissionCard(BuildContext context, int index) {
+    final theme = Theme.of(context);
     final missionStatus = ['Em Progresso', 'Concluída', 'Pendente'];
-    final statusColors = [AppTheme.metallicGold, Colors.green, Colors.orange];
+    final statusColors = [
+      theme.sunsetOrange,
+      theme.twilightPurple,
+      theme.dawnPink
+    ];
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
-      color: AppTheme.agedBeige.withOpacity(0.95),
+      color: theme.primarySurface.withOpacity(0.95),
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: AppTheme.metallicGold.withOpacity(0.5),
+          color: theme.sunsetOrange.withOpacity(0.5),
           width: 1,
         ),
       ),
@@ -121,10 +121,7 @@ class MissionsScreen extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Missão ${index + 1}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.deepBrown,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: theme.futuristicSubtitle,
                   ),
                 ),
                 Container(
@@ -153,9 +150,7 @@ class MissionsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Descrição da missão ${index + 1}. Esta é uma descrição detalhada da missão que precisa ser realizada.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppTheme.deepBrown),
+              style: theme.futuristicBody,
             ),
             const SizedBox(height: 16),
             Row(
@@ -165,14 +160,14 @@ class MissionsScreen extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.star_outline,
-                      color: AppTheme.metallicGold,
+                      color: theme.sunsetOrange,
                       size: 20,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '${(index + 1) * 100} XP',
                       style: TextStyle(
-                        color: AppTheme.metallicGold,
+                        color: theme.sunsetOrange,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -183,7 +178,7 @@ class MissionsScreen extends StatelessWidget {
                     // TODO: Implementar ação do botão
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: AppTheme.metallicGold,
+                    foregroundColor: theme.sunsetOrange,
                   ),
                   child: const Text('Ver Detalhes'),
                 ),

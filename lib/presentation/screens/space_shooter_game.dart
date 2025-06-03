@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
+import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/status_screen.dart';
 import 'package:viora/presentation/screens/missions_screen.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
@@ -101,6 +102,51 @@ class SpaceGame extends FlameGame
     spawnEnemies();
   }
 
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (gameOver) {
+      if (_menuButtonRect == null) {
+        _menuButtonRect = Rect.fromCenter(
+          center: Offset(size.x / 2, size.y * 0.6),
+          width: 200,
+          height: 50,
+        );
+      }
+      return;
+    }
+
+    // Verificar colisões
+    for (final projectile in List<ProjectileComponent>.from(projectiles)) {
+      for (final component in children) {
+        if (component is EnemyComponent) {
+          if (projectile.hitbox.containsPoint(component.position) ||
+              component.hitbox.containsPoint(projectile.position)) {
+            // Colisão projétil-inimigo
+            projectile.removeFromParent();
+            projectiles.remove(projectile);
+            component.removeFromParent();
+            updateScore(100);
+            break;
+          }
+        }
+      }
+    }
+
+    // Verificar colisão player-inimigo
+    for (final component in children) {
+      if (component is EnemyComponent) {
+        if (player.hitbox.containsPoint(component.position) ||
+            component.hitbox.containsPoint(player.position)) {
+          // Colisão player-inimigo
+          component.removeFromParent();
+          endGame();
+          break;
+        }
+      }
+    }
+  }
+
   void spawnEnemies() {
     if (!gameOver) {
       final random = math.Random();
@@ -126,42 +172,6 @@ class SpaceGame extends FlameGame
   }
 
   @override
-  void update(double dt) {
-    super.update(dt);
-    if (gameOver) return;
-
-    // Verificar colisões
-    for (final projectile in List<ProjectileComponent>.from(projectiles)) {
-      for (final component in children) {
-        if (component is EnemyComponent) {
-          if (projectile.containsPoint(component.position) ||
-              component.containsPoint(projectile.position)) {
-            // Colisão projétil-inimigo
-            projectile.removeFromParent();
-            projectiles.remove(projectile);
-            component.removeFromParent();
-            updateScore(100);
-            break;
-          }
-        }
-      }
-    }
-
-    // Verificar colisão player-inimigo
-    for (final component in children) {
-      if (component is EnemyComponent) {
-        if (player.containsPoint(component.position) ||
-            component.containsPoint(player.position)) {
-          // Colisão player-inimigo
-          component.removeFromParent();
-          endGame();
-          break;
-        }
-      }
-    }
-  }
-
-  @override
   void render(Canvas canvas) {
     super.render(canvas);
     if (gameOver) {
@@ -173,7 +183,7 @@ class SpaceGame extends FlameGame
         text: TextSpan(
           text: 'GAME OVER',
           style: TextStyle(
-            color: AppTheme.metallicGold,
+            color: AppTheme.sunsetOrange,
             fontSize: 48,
             fontFamily: 'Orbitron',
             fontWeight: FontWeight.bold,
@@ -208,7 +218,7 @@ class SpaceGame extends FlameGame
         height: 50,
       );
       final buttonPaint = Paint()
-        ..color = AppTheme.metallicGold
+        ..color = AppTheme.sunsetOrange
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
         RRect.fromRectAndRadius(buttonRect, const Radius.circular(25)),
@@ -240,8 +250,9 @@ class SpaceGame extends FlameGame
 
   @override
   void onMouseMove(PointerHoverInfo info) {
-    // Player segue o mouse
-    player.target = info.eventPosition.global;
+    if (!gameOver) {
+      player.target = info.eventPosition.global;
+    }
   }
 
   @override
@@ -252,8 +263,7 @@ class SpaceGame extends FlameGame
       if (_menuButtonRect!.contains(touchPoint)) {
         onReturnToMenu();
       }
-    } else {
-      // Atira ao clicar
+    } else if (!gameOver) {
       player.shoot(this);
     }
   }
@@ -262,11 +272,7 @@ class SpaceGame extends FlameGame
 class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
   @override
   void render(Canvas canvas) {
-    final gradient = LinearGradient(
-      colors: [AppTheme.deepBrown, AppTheme.geometricBlack],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
+    final gradient = AppTheme.sunsetGradient;
     final paint = Paint()
       ..shader = gradient
           .createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
@@ -276,23 +282,23 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
 
 class Player extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
-  Vector2 target = Vector2(400, 500);
+  Vector2 target = Vector2.zero();
   late RectangleHitbox hitbox;
 
   Player() : super(size: Vector2(50, 50), position: Vector2(400, 500)) {
-    add(
-      RectangleHitbox(
-        size: Vector2(40, 40),
-        position: Vector2(5, 5),
-      ),
+    hitbox = RectangleHitbox(
+      size: Vector2(40, 40),
+      position: Vector2(5, 5),
     );
+    add(hitbox);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    // Segue suavemente o mouse
-    position += (target - position) * 0.2;
+    if (!gameRef.gameOver) {
+      position += (target - position) * 0.2;
+    }
   }
 
   @override
@@ -309,32 +315,38 @@ class Player extends PositionComponent
   }
 
   void shoot(SpaceGame game) {
-    final projectile = ProjectileComponent(
-      position: position + Vector2(size.x / 2 - 5, 0),
-    );
-    game.add(projectile);
-    game.projectiles.add(projectile);
+    if (!game.gameOver) {
+      final projectile = ProjectileComponent(
+        position: position + Vector2(size.x / 2 - 5, 0),
+      );
+      game.add(projectile);
+      game.projectiles.add(projectile);
+    }
   }
 }
 
 class ProjectileComponent extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
+  late RectangleHitbox hitbox;
+
   ProjectileComponent({required Vector2 position})
       : super(size: Vector2(10, 20), position: position) {
-    add(
-      RectangleHitbox(
-        size: Vector2(8, 16),
-        position: Vector2(1, 2),
-      ),
+    hitbox = RectangleHitbox(
+      size: Vector2(8, 16),
+      position: Vector2(1, 2),
     );
+    add(hitbox);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    position.y -= 400 * dt;
-    if (position.y < -size.y) {
-      removeFromParent();
+    if (!gameRef.gameOver) {
+      position.y -= 400 * dt;
+      if (position.y < -size.y) {
+        removeFromParent();
+        gameRef.projectiles.remove(this);
+      }
     }
   }
 
@@ -347,22 +359,25 @@ class ProjectileComponent extends PositionComponent
 
 class EnemyComponent extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
+  late RectangleHitbox hitbox;
+
   EnemyComponent({required Vector2 position}) : super(size: Vector2(40, 40)) {
     this.position = position;
-    add(
-      RectangleHitbox(
-        size: Vector2(36, 36),
-        position: Vector2(2, 2),
-      ),
+    hitbox = RectangleHitbox(
+      size: Vector2(36, 36),
+      position: Vector2(2, 2),
     );
+    add(hitbox);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    position.y += 100 * dt;
-    if (position.y > gameRef.size.y) {
-      removeFromParent();
+    if (!gameRef.gameOver) {
+      position.y += 100 * dt;
+      if (position.y > gameRef.size.y) {
+        removeFromParent();
+      }
     }
   }
 
@@ -378,6 +393,8 @@ class PauseMenu extends StatelessWidget {
   const PauseMenu({super.key, required this.game});
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -390,12 +407,7 @@ class PauseMenu extends StatelessWidget {
           children: [
             Text(
               'PAUSADO',
-              style: TextStyle(
-                color: AppTheme.metallicGold,
-                fontSize: 32,
-                fontFamily: 'Orbitron',
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.futuristicTitle,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -404,7 +416,7 @@ class PauseMenu extends StatelessWidget {
                 game.overlays.remove('pause');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.metallicGold,
+                backgroundColor: theme.sunsetOrange,
                 foregroundColor: AppTheme.geometricBlack,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -414,12 +426,9 @@ class PauseMenu extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Continuar',
-                style: TextStyle(
-                  fontFamily: 'Orbitron',
-                  fontSize: 16,
-                ),
+                style: theme.futuristicSubtitle,
               ),
             ),
           ],
