@@ -104,12 +104,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _animationController.forward();
   }
 
-  void _navigateToLogin() {
+  void _navigateToMain() {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginScreen(),
+            const MainScreen(selectedIndex: 0),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -250,7 +250,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: _currentPage == _pages.length - 1
                     ? ElevatedButton(
                         key: const ValueKey('start'),
-                        onPressed: _navigateToLogin,
+                        onPressed: _navigateToMain,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.sunsetOrange,
                           foregroundColor: theme.primaryText,
