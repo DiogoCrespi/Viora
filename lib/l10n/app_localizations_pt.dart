@@ -165,4 +165,117 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get missionCardViewDetailsButton => 'Ver Detalhes';
+
+  @override
+  String get loginTitle => 'Bem-vindo ao Viora';
+
+  @override
+  String get loginEmailLabel => 'E-mail';
+
+  @override
+  String get loginPasswordLabel => 'Senha';
+
+  @override
+  String get loginButton => 'Entrar';
+
+  @override
+  String get loginRegisterButton => 'Registrar-se';
+
+  @override
+  String get loginForgotPasswordButton => 'Esqueci minha senha';
+
+  @override
+  String get loginEmailRequired => 'Por favor, insira seu e-mail';
+
+  @override
+  String get loginEmailInvalid => 'Por favor, insira um e-mail válido';
+
+  @override
+  String get loginPasswordRequired => 'Por favor, insira sua senha';
+
+  @override
+  String get loginPasswordLength => 'A senha deve ter pelo menos 6 caracteres';
+
+  @override
+  String get registerTitle => 'Criar Conta';
+
+  @override
+  String get registerNameLabel => 'Nome';
+
+  @override
+  String get registerEmailLabel => 'E-mail';
+
+  @override
+  String get registerPasswordLabel => 'Senha';
+
+  @override
+  String get registerConfirmPasswordLabel => 'Confirmar Senha';
+
+  @override
+  String get registerButton => 'Registrar';
+
+  @override
+  String get registerLoginButton => 'Já tem uma conta? Faça login';
+
+  @override
+  String get registerNameRequired => 'Por favor, insira seu nome';
+
+  @override
+  String get registerNameLength => 'O nome deve ter pelo menos 3 caracteres';
+
+  @override
+  String get registerEmailRequired => 'Por favor, insira seu e-mail';
+
+  @override
+  String get registerEmailInvalid => 'Por favor, insira um e-mail válido';
+
+  @override
+  String get registerPasswordRequired => 'Por favor, insira sua senha';
+
+  @override
+  String get registerPasswordLength =>
+      'A senha deve ter pelo menos 6 caracteres';
+
+  @override
+  String get registerConfirmPasswordRequired => 'Por favor, confirme sua senha';
+
+  @override
+  String get registerPasswordsDontMatch => 'As senhas não coincidem';
+
+  @override
+  String get forgotPasswordTitle => 'Recuperar Senha';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Digite seu e-mail para receber as instruções de recuperação de senha';
+
+  @override
+  String get forgotPasswordEmailLabel => 'E-mail';
+
+  @override
+  String get forgotPasswordButton => 'Enviar E-mail';
+
+  @override
+  String get forgotPasswordBackButton => 'Voltar para o Login';
+
+  @override
+  String get forgotPasswordEmailRequired => 'Por favor, insira seu e-mail';
+
+  @override
+  String get forgotPasswordEmailInvalid => 'Por favor, insira um e-mail válido';
+
+  @override
+  String get forgotPasswordSuccess => 'E-mail de recuperação enviado!';
+
+  @override
+  String get forgotPasswordError => 'Erro ao enviar e-mail de recuperação';
+
+  @override
+  String get profileChangeAvatar => 'Alterar Avatar';
+
+  @override
+  String get profileSaveButton => 'Salvar Alterações';
+
+  @override
+  String get profileUpdateSuccess => 'Perfil atualizado com sucesso';
 }

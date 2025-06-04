@@ -46,12 +46,12 @@ import 'app_localizations_pt.dart';
 ///
 /// iOS applications define key application metadata, including supported
 /// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you’ll need to edit this
+/// To configure the locales supported by your app, you'll need to edit this
 /// file.
 ///
-/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// First, open your project's ios/Runner.xcworkspace Xcode workspace file.
 /// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project’s Runner folder.
+/// project's Runner folder.
 ///
 /// Next, select the Information Property List item, select Add Item from the
 /// Editor menu, then select Localizations from the pop-up menu.
@@ -403,6 +403,51 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View Details'**
   String get missionCardViewDetailsButton;
+
+  // Login Screen
+  String get loginTitle;
+  String get loginEmailLabel;
+  String get loginPasswordLabel;
+  String get loginButton;
+  String get loginRegisterButton;
+  String get loginForgotPasswordButton;
+  String get loginEmailRequired;
+  String get loginEmailInvalid;
+  String get loginPasswordRequired;
+  String get loginPasswordLength;
+
+  // Register Screen
+  String get registerTitle;
+  String get registerNameLabel;
+  String get registerEmailLabel;
+  String get registerPasswordLabel;
+  String get registerConfirmPasswordLabel;
+  String get registerButton;
+  String get registerLoginButton;
+  String get registerNameRequired;
+  String get registerNameLength;
+  String get registerEmailRequired;
+  String get registerEmailInvalid;
+  String get registerPasswordRequired;
+  String get registerPasswordLength;
+  String get registerConfirmPasswordRequired;
+  String get registerPasswordsDontMatch;
+
+  // Forgot Password Screen
+  String get forgotPasswordTitle;
+  String get forgotPasswordSubtitle;
+  String get forgotPasswordEmailLabel;
+  String get forgotPasswordButton;
+  String get forgotPasswordBackButton;
+  String get forgotPasswordEmailRequired;
+  String get forgotPasswordEmailInvalid;
+  String get forgotPasswordSuccess;
+  String get forgotPasswordError;
+
+  // Profile Screen
+  String get profileChangeAvatar;
+  String get profileSaveButton;
+  String get profileUpdateSuccess;
 }
 
 class _AppLocalizationsDelegate

@@ -163,4 +163,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionCardViewDetailsButton => 'View Details';
+
+  @override
+  String get loginTitle => 'Welcome to Viora';
+
+  @override
+  String get loginEmailLabel => 'Email';
+
+  @override
+  String get loginPasswordLabel => 'Password';
+
+  @override
+  String get loginButton => 'Login';
+
+  @override
+  String get loginRegisterButton => 'Register';
+
+  @override
+  String get loginForgotPasswordButton => 'Forgot Password?';
+
+  @override
+  String get loginEmailRequired => 'Please enter your email';
+
+  @override
+  String get loginEmailInvalid => 'Please enter a valid email';
+
+  @override
+  String get loginPasswordRequired => 'Please enter your password';
+
+  @override
+  String get loginPasswordLength => 'Password must be at least 6 characters';
+
+  @override
+  String get registerTitle => 'Create Account';
+
+  @override
+  String get registerNameLabel => 'Name';
+
+  @override
+  String get registerEmailLabel => 'Email';
+
+  @override
+  String get registerPasswordLabel => 'Password';
+
+  @override
+  String get registerConfirmPasswordLabel => 'Confirm Password';
+
+  @override
+  String get registerButton => 'Register';
+
+  @override
+  String get registerLoginButton => 'Already have an account? Login';
+
+  @override
+  String get registerNameRequired => 'Please enter your name';
+
+  @override
+  String get registerNameLength => 'Name must be at least 3 characters';
+
+  @override
+  String get registerEmailRequired => 'Please enter your email';
+
+  @override
+  String get registerEmailInvalid => 'Please enter a valid email';
+
+  @override
+  String get registerPasswordRequired => 'Please enter your password';
+
+  @override
+  String get registerPasswordLength => 'Password must be at least 6 characters';
+
+  @override
+  String get registerConfirmPasswordRequired => 'Please confirm your password';
+
+  @override
+  String get registerPasswordsDontMatch => 'Passwords don\'t match';
+
+  @override
+  String get forgotPasswordTitle => 'Reset Password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your email to receive password reset instructions';
+
+  @override
+  String get forgotPasswordEmailLabel => 'Email';
+
+  @override
+  String get forgotPasswordButton => 'Send Email';
+
+  @override
+  String get forgotPasswordBackButton => 'Back to Login';
+
+  @override
+  String get forgotPasswordEmailRequired => 'Please enter your email';
+
+  @override
+  String get forgotPasswordEmailInvalid => 'Please enter a valid email';
+
+  @override
+  String get forgotPasswordSuccess => 'Recovery email sent!';
+
+  @override
+  String get forgotPasswordError => 'Error sending recovery email';
+
+  @override
+  String get profileChangeAvatar => 'Change Avatar';
+
+  @override
+  String get profileSaveButton => 'Save Changes';
+
+  @override
+  String get profileUpdateSuccess => 'Profile updated successfully';
 }

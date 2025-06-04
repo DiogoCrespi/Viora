@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -17,10 +18,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira seu e-mail';
+      return AppLocalizations.of(context)!.forgotPasswordEmailRequired;
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Por favor, insira um e-mail válido';
+      return AppLocalizations.of(context)!.forgotPasswordEmailInvalid;
     }
     return null;
   }
@@ -39,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'E-mail de recuperação enviado!',
+                AppLocalizations.of(context)!.forgotPasswordSuccess,
                 style: Theme.of(context).futuristicBody,
               ),
               backgroundColor: AppTheme.metallicGold,
@@ -56,7 +57,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Erro ao enviar e-mail de recuperação',
+                AppLocalizations.of(context)!.forgotPasswordError,
                 style: Theme.of(context).futuristicBody,
               ),
               backgroundColor: Colors.red,
@@ -86,6 +87,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -108,20 +110,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Recuperar Senha',
+                        localizations.forgotPasswordTitle,
                         style: theme.futuristicTitle,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Digite seu e-mail para receber as instruções de recuperação de senha',
+                        localizations.forgotPasswordSubtitle,
                         style: theme.futuristicBody,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 48),
                       // Email Field
                       LoginTextFormField(
-                        label: 'E-mail',
+                        label: localizations.forgotPasswordEmailLabel,
                         controller: _emailController,
                         validator: _validateEmail,
                         keyboardType: TextInputType.emailAddress,
@@ -151,7 +153,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   ),
                                 )
                               : Text(
-                                  'Enviar E-mail',
+                                  localizations.forgotPasswordButton,
                                   style: theme.futuristicSubtitle,
                                 ),
                         ),
@@ -163,7 +165,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           Navigator.pop(context);
                         },
                         child: Text(
-                          'Voltar para o Login',
+                          localizations.forgotPasswordBackButton,
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),

@@ -5,6 +5,7 @@ import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:viora/presentation/screens/auth/register_screen.dart';
 import 'package:viora/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,20 +21,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira seu e-mail';
+      return AppLocalizations.of(context)!.loginEmailRequired;
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Por favor, insira um e-mail válido';
+      return AppLocalizations.of(context)!.loginEmailInvalid;
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira sua senha';
+      return AppLocalizations.of(context)!.loginPasswordRequired;
     }
     if (value.length < 6) {
-      return 'A senha deve ter pelo menos 6 caracteres';
+      return AppLocalizations.of(context)!.loginPasswordLength;
     }
     return null;
   }
@@ -78,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -100,14 +102,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Bem-vindo ao Viora',
+                        localizations.loginTitle,
                         style: theme.futuristicTitle,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 48),
                       // Email Field
                       LoginTextFormField(
-                        label: 'E-mail',
+                        label: localizations.loginEmailLabel,
                         controller: _emailController,
                         validator: _validateEmail,
                         keyboardType: TextInputType.emailAddress,
@@ -115,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
                       // Password Field
                       LoginTextFormField(
-                        label: 'Senha',
+                        label: localizations.loginPasswordLabel,
                         controller: _passwordController,
                         validator: _validatePassword,
                         isPassword: true,
@@ -135,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: Text(
-                            'Entrar',
+                            localizations.loginButton,
                             style: theme.futuristicSubtitle,
                           ),
                         ),
@@ -145,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: _navigateToRegister,
                         child: Text(
-                          'Registrar-se',
+                          localizations.loginRegisterButton,
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),
@@ -155,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: _navigateToForgotPassword,
                         child: Text(
-                          'Esqueci minha senha',
+                          localizations.loginForgotPasswordButton,
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),

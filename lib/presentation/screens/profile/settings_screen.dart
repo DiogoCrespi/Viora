@@ -6,6 +6,7 @@ import 'package:viora/core/providers/theme_provider.dart';
 import 'package:viora/core/providers/font_size_provider.dart';
 import 'package:viora/core/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
+import 'package:viora/presentation/screens/auth/profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -136,7 +137,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           .profileSettingSubtitle, // Localized
                       Icons.person_outline,
                       () {
-                        // TODO: Implementar navegação para perfil
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileScreen(),
+                          ),
+                        );
                       },
                     ),
                     _buildActionTile(

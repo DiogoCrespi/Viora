@@ -3,6 +3,7 @@ import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/auth/login_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,40 +21,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira seu nome';
+      return AppLocalizations.of(context)!.registerNameRequired;
     }
     if (value.length < 3) {
-      return 'O nome deve ter pelo menos 3 caracteres';
+      return AppLocalizations.of(context)!.registerNameLength;
     }
     return null;
   }
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira seu e-mail';
+      return AppLocalizations.of(context)!.registerEmailRequired;
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Por favor, insira um e-mail válido';
+      return AppLocalizations.of(context)!.registerEmailInvalid;
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira sua senha';
+      return AppLocalizations.of(context)!.registerPasswordRequired;
     }
     if (value.length < 6) {
-      return 'A senha deve ter pelo menos 6 caracteres';
+      return AppLocalizations.of(context)!.registerPasswordLength;
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, confirme sua senha';
+      return AppLocalizations.of(context)!.registerConfirmPasswordRequired;
     }
     if (value != _passwordController.text) {
-      return 'As senhas não coincidem';
+      return AppLocalizations.of(context)!.registerPasswordsDontMatch;
     }
     return null;
   }
@@ -82,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -104,21 +106,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Criar Conta',
+                        localizations.registerTitle,
                         style: theme.futuristicTitle,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 48),
                       // Name Field
                       LoginTextFormField(
-                        label: 'Nome',
+                        label: localizations.registerNameLabel,
                         controller: _nameController,
                         validator: _validateName,
                       ),
                       const SizedBox(height: 24),
                       // Email Field
                       LoginTextFormField(
-                        label: 'E-mail',
+                        label: localizations.registerEmailLabel,
                         controller: _emailController,
                         validator: _validateEmail,
                         keyboardType: TextInputType.emailAddress,
@@ -126,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 24),
                       // Password Field
                       LoginTextFormField(
-                        label: 'Senha',
+                        label: localizations.registerPasswordLabel,
                         controller: _passwordController,
                         validator: _validatePassword,
                         isPassword: true,
@@ -134,7 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 24),
                       // Confirm Password Field
                       LoginTextFormField(
-                        label: 'Confirmar Senha',
+                        label: localizations.registerConfirmPasswordLabel,
                         controller: _confirmPasswordController,
                         validator: _validateConfirmPassword,
                         isPassword: true,
@@ -154,7 +156,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           child: Text(
-                            'Registrar',
+                            localizations.registerButton,
                             style: theme.futuristicSubtitle,
                           ),
                         ),
@@ -166,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           Navigator.pop(context);
                         },
                         child: Text(
-                          'Já tem uma conta? Faça login',
+                          localizations.registerLoginButton,
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),
