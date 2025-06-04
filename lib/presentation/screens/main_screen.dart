@@ -110,17 +110,4 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
   }
-
-  IconData _getIconForIndex(int index) {
-    switch (index) {
-      case 0:
-        return Icons.dashboard_outlined;
-      case 1:
-        return Icons.assignment_outlined;
-      case 2:
-        return Icons.settings_outlined;
-      default:
-        return Icons.error_outline;
-    }
-  }
 }

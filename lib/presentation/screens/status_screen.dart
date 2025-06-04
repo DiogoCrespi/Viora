@@ -59,13 +59,33 @@ class StatusScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 32),
                                 ElevatedButton(
-                                  onPressed: () => Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SpaceShooterGame(),
-                                    ),
-                                  ),
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation,
+                                                secondaryAnimation) =>
+                                            const SpaceShooterGame(),
+                                        transitionsBuilder: (context, animation,
+                                            secondaryAnimation, child) {
+                                          const begin = Offset(1.0, 0.0);
+                                          const end = Offset.zero;
+                                          const curve = Curves.easeInOutCubic;
+                                          var tween = Tween(
+                                            begin: begin,
+                                            end: end,
+                                          ).chain(CurveTween(curve: curve));
+                                          var offsetAnimation =
+                                              animation.drive(tween);
+                                          return SlideTransition(
+                                              position: offsetAnimation,
+                                              child: child);
+                                        },
+                                        transitionDuration:
+                                            const Duration(milliseconds: 800),
+                                      ),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: theme.sunsetOrange,
                                     foregroundColor: AppTheme.geometricBlack,
