@@ -273,19 +273,87 @@ class SpaceGame extends FlameGame
 
 class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
   late Paint _paint;
+  late List<LinearGradient> _gradients;
+  int _currentGradientIndex = 0;
+  late Rect _gameRect;
+
+  BackgroundComponent() {
+    _paint = Paint();
+  }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final gradient = AppTheme.sunsetGradient;
-    _paint = Paint()
-      ..shader = gradient
-          .createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
+    _gradients = [
+      // Fase 1: Espaço inicial
+      const LinearGradient(
+        colors: [Colors.black, Color.fromARGB(255, 220, 78, 22)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 1.0],
+      ),
+      // Fase 2: Nebulosa
+      const LinearGradient(
+        colors: [Color(0xFF2C1810), Color(0xFFD4AF37)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 1.0],
+      ),
+      // Fase 3: Galáxia
+      const LinearGradient(
+        colors: [Color(0xFFD4AF37), Color(0xFFF5E6D3)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 1.0],
+      ),
+    ];
+    
+    // Inicializa o retângulo do jogo
+    _gameRect = Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y);
+    _updateGradient();
+  }
+
+  void _updateGradient() {
+    if (!isMounted) return;
+    
+    final score = gameRef.score;
+    int newIndex = 0;
+    
+    if (score >= 1000) {
+      newIndex = 2; // Galáxia
+    } else if (score >= 500) {
+      newIndex = 1; // Nebulosa
+    }
+
+    if (newIndex != _currentGradientIndex || _paint.shader == null) {
+      _currentGradientIndex = newIndex;
+      // Atualiza o retângulo do jogo
+      _gameRect = Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y);
+      // Cria um novo shader com o retângulo atualizado
+      _paint.shader = _gradients[_currentGradientIndex].createShader(_gameRect);
+    }
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    // Atualiza o retângulo quando o tamanho do jogo muda
+    _gameRect = Rect.fromLTWH(0, 0, size.x, size.y);
+    _updateGradient();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _updateGradient();
   }
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y), _paint);
+    if (!isMounted) return;
+    
+    // Desenha o gradiente usando o retângulo atualizado
+    canvas.drawRect(_gameRect, _paint);
   }
 }
 

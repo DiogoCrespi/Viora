@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui' as ui;
 
 class LocaleProvider with ChangeNotifier {
   Locale? _locale;
@@ -18,27 +19,34 @@ class LocaleProvider with ChangeNotifier {
     if (languageCode != null && languageCode.isNotEmpty) {
       _locale = Locale(languageCode);
     } else {
-      // Optional: Set a default locale if none is saved, e.g., English
-      // _locale = const Locale('en');
+      // Usa o idioma do dispositivo se nenhum idioma foi salvo
+      final deviceLocale = ui.window.locale;
+      // Verifica se o idioma do dispositivo é suportado
+      if (['en', 'pt'].contains(deviceLocale.languageCode)) {
+        _locale = deviceLocale;
+        // Salva o idioma do dispositivo como preferência
+        _prefs.setString(_selectedLanguageCodeKey, deviceLocale.languageCode);
+      } else {
+        // Fallback para inglês se o idioma do dispositivo não for suportado
+        _locale = const Locale('en');
+        _prefs.setString(_selectedLanguageCodeKey, 'en');
+      }
     }
-    // Notify listeners only if a locale was actually loaded and set,
-    // or if you want to ensure initial state is propagated.
-    // For simplicity, we'll notify if it's not null.
-    if (_locale != null) {
+    notifyListeners();
+  }
+
+  Future<void> setLocale(Locale newLocale) async {
+    if (_locale?.languageCode != newLocale.languageCode) {
+      _locale = newLocale;
+      await _prefs.setString(_selectedLanguageCodeKey, newLocale.languageCode);
       notifyListeners();
     }
   }
 
-  Future<void> setLocale(Locale newLocale) async {
-    _locale = newLocale;
-    await _prefs.setString(_selectedLanguageCodeKey, newLocale.languageCode);
-    notifyListeners();
-  }
-
-  // Helper to clear locale, if needed for testing or features
   Future<void> clearLocale() async {
     _locale = null;
     await _prefs.remove(_selectedLanguageCodeKey);
-    notifyListeners();
+    // Após limpar, recarrega o idioma do dispositivo
+    _loadSavedLocale();
   }
 }

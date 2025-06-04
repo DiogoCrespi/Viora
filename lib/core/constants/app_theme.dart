@@ -15,7 +15,7 @@ class AppTheme {
 
   // Gradients
   static const LinearGradient sunsetGradient = LinearGradient(
-    colors: [deepBrown, metallicGold],
+    colors: [Colors.white, metallicGold],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
