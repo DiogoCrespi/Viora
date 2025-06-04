@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/status_screen.dart';
-import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:viora/presentation/screens/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -105,12 +104,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _animationController.forward();
   }
 
-  void _navigateToMain() {
+  void _navigateToLogin() {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const MainScreen(selectedIndex: 0),
+            const LoginScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -251,7 +250,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: _currentPage == _pages.length - 1
                     ? ElevatedButton(
                         key: const ValueKey('start'),
-                        onPressed: _navigateToMain,
+                        onPressed: _navigateToLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.sunsetOrange,
                           foregroundColor: theme.primaryText,

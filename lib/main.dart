@@ -10,8 +10,11 @@ import 'package:viora/presentation/screens/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   final prefs = await SharedPreferences.getInstance();
+  bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
   runApp(
     MultiProvider(
@@ -23,13 +26,20 @@ void main() async {
           create: (_) => FontSizeProvider(prefs),
         ),
       ],
-      child: const VioraApp(),
+      child: const VioraApp(hasSeenOnboarding: false),
     ),
   );
+
+  FlutterNativeSplash.remove();
 }
 
 class VioraApp extends StatelessWidget {
-  const VioraApp({super.key});
+  final bool hasSeenOnboarding;
+
+  const VioraApp({
+    super.key,
+    required this.hasSeenOnboarding,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +62,10 @@ class VioraApp extends StatelessWidget {
               child: child!,
             );
           },
-          initialRoute: '/',
+          initialRoute: hasSeenOnboarding ? '/main' : '/',
           routes: {
             '/': (context) => const OnboardingScreen(),
-            '/main': (context) => const MainScreen(),
+            '/main': (context) => const MainScreen(selectedIndex: 0),
             '/game': (context) => const SpaceShooterGame(),
           },
         );
