@@ -75,6 +75,7 @@ class SpaceGame extends FlameGame
   Rect? _menuButtonRect;
   final List<ProjectileComponent> projectiles = [];
   final navigatorKey = GlobalKey<NavigatorState>();
+  late final Timer _enemySpawnTimer;
 
   @override
   Future<void> onLoad() async {
@@ -99,7 +100,9 @@ class SpaceGame extends FlameGame
     );
     add(scoreText);
     // Iniciar spawn de inimigos
-    spawnEnemies();
+    _enemySpawnTimer = Timer(2, onTick: _spawnEnemy, repeat: true);
+    add(_enemySpawnTimer);
+    _enemySpawnTimer.start();
   }
 
   @override
@@ -147,7 +150,7 @@ class SpaceGame extends FlameGame
     }
   }
 
-  void spawnEnemies() {
+  void _spawnEnemy() {
     if (!gameOver) {
       final random = math.Random();
       final enemy = EnemyComponent(
@@ -157,7 +160,6 @@ class SpaceGame extends FlameGame
         ),
       );
       add(enemy);
-      Future.delayed(const Duration(seconds: 2), spawnEnemies);
     }
   }
 
@@ -169,6 +171,7 @@ class SpaceGame extends FlameGame
   void endGame() {
     gameOver = true;
     pauseEngine();
+    _enemySpawnTimer.stop();
   }
 
   @override
@@ -270,13 +273,20 @@ class SpaceGame extends FlameGame
 }
 
 class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
+  late Paint _paint;
+
   @override
-  void render(Canvas canvas) {
+  Future<void> onLoad() async {
+    await super.onLoad();
     final gradient = AppTheme.sunsetGradient;
-    final paint = Paint()
+    _paint = Paint()
       ..shader = gradient
           .createShader(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y));
-    canvas.drawRect(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y), paint);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    canvas.drawRect(Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y), _paint);
   }
 }
 
@@ -284,6 +294,7 @@ class Player extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   Vector2 target = Vector2.zero();
   late RectangleHitbox hitbox;
+  late Paint _paint;
 
   Player() : super(size: Vector2(50, 50), position: Vector2(400, 500)) {
     hitbox = RectangleHitbox(
@@ -291,6 +302,7 @@ class Player extends PositionComponent
       position: Vector2(5, 5),
     );
     add(hitbox);
+    _paint = Paint()..color = Colors.white;
   }
 
   @override
@@ -303,14 +315,13 @@ class Player extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    final paint = Paint()..color = Colors.white;
     canvas.drawPath(
       Path()
         ..moveTo(size.x / 2, 0)
         ..lineTo(size.x, size.y)
         ..lineTo(0, size.y)
         ..close(),
-      paint,
+      _paint,
     );
   }
 
@@ -328,6 +339,7 @@ class Player extends PositionComponent
 class ProjectileComponent extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
+  late Paint _paint;
 
   ProjectileComponent({required Vector2 position})
       : super(size: Vector2(10, 20), position: position) {
@@ -336,6 +348,7 @@ class ProjectileComponent extends PositionComponent
       position: Vector2(1, 2),
     );
     add(hitbox);
+    _paint = Paint()..color = Colors.white;
   }
 
   @override
@@ -352,14 +365,14 @@ class ProjectileComponent extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    final paint = Paint()..color = Colors.white;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), paint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
   }
 }
 
 class EnemyComponent extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
+  late Paint _paint;
 
   EnemyComponent({required Vector2 position}) : super(size: Vector2(40, 40)) {
     this.position = position;
@@ -368,6 +381,7 @@ class EnemyComponent extends PositionComponent
       position: Vector2(2, 2),
     );
     add(hitbox);
+    _paint = Paint()..color = Colors.white;
   }
 
   @override
@@ -383,8 +397,7 @@ class EnemyComponent extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    final paint = Paint()..color = Colors.white;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), paint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
   }
 }
 
