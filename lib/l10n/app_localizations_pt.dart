@@ -15,22 +15,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboardingPage1Title => 'Bem-vindo ao Viora';
 
   @override
-  String get onboardingPage1Description =>
-      'Sistema de missões para transformar sua jornada';
+  String get onboardingPage1Description => 'Sistema de missões para transformar sua jornada';
 
   @override
   String get onboardingPage2Title => 'Missões Personalizadas';
 
   @override
-  String get onboardingPage2Description =>
-      'Desafios únicos para seu crescimento';
+  String get onboardingPage2Description => 'Desafios únicos para seu crescimento';
 
   @override
   String get onboardingPage3Title => 'Acompanhe seu Progresso';
 
   @override
-  String get onboardingPage3Description =>
-      'Visualize sua evolução em tempo real';
+  String get onboardingPage3Description => 'Visualize sua evolução em tempo real';
 
   @override
   String get skipButton => 'Pular';
@@ -96,8 +93,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacySettingTitle => 'Privacidade';
 
   @override
-  String get privacySettingSubtitle =>
-      'Configure suas preferências de privacidade';
+  String get privacySettingSubtitle => 'Configure suas preferências de privacidade';
 
   @override
   String get logoutSettingTitle => 'Sair';
@@ -118,8 +114,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Bem-vindo ao Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle =>
-      'Prepare-se para uma jornada espacial épica!';
+  String get statusScreenWelcomeSubtitle => 'Prepare-se para uma jornada espacial épica!';
 
   @override
   String get playButton => 'JOGAR';
@@ -197,6 +192,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loginPasswordLength => 'A senha deve ter pelo menos 6 caracteres';
 
   @override
+  String get loginError => 'E-mail ou senha inválidos';
+
+  @override
   String get registerTitle => 'Criar Conta';
 
   @override
@@ -233,8 +231,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registerPasswordRequired => 'Por favor, insira sua senha';
 
   @override
-  String get registerPasswordLength =>
-      'A senha deve ter pelo menos 6 caracteres';
+  String get registerPasswordLength => 'A senha deve ter pelo menos 6 caracteres';
 
   @override
   String get registerConfirmPasswordRequired => 'Por favor, confirme sua senha';
@@ -243,11 +240,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registerPasswordsDontMatch => 'As senhas não coincidem';
 
   @override
+  String get registerError => 'Erro ao criar conta. Por favor, tente novamente.';
+
+  @override
   String get forgotPasswordTitle => 'Recuperar Senha';
 
   @override
-  String get forgotPasswordSubtitle =>
-      'Digite seu e-mail para receber as instruções de recuperação de senha';
+  String get forgotPasswordSubtitle => 'Digite seu e-mail para receber as instruções de recuperação de senha';
 
   @override
   String get forgotPasswordEmailLabel => 'E-mail';
@@ -271,6 +270,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get forgotPasswordError => 'Erro ao enviar e-mail de recuperação';
 
   @override
+  String get forgotPasswordDescription => 'Digite seu endereço de e-mail e enviaremos instruções para redefinir sua senha.';
+
+  @override
   String get profileChangeAvatar => 'Alterar Avatar';
 
   @override
@@ -278,4 +280,43 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profileUpdateSuccess => 'Perfil atualizado com sucesso';
+
+  @override
+  String get profileNameLabel => 'Nome';
+
+  @override
+  String get profileEmailLabel => 'E-mail';
+
+  @override
+  String get profileNameRequired => 'Nome é obrigatório';
+
+  @override
+  String get profileNameLength => 'Nome deve ter pelo menos 3 caracteres';
+
+  @override
+  String get profileEmailRequired => 'E-mail é obrigatório';
+
+  @override
+  String get profileEmailInvalid => 'Por favor, insira um e-mail válido';
+
+  @override
+  String get profileUpdateError => 'Erro ao atualizar perfil';
+
+  @override
+  String get resetPasswordTitle => 'Redefinir Senha';
+
+  @override
+  String get resetPasswordDescription => 'Digite sua nova senha abaixo';
+
+  @override
+  String get resetPasswordButton => 'Redefinir Senha';
+
+  @override
+  String get resetPasswordSuccess => 'Senha redefinida com sucesso';
+
+  @override
+  String get resetPasswordError => 'Falha ao redefinir senha';
+
+  @override
+  String get resetPasswordSamePassword => 'A nova senha deve ser diferente da senha atual';
 }

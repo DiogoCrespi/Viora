@@ -11,6 +11,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viora/core/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
+import 'core/providers/user_provider.dart';
+import 'core/repositories/user_repository.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +23,21 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
+  // Initialize sqflite_ffi for Windows
+  if (Platform.isWindows) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+
+  // Initialize database and repositories
+  final userRepository = await UserRepository.create();
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(userRepository),
+        ),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(prefs),
         ),
@@ -29,7 +45,6 @@ void main() async {
           create: (_) => FontSizeProvider(prefs),
         ),
         ChangeNotifierProvider(
-          // Added
           create: (_) => LocaleProvider(prefs),
         ),
       ],
@@ -52,22 +67,20 @@ class VioraApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
-    final localeProvider = Provider.of<LocaleProvider>(context); // Added
+    final localeProvider = Provider.of<LocaleProvider>(context);
 
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          // title: 'Viora', // Replaced by onGenerateTitle
-          onGenerateTitle: (context) =>
-              AppLocalizations.of(context)!.appTitle, // Added
+          title: 'Viora',
+          onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode:
               themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          locale: localeProvider.locale, // Added
-          localizationsDelegates:
-              AppLocalizations.localizationsDelegates, // Modified
-          supportedLocales: AppLocalizations.supportedLocales, // Modified
+          locale: localeProvider.locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(

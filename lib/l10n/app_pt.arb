@@ -61,6 +61,7 @@
   "loginEmailInvalid": "Por favor, insira um e-mail válido",
   "loginPasswordRequired": "Por favor, insira sua senha",
   "loginPasswordLength": "A senha deve ter pelo menos 6 caracteres",
+  "loginError": "E-mail ou senha inválidos",
   
   "registerTitle": "Criar Conta",
   "registerNameLabel": "Nome",
@@ -77,6 +78,7 @@
   "registerPasswordLength": "A senha deve ter pelo menos 6 caracteres",
   "registerConfirmPasswordRequired": "Por favor, confirme sua senha",
   "registerPasswordsDontMatch": "As senhas não coincidem",
+  "registerError": "Erro ao criar conta. Por favor, tente novamente.",
   
   "forgotPasswordTitle": "Recuperar Senha",
   "forgotPasswordSubtitle": "Digite seu e-mail para receber as instruções de recuperação de senha",
@@ -87,7 +89,21 @@
   "forgotPasswordEmailInvalid": "Por favor, insira um e-mail válido",
   "forgotPasswordSuccess": "E-mail de recuperação enviado!",
   "forgotPasswordError": "Erro ao enviar e-mail de recuperação",
+  "forgotPasswordDescription": "Digite seu endereço de e-mail e enviaremos instruções para redefinir sua senha.",
   "profileChangeAvatar": "Alterar Avatar",
   "profileSaveButton": "Salvar Alterações",
-  "profileUpdateSuccess": "Perfil atualizado com sucesso"
+  "profileUpdateSuccess": "Perfil atualizado com sucesso",
+  "profileNameLabel": "Nome",
+  "profileEmailLabel": "E-mail",
+  "profileNameRequired": "Nome é obrigatório",
+  "profileNameLength": "Nome deve ter pelo menos 3 caracteres",
+  "profileEmailRequired": "E-mail é obrigatório",
+  "profileEmailInvalid": "Por favor, insira um e-mail válido",
+  "profileUpdateError": "Erro ao atualizar perfil",
+  "resetPasswordTitle": "Redefinir Senha",
+  "resetPasswordDescription": "Digite sua nova senha abaixo",
+  "resetPasswordButton": "Redefinir Senha",
+  "resetPasswordSuccess": "Senha redefinida com sucesso",
+  "resetPasswordError": "Falha ao redefinir senha",
+  "resetPasswordSamePassword": "A nova senha deve ser diferente da senha atual"
 }

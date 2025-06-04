@@ -2,47 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/main_screen.dart';
-import 'package:viora/presentation/screens/auth/register_screen.dart';
-import 'package:viora/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/presentation/screens/auth/login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ResetPasswordScreen extends StatefulWidget {
+  final String email;
+
+  const ResetPasswordScreen({
+    super.key,
+    required this.email,
+  });
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return AppLocalizations.of(context)!.loginEmailRequired;
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return AppLocalizations.of(context)!.loginEmailInvalid;
-    }
-    return null;
-  }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return AppLocalizations.of(context)!.loginPasswordRequired;
+      return AppLocalizations.of(context)!.registerPasswordRequired;
     }
     if (value.length < 6) {
-      return AppLocalizations.of(context)!.loginPasswordLength;
+      return AppLocalizations.of(context)!.registerPasswordLength;
     }
     return null;
   }
 
-  Future<void> _handleLogin() async {
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return AppLocalizations.of(context)!.registerConfirmPasswordRequired;
+    }
+    if (value != _passwordController.text) {
+      return AppLocalizations.of(context)!.registerPasswordsDontMatch;
+    }
+    return null;
+  }
+
+  Future<void> _handleResetPassword() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -50,32 +53,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final success = await userProvider.login(
-          _emailController.text,
+        final success = await userProvider.resetPassword(
+          widget.email,
           _passwordController.text,
         );
 
-        if (success && mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(selectedIndex: 0),
-            ),
-          );
-        } else if (mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.loginError,
+                success
+                    ? AppLocalizations.of(context)!.resetPasswordSuccess
+                    : AppLocalizations.of(context)!.resetPasswordSamePassword,
                 style: Theme.of(context).futuristicBody,
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: success ? Colors.green : Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
           );
+
+          if (success) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+              (route) => false,
+            );
+          }
         }
       } finally {
         if (mounted) {
@@ -87,28 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RegisterScreen(),
-      ),
-    );
-  }
-
-  void _navigateToForgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgotPasswordScreen(),
-      ),
-    );
-  }
-
   @override
   void dispose() {
-    _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -138,32 +128,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        localizations.loginTitle,
+                        localizations.resetPasswordTitle,
                         style: theme.futuristicTitle,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 48),
-                      // Email Field
-                      LoginTextFormField(
-                        label: localizations.loginEmailLabel,
-                        controller: _emailController,
-                        validator: _validateEmail,
-                        keyboardType: TextInputType.emailAddress,
+                      const SizedBox(height: 16),
+                      Text(
+                        localizations.resetPasswordDescription,
+                        style: theme.futuristicBody,
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 48),
                       // Password Field
                       LoginTextFormField(
-                        label: localizations.loginPasswordLabel,
+                        label: localizations.registerPasswordLabel,
                         controller: _passwordController,
                         validator: _validatePassword,
                         isPassword: true,
                       ),
+                      const SizedBox(height: 24),
+                      // Confirm Password Field
+                      LoginTextFormField(
+                        label: localizations.registerConfirmPasswordLabel,
+                        controller: _confirmPasswordController,
+                        validator: _validateConfirmPassword,
+                        isPassword: true,
+                      ),
                       const SizedBox(height: 32),
-                      // Login Button
+                      // Reset Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: _isLoading ? null : _handleResetPassword,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.sunsetOrange,
                             foregroundColor: theme.primaryText,
@@ -183,27 +179,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 )
                               : Text(
-                                  localizations.loginButton,
+                                  localizations.resetPasswordButton,
                                   style: theme.futuristicSubtitle,
                                 ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Register Button
+                      // Back to Login Button
                       TextButton(
-                        onPressed: _navigateToRegister,
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                            (route) => false,
+                          );
+                        },
                         child: Text(
-                          localizations.loginRegisterButton,
-                          style: theme.futuristicBody.copyWith(
-                            color: theme.sunsetOrange,
-                          ),
-                        ),
-                      ),
-                      // Forgot Password Button
-                      TextButton(
-                        onPressed: _navigateToForgotPassword,
-                        child: Text(
-                          localizations.loginForgotPasswordButton,
+                          localizations.forgotPasswordBackButton,
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),

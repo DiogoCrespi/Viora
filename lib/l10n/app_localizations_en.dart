@@ -15,8 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage1Title => 'Welcome to Viora';
 
   @override
-  String get onboardingPage1Description =>
-      'Mission system to transform your journey';
+  String get onboardingPage1Description => 'Mission system to transform your journey';
 
   @override
   String get onboardingPage2Title => 'Custom Missions';
@@ -28,8 +27,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage3Title => 'Track Your Progress';
 
   @override
-  String get onboardingPage3Description =>
-      'Visualize your evolution in real time';
+  String get onboardingPage3Description => 'Visualize your evolution in real time';
 
   @override
   String get skipButton => 'Skip';
@@ -116,8 +114,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Welcome to Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle =>
-      'Get ready for an epic space journey!';
+  String get statusScreenWelcomeSubtitle => 'Get ready for an epic space journey!';
 
   @override
   String get playButton => 'PLAY';
@@ -195,6 +192,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPasswordLength => 'Password must be at least 6 characters';
 
   @override
+  String get loginError => 'Invalid email or password';
+
+  @override
   String get registerTitle => 'Create Account';
 
   @override
@@ -240,11 +240,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerPasswordsDontMatch => 'Passwords don\'t match';
 
   @override
+  String get registerError => 'Error creating account. Please try again.';
+
+  @override
   String get forgotPasswordTitle => 'Reset Password';
 
   @override
-  String get forgotPasswordSubtitle =>
-      'Enter your email to receive password reset instructions';
+  String get forgotPasswordSubtitle => 'Enter your email to receive password reset instructions';
 
   @override
   String get forgotPasswordEmailLabel => 'Email';
@@ -268,6 +270,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordError => 'Error sending recovery email';
 
   @override
+  String get forgotPasswordDescription => 'Enter your email address and we\'ll send you instructions to reset your password.';
+
+  @override
   String get profileChangeAvatar => 'Change Avatar';
 
   @override
@@ -275,4 +280,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileUpdateSuccess => 'Profile updated successfully';
+
+  @override
+  String get profileNameLabel => 'Name';
+
+  @override
+  String get profileEmailLabel => 'Email';
+
+  @override
+  String get profileNameRequired => 'Name is required';
+
+  @override
+  String get profileNameLength => 'Name must be at least 3 characters';
+
+  @override
+  String get profileEmailRequired => 'Email is required';
+
+  @override
+  String get profileEmailInvalid => 'Please enter a valid email';
+
+  @override
+  String get profileUpdateError => 'Error updating profile';
+
+  @override
+  String get resetPasswordTitle => 'Reset Password';
+
+  @override
+  String get resetPasswordDescription => 'Enter your new password below';
+
+  @override
+  String get resetPasswordButton => 'Reset Password';
+
+  @override
+  String get resetPasswordSuccess => 'Password reset successfully';
+
+  @override
+  String get resetPasswordError => 'Failed to reset password';
+
+  @override
+  String get resetPasswordSamePassword => 'New password must be different from current password';
 }

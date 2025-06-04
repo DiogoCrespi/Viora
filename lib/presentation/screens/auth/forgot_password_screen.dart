@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
+import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/presentation/screens/auth/reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -33,40 +36,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
 
       try {
-        // TODO: Implement password reset logic
-        await Future.delayed(const Duration(seconds: 2)); // Simulated API call
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        final success =
+            await userProvider.requestPasswordReset(_emailController.text);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.forgotPasswordSuccess,
+                success
+                    ? AppLocalizations.of(context)!.forgotPasswordSuccess
+                    : AppLocalizations.of(context)!.forgotPasswordError,
                 style: Theme.of(context).futuristicBody,
               ),
-              backgroundColor: AppTheme.metallicGold,
+              backgroundColor: success ? Colors.green : Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
           );
-          Navigator.pop(context);
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.forgotPasswordError,
-                style: Theme.of(context).futuristicBody,
+
+          if (success) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ResetPasswordScreen(
+                  email: _emailController.text,
+                ),
               ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          );
+            );
+          }
         }
       } finally {
         if (mounted) {
@@ -116,7 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        localizations.forgotPasswordSubtitle,
+                        localizations.forgotPasswordDescription,
                         style: theme.futuristicBody,
                         textAlign: TextAlign.center,
                       ),
@@ -129,7 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 32),
-                      // Reset Password Button
+                      // Reset Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

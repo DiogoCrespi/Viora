@@ -64,6 +64,7 @@
   "loginEmailInvalid": "Please enter a valid email",
   "loginPasswordRequired": "Please enter your password",
   "loginPasswordLength": "Password must be at least 6 characters",
+  "loginError": "Invalid email or password",
   
   "registerTitle": "Create Account",
   "registerNameLabel": "Name",
@@ -80,6 +81,7 @@
   "registerPasswordLength": "Password must be at least 6 characters",
   "registerConfirmPasswordRequired": "Please confirm your password",
   "registerPasswordsDontMatch": "Passwords don't match",
+  "registerError": "Error creating account. Please try again.",
   
   "forgotPasswordTitle": "Reset Password",
   "forgotPasswordSubtitle": "Enter your email to receive password reset instructions",
@@ -90,7 +92,21 @@
   "forgotPasswordEmailInvalid": "Please enter a valid email",
   "forgotPasswordSuccess": "Recovery email sent!",
   "forgotPasswordError": "Error sending recovery email",
+  "forgotPasswordDescription": "Enter your email address and we'll send you instructions to reset your password.",
   "profileChangeAvatar": "Change Avatar",
   "profileSaveButton": "Save Changes",
-  "profileUpdateSuccess": "Profile updated successfully"
+  "profileUpdateSuccess": "Profile updated successfully",
+  "profileNameLabel": "Name",
+  "profileEmailLabel": "Email",
+  "profileNameRequired": "Name is required",
+  "profileNameLength": "Name must be at least 3 characters",
+  "profileEmailRequired": "Email is required",
+  "profileEmailInvalid": "Please enter a valid email",
+  "profileUpdateError": "Error updating profile",
+  "resetPasswordTitle": "Reset Password",
+  "resetPasswordDescription": "Enter your new password below",
+  "resetPasswordButton": "Reset Password",
+  "resetPasswordSuccess": "Password reset successfully",
+  "resetPasswordError": "Failed to reset password",
+  "resetPasswordSamePassword": "New password must be different from current password"
 }

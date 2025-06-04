@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
+import 'package:provider/provider.dart';
+import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/presentation/screens/auth/login_screen.dart';
 
 class FuturisticDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -194,7 +197,14 @@ class FuturisticDrawer extends StatelessWidget {
                     ? Colors.black
                     : Colors.white),
             onPressed: () {
-              // TODO: Implementar logout
+              final userProvider =
+                  Provider.of<UserProvider>(context, listen: false);
+              userProvider.logout();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
             },
           ),
         ],

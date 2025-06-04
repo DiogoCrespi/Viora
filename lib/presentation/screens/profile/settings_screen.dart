@@ -7,6 +7,8 @@ import 'package:viora/core/providers/font_size_provider.dart';
 import 'package:viora/core/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/presentation/screens/auth/profile_screen.dart';
+import 'package:viora/presentation/screens/auth/login_screen.dart';
+import 'package:viora/core/providers/user_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -162,7 +164,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           .logoutSettingSubtitle, // Localized
                       Icons.logout_outlined,
                       () {
-                        // TODO: Implementar logout
+                        final userProvider =
+                            Provider.of<UserProvider>(context, listen: false);
+                        userProvider.logout();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
                       },
                       isDestructive: true,
                     ),

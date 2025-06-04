@@ -46,12 +46,12 @@ import 'app_localizations_pt.dart';
 ///
 /// iOS applications define key application metadata, including supported
 /// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you'll need to edit this
+/// To configure the locales supported by your app, you’ll need to edit this
 /// file.
 ///
-/// First, open your project's ios/Runner.xcworkspace Xcode workspace file.
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
 /// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project's Runner folder.
+/// project’s Runner folder.
 ///
 /// Next, select the Information Property List item, select Add Item from the
 /// Editor menu, then select Localizations from the pop-up menu.
@@ -404,50 +404,323 @@ abstract class AppLocalizations {
   /// **'View Details'**
   String get missionCardViewDetailsButton;
 
-  // Login Screen
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Viora'**
   String get loginTitle;
+
+  /// No description provided for @loginEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
   String get loginEmailLabel;
+
+  /// No description provided for @loginPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
   String get loginPasswordLabel;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
   String get loginButton;
+
+  /// No description provided for @loginRegisterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
   String get loginRegisterButton;
+
+  /// No description provided for @loginForgotPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
   String get loginForgotPasswordButton;
+
+  /// No description provided for @loginEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
   String get loginEmailRequired;
+
+  /// No description provided for @loginEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
   String get loginEmailInvalid;
+
+  /// No description provided for @loginPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
   String get loginPasswordRequired;
+
+  /// No description provided for @loginPasswordLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
   String get loginPasswordLength;
 
-  // Register Screen
+  /// No description provided for @loginError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password'**
+  String get loginError;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
   String get registerTitle;
+
+  /// No description provided for @registerNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
   String get registerNameLabel;
+
+  /// No description provided for @registerEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
   String get registerEmailLabel;
+
+  /// No description provided for @registerPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
   String get registerPasswordLabel;
+
+  /// No description provided for @registerConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
   String get registerConfirmPasswordLabel;
+
+  /// No description provided for @registerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
   String get registerButton;
+
+  /// No description provided for @registerLoginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Login'**
   String get registerLoginButton;
+
+  /// No description provided for @registerNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
   String get registerNameRequired;
+
+  /// No description provided for @registerNameLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be at least 3 characters'**
   String get registerNameLength;
+
+  /// No description provided for @registerEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
   String get registerEmailRequired;
+
+  /// No description provided for @registerEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
   String get registerEmailInvalid;
+
+  /// No description provided for @registerPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
   String get registerPasswordRequired;
+
+  /// No description provided for @registerPasswordLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
   String get registerPasswordLength;
+
+  /// No description provided for @registerConfirmPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
   String get registerConfirmPasswordRequired;
+
+  /// No description provided for @registerPasswordsDontMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords don\'t match'**
   String get registerPasswordsDontMatch;
 
-  // Forgot Password Screen
+  /// No description provided for @registerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating account. Please try again.'**
+  String get registerError;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
   String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email to receive password reset instructions'**
   String get forgotPasswordSubtitle;
+
+  /// No description provided for @forgotPasswordEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
   String get forgotPasswordEmailLabel;
+
+  /// No description provided for @forgotPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Email'**
   String get forgotPasswordButton;
+
+  /// No description provided for @forgotPasswordBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Login'**
   String get forgotPasswordBackButton;
+
+  /// No description provided for @forgotPasswordEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
   String get forgotPasswordEmailRequired;
+
+  /// No description provided for @forgotPasswordEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
   String get forgotPasswordEmailInvalid;
+
+  /// No description provided for @forgotPasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery email sent!'**
   String get forgotPasswordSuccess;
+
+  /// No description provided for @forgotPasswordError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sending recovery email'**
   String get forgotPasswordError;
 
-  // Profile Screen
+  /// No description provided for @forgotPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we\'ll send you instructions to reset your password.'**
+  String get forgotPasswordDescription;
+
+  /// No description provided for @profileChangeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Avatar'**
   String get profileChangeAvatar;
+
+  /// No description provided for @profileSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
   String get profileSaveButton;
+
+  /// No description provided for @profileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
   String get profileUpdateSuccess;
+
+  /// No description provided for @profileNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get profileNameLabel;
+
+  /// No description provided for @profileEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get profileEmailLabel;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get profileNameRequired;
+
+  /// No description provided for @profileNameLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be at least 3 characters'**
+  String get profileNameLength;
+
+  /// No description provided for @profileEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get profileEmailRequired;
+
+  /// No description provided for @profileEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
+  String get profileEmailInvalid;
+
+  /// No description provided for @profileUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating profile'**
+  String get profileUpdateError;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your new password below'**
+  String get resetPasswordDescription;
+
+  /// No description provided for @resetPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordButton;
+
+  /// No description provided for @resetPasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset successfully'**
+  String get resetPasswordSuccess;
+
+  /// No description provided for @resetPasswordError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reset password'**
+  String get resetPasswordError;
+
+  /// No description provided for @resetPasswordSamePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password must be different from current password'**
+  String get resetPasswordSamePassword;
 }
 
 class _AppLocalizationsDelegate
