@@ -15,7 +15,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage1Title => 'Welcome to Viora';
 
   @override
-  String get onboardingPage1Description => 'Mission system to transform your journey';
+  String get onboardingPage1Description =>
+      'Mission system to transform your journey';
 
   @override
   String get onboardingPage2Title => 'Custom Missions';
@@ -27,7 +28,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage3Title => 'Track Your Progress';
 
   @override
-  String get onboardingPage3Description => 'Visualize your evolution in real time';
+  String get onboardingPage3Description =>
+      'Visualize your evolution in real time';
 
   @override
   String get skipButton => 'Skip';
@@ -114,7 +116,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Welcome to Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle => 'Get ready for an epic space journey!';
+  String get statusScreenWelcomeSubtitle =>
+      'Get ready for an epic space journey!';
 
   @override
   String get playButton => 'PLAY';

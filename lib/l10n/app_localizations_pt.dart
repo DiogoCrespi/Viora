@@ -15,19 +15,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboardingPage1Title => 'Bem-vindo ao Viora';
 
   @override
-  String get onboardingPage1Description => 'Sistema de missões para transformar sua jornada';
+  String get onboardingPage1Description =>
+      'Sistema de missões para transformar sua jornada';
 
   @override
   String get onboardingPage2Title => 'Missões Personalizadas';
 
   @override
-  String get onboardingPage2Description => 'Desafios únicos para seu crescimento';
+  String get onboardingPage2Description =>
+      'Desafios únicos para seu crescimento';
 
   @override
   String get onboardingPage3Title => 'Acompanhe seu Progresso';
 
   @override
-  String get onboardingPage3Description => 'Visualize sua evolução em tempo real';
+  String get onboardingPage3Description =>
+      'Visualize sua evolução em tempo real';
 
   @override
   String get skipButton => 'Pular';
@@ -93,7 +96,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacySettingTitle => 'Privacidade';
 
   @override
-  String get privacySettingSubtitle => 'Configure suas preferências de privacidade';
+  String get privacySettingSubtitle =>
+      'Configure suas preferências de privacidade';
 
   @override
   String get logoutSettingTitle => 'Sair';
@@ -114,7 +118,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Bem-vindo ao Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle => 'Prepare-se para uma jornada espacial épica!';
+  String get statusScreenWelcomeSubtitle =>
+      'Prepare-se para uma jornada espacial épica!';
 
   @override
   String get playButton => 'JOGAR';

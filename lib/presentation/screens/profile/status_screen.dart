@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/space_shooter_game.dart';
-// import 'package:viora/presentation/screens/missions_screen.dart'; // Not directly used
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
+import 'package:viora/presentation/screens/game/space_shooter_game.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class StatusScreen extends StatelessWidget {
   const StatusScreen({super.key});
@@ -11,7 +10,7 @@ class StatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final localizations = AppLocalizations.of(context)!; // Added
+    final localizations = AppLocalizations.of(context)!;
 
     return Container(
       decoration: theme.gradientDecoration,
@@ -50,12 +49,12 @@ class StatusScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  localizations.statusScreenWelcomeTitle, // Localized
+                                  localizations.statusScreenWelcomeTitle,
                                   style: theme.futuristicTitle,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  localizations.statusScreenWelcomeSubtitle, // Localized
+                                  localizations.statusScreenWelcomeSubtitle,
                                   style: theme.futuristicSubtitle,
                                   textAlign: TextAlign.center,
                                 ),
@@ -126,7 +125,8 @@ class StatusScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  localizations.characterStatusTitle, // Localized
+                                  localizations
+                                      .characterStatusTitle, // Localized
                                   style: theme.futuristicSubtitle,
                                 ),
                                 const SizedBox(height: 16),
@@ -144,7 +144,8 @@ class StatusScreen extends StatelessWidget {
                                 ),
                                 _buildStatRow(
                                   context,
-                                  localizations.missionsCompletedLabel, // Localized
+                                  localizations
+                                      .missionsCompletedLabel, // Localized
                                   '0', // Value remains dynamic
                                   Icons.assignment_turned_in,
                                 ),

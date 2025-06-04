@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
+import 'package:viora/l10n/app_localizations.dart';
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
@@ -43,10 +43,14 @@ class MissionsScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip(context, localizations.filterAll, true), // Localized
-                    _buildFilterChip(context, localizations.filterInProgress, false), // Localized
-                    _buildFilterChip(context, localizations.filterCompleted, false), // Localized
-                    _buildFilterChip(context, localizations.filterPending, false), // Localized
+                    _buildFilterChip(
+                        context, localizations.filterAll, true), // Localized
+                    _buildFilterChip(context, localizations.filterInProgress,
+                        false), // Localized
+                    _buildFilterChip(context, localizations.filterCompleted,
+                        false), // Localized
+                    _buildFilterChip(context, localizations.filterPending,
+                        false), // Localized
                   ],
                 ),
               ),
@@ -100,7 +104,11 @@ class MissionsScreen extends StatelessWidget {
     // For now, assuming these specific status strings might be keys themselves or might be handled differently
     // If "Em Progresso", "Concluída", "Pendente" are also in ARB files, they should be fetched.
     // For this iteration, I'll keep them as is, as they were not in the provided ARB additions for mission status.
-    final missionStatus = [localizations.filterInProgress, localizations.filterCompleted, localizations.filterPending];
+    final missionStatus = [
+      localizations.filterInProgress,
+      localizations.filterCompleted,
+      localizations.filterPending
+    ];
     final statusColors = [
       theme.sunsetOrange,
       theme.twilightPurple,
@@ -188,7 +196,8 @@ class MissionsScreen extends StatelessWidget {
                   style: TextButton.styleFrom(
                     foregroundColor: theme.sunsetOrange,
                   ),
-                  child: Text(localizations.missionCardViewDetailsButton), // Localized
+                  child: Text(
+                      localizations.missionCardViewDetailsButton), // Localized
                 ),
               ],
             ),

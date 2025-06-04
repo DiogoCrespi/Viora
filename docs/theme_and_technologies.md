@@ -271,3 +271,45 @@
   - Adaptação a novas tendências
   - Manutenção da identidade visual
   - Crescimento sustentável 
+
+
+### 3.5  Clean Architecture
+lib/
+├── core/                    # Camada de infraestrutura compartilhada
+│   ├── constants/           # Constantes e configurações
+│   ├── extensions/          # Extensões de classes
+│   └── utils/               # Utilitários e helpers
+│
+├── presentation/            # Camada de apresentação
+│   ├── screens/             # Telas da aplicação
+│   │   ├── auth/            # Grupo de telas relacionadas à autenticação
+│   │   │   ├── login_screen.dart
+│   │   │   ├── register_screen.dart
+│   │   │   └── forgot_password_screen.dart
+│   │   │
+│   │   ├── game/            # Grupo de telas relacionadas ao jogo
+│   │   │   ├── space_shooter_game.dart
+│   │   │   └── missions_screen.dart
+│   │   │
+│   │   ├── profile/         # Grupo de telas relacionadas ao perfil
+│   │   │   ├── settings_screen.dart
+│   │   │   └── status_screen.dart
+│   │   │
+│   │   ├── onboarding/      # Grupo de telas de onboarding
+│   │   │   └── onboarding_screen.dart
+│   │   │
+│   │   └── main_screen.dart # Tela principal que pode ficar na raiz
+│   ├── widgets/             # Widgets reutilizáveis
+│   └── controllers/         # Controladores/ViewModels
+│
+├── data/                    # Camada de dados
+│   ├── models/              # Modelos de dados
+│   ├── datasources/         # Fontes de dados (API, banco local)
+│   └── repositories/        # Implementações dos repositórios
+│
+├── domain/                  # Camada de domínio
+│   ├── entities/            # Entidades de negócio
+│   ├── usecases/            # Casos de uso
+│   └── repositories/        # Interfaces dos repositórios
+│
+└── main.dart                # Ponto de entrada da aplicação

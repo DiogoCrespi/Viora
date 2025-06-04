@@ -1,6 +1,9 @@
 {
   "@@locale": "en",
   "appTitle": "Viora",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "onboardingPage1Title": "Welcome to Viora",
   "onboardingPage1Description": "Mission system to transform your journey",
   "onboardingPage2Title": "Custom Missions",

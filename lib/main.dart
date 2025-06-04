@@ -4,13 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/providers/theme_provider.dart';
 import 'package:viora/core/providers/font_size_provider.dart';
-import 'package:viora/presentation/screens/onboarding_screen.dart';
+import 'package:viora/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
-import 'package:viora/presentation/screens/space_shooter_game.dart';
+import 'package:viora/presentation/screens/game/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:viora/core/providers/locale_provider.dart'; // Added
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
+import 'package:viora/core/providers/locale_provider.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,8 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => FontSizeProvider(prefs),
         ),
-        ChangeNotifierProvider( // Added
+        ChangeNotifierProvider(
+          // Added
           create: (_) => LocaleProvider(prefs),
         ),
       ],
@@ -57,13 +58,15 @@ class VioraApp extends StatelessWidget {
       builder: (context, themeProvider, child) {
         return MaterialApp(
           // title: 'Viora', // Replaced by onGenerateTitle
-          onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle, // Added
+          onGenerateTitle: (context) =>
+              AppLocalizations.of(context)!.appTitle, // Added
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode:
               themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           locale: localeProvider.locale, // Added
-          localizationsDelegates: AppLocalizations.localizationsDelegates, // Modified
+          localizationsDelegates:
+              AppLocalizations.localizationsDelegates, // Modified
           supportedLocales: AppLocalizations.supportedLocales, // Modified
           builder: (context, child) {
             return MediaQuery(

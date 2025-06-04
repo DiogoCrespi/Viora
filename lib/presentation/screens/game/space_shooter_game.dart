@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/status_screen.dart';
-import 'package:viora/presentation/screens/missions_screen.dart';
+import 'package:viora/presentation/screens/profile/status_screen.dart';
+import 'package:viora/presentation/screens/game/missions_screen.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
@@ -307,7 +307,7 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
         stops: [0.0, 1.0],
       ),
     ];
-    
+
     // Inicializa o retângulo do jogo
     _gameRect = Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y);
     _updateGradient();
@@ -315,10 +315,10 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
 
   void _updateGradient() {
     if (!isMounted) return;
-    
+
     final score = gameRef.score;
     int newIndex = 0;
-    
+
     if (score >= 1000) {
       newIndex = 2; // Galáxia
     } else if (score >= 500) {
@@ -351,7 +351,7 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
   @override
   void render(Canvas canvas) {
     if (!isMounted) return;
-    
+
     // Desenha o gradiente usando o retângulo atualizado
     canvas.drawRect(_gameRect, _paint);
   }

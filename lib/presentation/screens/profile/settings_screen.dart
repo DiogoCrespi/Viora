@@ -4,8 +4,8 @@ import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/core/providers/theme_provider.dart';
 import 'package:viora/core/providers/font_size_provider.dart';
-import 'package:viora/core/providers/locale_provider.dart'; // Added
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
+import 'package:viora/core/providers/locale_provider.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -62,10 +62,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Expanded(
               child: ListView(
                 children: [
-                  _buildSection(context, AppLocalizations.of(context)!.generalPreferencesTitle, [ // Localized
+                  _buildSection(context,
+                      AppLocalizations.of(context)!.generalPreferencesTitle, [
+                    // Localized
                     _buildSwitchTile(
-                      AppLocalizations.of(context)!.notificationsSettingTitle, // Localized
-                      AppLocalizations.of(context)!.notificationsSettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .notificationsSettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .notificationsSettingSubtitle, // Localized
                       Icons.notifications_outlined,
                       _notificationsEnabled,
                       (value) {
@@ -75,8 +79,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     _buildSwitchTile(
-                      AppLocalizations.of(context)!.darkModeSettingTitle, // Localized
-                      AppLocalizations.of(context)!.darkModeSettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .darkModeSettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .darkModeSettingSubtitle, // Localized
                       Icons.dark_mode_outlined,
                       themeProvider.isDarkMode,
                       (value) {
@@ -85,10 +91,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ]),
                   const SizedBox(height: 24),
-                  _buildSection(context, AppLocalizations.of(context)!.accessibilityTitle, [ // Localized
+                  _buildSection(context,
+                      AppLocalizations.of(context)!.accessibilityTitle, [
+                    // Localized
                     _buildSliderTile(
-                      AppLocalizations.of(context)!.fontSizeSettingTitle, // Localized
-                      AppLocalizations.of(context)!.fontSizeSettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .fontSizeSettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .fontSizeSettingSubtitle, // Localized
                       Icons.format_size_outlined,
                       fontSizeProvider.fontSize,
                       (value) {
@@ -97,14 +107,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ]),
                   const SizedBox(height: 24),
-                  _buildSection(context, AppLocalizations.of(context)!.languageSettingTitle, [ // Localized
+                  _buildSection(context,
+                      AppLocalizations.of(context)!.languageSettingTitle, [
+                    // Localized
                     _buildDropdownTile(
                         context,
-                        AppLocalizations.of(context)!.languageSettingTitle, // Localized
-                        AppLocalizations.of(context)!.languageSettingSubtitle, // Localized
+                        AppLocalizations.of(context)!
+                            .languageSettingTitle, // Localized
+                        AppLocalizations.of(context)!
+                            .languageSettingSubtitle, // Localized
                         Icons.language_outlined,
-                        localeProvider.locale?.languageCode ??
-                            'en',
+                        localeProvider.locale?.languageCode ?? 'en',
                         languages, (String? newLanguageCode) {
                       if (newLanguageCode != null) {
                         Provider.of<LocaleProvider>(context, listen: false)
@@ -113,26 +126,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }),
                   ]),
                   const SizedBox(height: 24),
-                  _buildSection(context, AppLocalizations.of(context)!.accountTitle, [ // Localized
+                  _buildSection(
+                      context, AppLocalizations.of(context)!.accountTitle, [
+                    // Localized
                     _buildActionTile(
-                      AppLocalizations.of(context)!.profileSettingTitle, // Localized
-                      AppLocalizations.of(context)!.profileSettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .profileSettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .profileSettingSubtitle, // Localized
                       Icons.person_outline,
                       () {
                         // TODO: Implementar navegação para perfil
                       },
                     ),
                     _buildActionTile(
-                      AppLocalizations.of(context)!.privacySettingTitle, // Localized
-                      AppLocalizations.of(context)!.privacySettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .privacySettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .privacySettingSubtitle, // Localized
                       Icons.privacy_tip_outlined,
                       () {
                         // TODO: Implementar navegação para privacidade
                       },
                     ),
                     _buildActionTile(
-                      AppLocalizations.of(context)!.logoutSettingTitle, // Localized
-                      AppLocalizations.of(context)!.logoutSettingSubtitle, // Localized
+                      AppLocalizations.of(context)!
+                          .logoutSettingTitle, // Localized
+                      AppLocalizations.of(context)!
+                          .logoutSettingSubtitle, // Localized
                       Icons.logout_outlined,
                       () {
                         // TODO: Implementar logout
@@ -236,7 +257,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         items: languageMap.entries.map((MapEntry<String, String> entry) {
           return DropdownMenuItem<String>(
             value: entry.key, // language code
-            child: Text(entry.value, style: theme.futuristicBody), // language name
+            child:
+                Text(entry.value, style: theme.futuristicBody), // language name
           );
         }).toList(),
         onChanged: onChanged,

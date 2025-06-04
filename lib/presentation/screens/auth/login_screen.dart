@@ -1,32 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/login_screen.dart';
+import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:viora/presentation/screens/auth/register_screen.dart';
+import 'package:viora/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Por favor, insira seu nome';
-    }
-    if (value.length < 3) {
-      return 'O nome deve ter pelo menos 3 caracteres';
-    }
-    return null;
-  }
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -48,34 +38,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Por favor, confirme sua senha';
-    }
-    if (value != _passwordController.text) {
-      return 'As senhas não coincidem';
-    }
-    return null;
-  }
-
-  void _handleRegister() {
+  void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement register logic
+      // TODO: Implement login logic
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
+          builder: (context) => const MainScreen(selectedIndex: 0),
         ),
       );
     }
   }
 
+  void _navigateToRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegisterScreen(),
+      ),
+    );
+  }
+
+  void _navigateToForgotPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ForgotPasswordScreen(),
+      ),
+    );
+  }
+
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -104,18 +100,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Criar Conta',
+                        'Bem-vindo ao Viora',
                         style: theme.futuristicTitle,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 48),
-                      // Name Field
-                      LoginTextFormField(
-                        label: 'Nome',
-                        controller: _nameController,
-                        validator: _validateName,
-                      ),
-                      const SizedBox(height: 24),
                       // Email Field
                       LoginTextFormField(
                         label: 'E-mail',
@@ -131,20 +120,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: _validatePassword,
                         isPassword: true,
                       ),
-                      const SizedBox(height: 24),
-                      // Confirm Password Field
-                      LoginTextFormField(
-                        label: 'Confirmar Senha',
-                        controller: _confirmPasswordController,
-                        validator: _validateConfirmPassword,
-                        isPassword: true,
-                      ),
                       const SizedBox(height: 32),
-                      // Register Button
+                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _handleRegister,
+                          onPressed: _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.sunsetOrange,
                             foregroundColor: theme.primaryText,
@@ -154,19 +135,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           child: Text(
-                            'Registrar',
+                            'Entrar',
                             style: theme.futuristicSubtitle,
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Back to Login Button
+                      // Register Button
                       TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: _navigateToRegister,
                         child: Text(
-                          'Já tem uma conta? Faça login',
+                          'Registrar-se',
+                          style: theme.futuristicBody.copyWith(
+                            color: theme.sunsetOrange,
+                          ),
+                        ),
+                      ),
+                      // Forgot Password Button
+                      TextButton(
+                        onPressed: _navigateToForgotPassword,
+                        child: Text(
+                          'Esqueci minha senha',
                           style: theme.futuristicBody.copyWith(
                             color: theme.sunsetOrange,
                           ),
