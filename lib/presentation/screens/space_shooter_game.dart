@@ -12,6 +12,7 @@ import 'package:flame/input.dart';
 import 'package:flame/collisions.dart';
 import 'dart:math' as math;
 import 'package:flame/events.dart';
+import 'package:flame/timer.dart';
 
 class SpaceShooterGame extends StatefulWidget {
   const SpaceShooterGame({super.key});
@@ -101,21 +102,19 @@ class SpaceGame extends FlameGame
     add(scoreText);
     // Iniciar spawn de inimigos
     _enemySpawnTimer = Timer(2, onTick: _spawnEnemy, repeat: true);
-    add(_enemySpawnTimer);
     _enemySpawnTimer.start();
+    add(TimerComponent(period: 2, onTick: _spawnEnemy, repeat: true));
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     if (gameOver) {
-      if (_menuButtonRect == null) {
-        _menuButtonRect = Rect.fromCenter(
-          center: Offset(size.x / 2, size.y * 0.6),
-          width: 200,
-          height: 50,
-        );
-      }
+      _menuButtonRect ??= Rect.fromCenter(
+        center: Offset(size.x / 2, size.y * 0.6),
+        width: 200,
+        height: 50,
+      );
       return;
     }
 
