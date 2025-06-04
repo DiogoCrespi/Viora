@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/space_shooter_game.dart';
-import 'package:viora/presentation/screens/missions_screen.dart';
+// import 'package:viora/presentation/screens/missions_screen.dart'; // Not directly used
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
 
 class StatusScreen extends StatelessWidget {
   const StatusScreen({super.key});
@@ -10,6 +11,7 @@ class StatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!; // Added
 
     return Container(
       decoration: theme.gradientDecoration,
@@ -48,12 +50,12 @@ class StatusScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  'Bem-vindo ao Viora',
+                                  localizations.statusScreenWelcomeTitle, // Localized
                                   style: theme.futuristicTitle,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Prepare-se para uma jornada espacial épica!',
+                                  localizations.statusScreenWelcomeSubtitle, // Localized
                                   style: theme.futuristicSubtitle,
                                   textAlign: TextAlign.center,
                                 ),
@@ -98,7 +100,7 @@ class StatusScreen extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    'JOGAR',
+                                    localizations.playButton, // Localized
                                     style: theme.futuristicSubtitle,
                                   ),
                                 ),
@@ -124,31 +126,31 @@ class StatusScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Status do Personagem',
+                                  localizations.characterStatusTitle, // Localized
                                   style: theme.futuristicSubtitle,
                                 ),
                                 const SizedBox(height: 16),
                                 _buildStatRow(
                                   context,
-                                  'Nível',
-                                  '1',
+                                  localizations.levelLabel, // Localized
+                                  '1', // Value remains dynamic
                                   Icons.star,
                                 ),
                                 _buildStatRow(
                                   context,
-                                  'Experiência',
-                                  '0/1000',
+                                  localizations.experienceLabel, // Localized
+                                  '0/1000', // Value remains dynamic
                                   Icons.trending_up,
                                 ),
                                 _buildStatRow(
                                   context,
-                                  'Missões Concluídas',
-                                  '0',
+                                  localizations.missionsCompletedLabel, // Localized
+                                  '0', // Value remains dynamic
                                   Icons.assignment_turned_in,
                                 ),
                                 _buildStatRow(
                                   context,
-                                  'Pontuação Máxima',
+                                  localizations.maxScoreLabel, // Localized
                                   '0',
                                   Icons.emoji_events,
                                 ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/status_screen.dart';
+// import 'package:viora/presentation/screens/status_screen.dart'; // Not used directly
 import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,23 +20,28 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   List<Animation<double>> _fadeAnimations = [];
   List<Animation<Offset>> _slideAnimations = [];
 
-  final List<OnboardingPage> _pages = [
-    OnboardingPage(
-      title: 'Bem-vindo ao Viora',
-      description: 'Sistema de missões para transformar sua jornada',
-      icon: Icons.rocket_launch,
-    ),
-    OnboardingPage(
-      title: 'Missões Personalizadas',
-      description: 'Desafios únicos para seu crescimento',
-      icon: Icons.assignment,
-    ),
-    OnboardingPage(
-      title: 'Acompanhe seu Progresso',
-      description: 'Visualize sua evolução em tempo real',
-      icon: Icons.trending_up,
-    ),
-  ];
+  // _pages will be initialized in didChangeDependencies or build context
+  // to access AppLocalizations. For simplicity, make it a getter.
+  List<OnboardingPage> _getPages(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return [
+      OnboardingPage(
+        title: localizations.onboardingPage1Title,
+        description: localizations.onboardingPage1Description,
+        icon: Icons.rocket_launch,
+      ),
+      OnboardingPage(
+        title: localizations.onboardingPage2Title,
+        description: localizations.onboardingPage2Description,
+        icon: Icons.assignment,
+      ),
+      OnboardingPage(
+        title: localizations.onboardingPage3Title,
+        description: localizations.onboardingPage3Description,
+        icon: Icons.trending_up,
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -50,11 +56,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _animationController.duration = Theme.of(context).themeChangeDuration;
+    final pages = _getPages(context); // Get pages here
 
     // Recriar animações apenas se ainda não foram criadas ou se o número de páginas mudou
-    if (_fadeAnimations.length != _pages.length) {
+    if (_fadeAnimations.length != pages.length) {
       _fadeAnimations = List.generate(
-        _pages.length,
+        pages.length,
         (index) => Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
             parent: _animationController,
@@ -68,9 +75,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       );
     }
 
-    if (_slideAnimations.length != _pages.length) {
+    if (_slideAnimations.length != pages.length) {
       _slideAnimations = List.generate(
-        _pages.length,
+        pages.length,
         (index) => Tween<Offset>(
           begin: const Offset(0.0, 0.5),
           end: Offset.zero,
@@ -141,9 +148,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: _onPageChanged,
-                  itemCount: _pages.length,
+                  itemCount: _getPages(context).length, // Use getter
                   itemBuilder: (context, index) {
-                    return _buildPage(_pages[index], index);
+                    return _buildPage(_getPages(context)[index], index); // Use getter
                   },
                 ),
               ),
@@ -210,7 +217,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           // Indicadores de página
           Row(
             children: List.generate(
-              _pages.length,
+              _getPages(context).length, // Use getter
               (index) => AnimatedContainer(
                 duration: theme.themeChangeDuration,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -230,16 +237,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             children: [
               // Botão Pular
               AnimatedOpacity(
-                opacity: _currentPage == _pages.length - 1 ? 0.0 : 1.0,
+                opacity: _currentPage == _getPages(context).length - 1 ? 0.0 : 1.0, // Use getter
                 duration: theme.themeChangeDuration,
                 child: TextButton(
                   onPressed: () => _pageController.animateToPage(
-                    _pages.length - 1,
+                    _getPages(context).length - 1, // Use getter
                     duration: theme.themeChangeDuration,
                     curve: Curves.easeInOutCubic,
                   ),
                   child: Text(
-                    'Pular',
+                    AppLocalizations.of(context)!.skipButton, // Localized
                     style: theme.futuristicBody,
                   ),
                 ),
@@ -248,7 +255,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               // Botão Avançar ou Vamos Começar
               AnimatedSwitcher(
                 duration: theme.themeChangeDuration,
-                child: _currentPage == _pages.length - 1
+                child: _currentPage == _getPages(context).length - 1 // Use getter
                     ? ElevatedButton(
                         key: const ValueKey('start'),
                         onPressed: _navigateToMain,
@@ -264,7 +271,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ),
                         ),
                         child: Text(
-                          'Vamos Começar',
+                          AppLocalizations.of(context)!.startButton, // Localized
                           style: theme.futuristicSubtitle,
                         ),
                       )
@@ -289,7 +296,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Avançar',
+                              AppLocalizations.of(context)!.nextButton, // Localized
                               style: theme.futuristicSubtitle,
                             ),
                             const SizedBox(width: 8),

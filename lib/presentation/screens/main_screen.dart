@@ -5,6 +5,7 @@ import 'package:viora/presentation/widgets/futuristic_drawer.dart';
 import 'package:viora/presentation/screens/status_screen.dart';
 import 'package:viora/presentation/screens/missions_screen.dart';
 import 'package:viora/presentation/screens/settings_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
 
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen>
   late AnimationController _drawerAnimationController;
   late int _selectedIndex;
 
-  final List<String> _sections = ['Status', 'Missões', 'Configurações'];
+  // final List<String> _sections = ['Status', 'Missões', 'Configurações']; // Will be initialized in build
 
   @override
   void initState() {
@@ -46,11 +47,18 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!; // Added
+
+    final List<String> sections = [
+      localizations.mainScreenStatusTab,
+      localizations.mainScreenMissionsTab,
+      localizations.mainScreenSettingsTab,
+    ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _sections[_selectedIndex],
+          sections[_selectedIndex], // Use localized sections
           style: theme.futuristicTitle,
         ),
         leading: Builder(
@@ -78,7 +86,7 @@ class _MainScreenState extends State<MainScreen>
       ),
       drawer: FuturisticDrawer(
         selectedIndex: _selectedIndex,
-        sections: _sections,
+        sections: sections, // Use localized sections
         onSectionSelected: (index) {
           setState(() {
             _selectedIndex = index;
@@ -96,7 +104,8 @@ class _MainScreenState extends State<MainScreen>
                     ? const SettingsScreen()
                     : Center(
                         child: Text(
-                          'Conteúdo da seção ${_sections[_selectedIndex]}',
+                          // This case should ideally not be reached if selectedIndex is always valid
+                          'Conteúdo da seção ${sections[_selectedIndex]}',
                           style: theme.futuristicBody,
                         ),
                       ),
