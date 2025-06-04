@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Added
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
@@ -8,6 +9,7 @@ class MissionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!; // Added
 
     return Material(
       child: Container(
@@ -29,7 +31,7 @@ class MissionsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Missões',
+                      localizations.missionsTitle, // Localized
                       style: theme.futuristicTitle,
                     ),
                   ],
@@ -41,10 +43,10 @@ class MissionsScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip(context, 'Todas', true),
-                    _buildFilterChip(context, 'Em Progresso', false),
-                    _buildFilterChip(context, 'Concluídas', false),
-                    _buildFilterChip(context, 'Pendentes', false),
+                    _buildFilterChip(context, localizations.filterAll, true), // Localized
+                    _buildFilterChip(context, localizations.filterInProgress, false), // Localized
+                    _buildFilterChip(context, localizations.filterCompleted, false), // Localized
+                    _buildFilterChip(context, localizations.filterPending, false), // Localized
                   ],
                 ),
               ),
@@ -92,7 +94,13 @@ class MissionsScreen extends StatelessWidget {
 
   Widget _buildMissionCard(BuildContext context, int index) {
     final theme = Theme.of(context);
-    final missionStatus = ['Em Progresso', 'Concluída', 'Pendente'];
+    final localizations = AppLocalizations.of(context)!; // Added
+
+    // It's better to get these from localizations if they need to be translated
+    // For now, assuming these specific status strings might be keys themselves or might be handled differently
+    // If "Em Progresso", "Concluída", "Pendente" are also in ARB files, they should be fetched.
+    // For this iteration, I'll keep them as is, as they were not in the provided ARB additions for mission status.
+    final missionStatus = [localizations.filterInProgress, localizations.filterCompleted, localizations.filterPending];
     final statusColors = [
       theme.sunsetOrange,
       theme.twilightPurple,
@@ -120,7 +128,7 @@ class MissionsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Missão ${index + 1}',
+                    '${localizations.missionCardTitlePrefix} ${index + 1}', // Localized
                     style: theme.futuristicSubtitle,
                   ),
                 ),
@@ -149,7 +157,7 @@ class MissionsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Descrição da missão ${index + 1}. Esta é uma descrição detalhada da missão que precisa ser realizada.',
+              '${localizations.missionCardDescriptionPrefix} ${index + 1}. Esta é uma descrição detalhada da missão que precisa ser realizada.', // Localized prefix
               style: theme.futuristicBody,
             ),
             const SizedBox(height: 16),
@@ -165,7 +173,7 @@ class MissionsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${(index + 1) * 100} XP',
+                      '${(index + 1) * 100} ${localizations.missionCardXP}', // Localized
                       style: TextStyle(
                         color: theme.sunsetOrange,
                         fontWeight: FontWeight.bold,
@@ -180,7 +188,7 @@ class MissionsScreen extends StatelessWidget {
                   style: TextButton.styleFrom(
                     foregroundColor: theme.sunsetOrange,
                   ),
-                  child: const Text('Ver Detalhes'),
+                  child: Text(localizations.missionCardViewDetailsButton), // Localized
                 ),
               ],
             ),
