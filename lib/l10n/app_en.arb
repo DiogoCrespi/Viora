@@ -103,6 +103,7 @@
   "profileEmailRequired": "Email is required",
   "profileEmailInvalid": "Please enter a valid email",
   "profileUpdateError": "Error updating profile",
+  "profileTitle": "Profile",
   "resetPasswordTitle": "Reset Password",
   "resetPasswordDescription": "Enter your new password below",
   "resetPasswordButton": "Reset Password",

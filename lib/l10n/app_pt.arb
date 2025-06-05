@@ -100,6 +100,7 @@
   "profileEmailRequired": "E-mail é obrigatório",
   "profileEmailInvalid": "Por favor, insira um e-mail válido",
   "profileUpdateError": "Erro ao atualizar perfil",
+  "profileTitle": "Perfil",
   "resetPasswordTitle": "Redefinir Senha",
   "resetPasswordDescription": "Digite sua nova senha abaixo",
   "resetPasswordButton": "Redefinir Senha",

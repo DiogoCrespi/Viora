@@ -5,7 +5,10 @@ import 'package:viora/presentation/widgets/futuristic_drawer.dart';
 import 'package:viora/presentation/screens/profile/status_screen.dart';
 import 'package:viora/presentation/screens/game/missions_screen.dart';
 import 'package:viora/presentation/screens/profile/settings_screen.dart';
+import 'package:viora/presentation/screens/profile/profile_screen.dart';
 import 'package:viora/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:viora/core/providers/theme_provider.dart';
 
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
@@ -47,7 +50,8 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final localizations = AppLocalizations.of(context)!; // Added
+    final localizations = AppLocalizations.of(context)!;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     final List<String> sections = [
       localizations.mainScreenStatusTab,
@@ -57,13 +61,15 @@ class _MainScreenState extends State<MainScreen>
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
-          sections[_selectedIndex], // Use localized sections
-          style: theme.futuristicTitle,
+          sections[_selectedIndex],
+          style: theme.futuristicTitle.copyWith(color: theme.textTheme.bodyLarge?.color),
         ),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: Icon(Icons.menu, color: theme.textTheme.bodyLarge?.color),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -71,15 +77,29 @@ class _MainScreenState extends State<MainScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: Icon(Icons.notifications_outlined, color: theme.textTheme.bodyLarge?.color),
             onPressed: () {
               // TODO: Implementar notificações
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person_outline),
+            icon: Icon(Icons.person_outline, color: theme.textTheme.bodyLarge?.color),
             onPressed: () {
-              // TODO: Implementar perfil
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: theme.textTheme.bodyLarge?.color,
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
             },
           ),
         ],

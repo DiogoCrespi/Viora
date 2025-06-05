@@ -6,7 +6,7 @@ import 'package:viora/core/providers/theme_provider.dart';
 import 'package:viora/core/providers/font_size_provider.dart';
 import 'package:viora/core/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
-import 'package:viora/presentation/screens/auth/profile_screen.dart';
+import 'package:viora/presentation/screens/profile/profile_screen.dart';
 import 'package:viora/presentation/screens/auth/login_screen.dart';
 import 'package:viora/core/providers/user_provider.dart';
 

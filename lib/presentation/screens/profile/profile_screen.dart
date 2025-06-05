@@ -105,6 +105,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           );
+          
+          if (success) {
+            Navigator.of(context).pop();
+          }
         }
       } finally {
         if (mounted) {
@@ -129,6 +133,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: theme.textTheme.bodyLarge?.color),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          localizations.profileTitle,
+          style: theme.futuristicTitle.copyWith(color: theme.textTheme.bodyLarge?.color),
+        ),
+      ),
       body: Container(
         decoration: theme.gradientDecoration,
         child: SafeArea(

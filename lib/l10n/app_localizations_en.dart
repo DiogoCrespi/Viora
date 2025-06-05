@@ -319,4 +319,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetPasswordSamePassword => 'New password must be different from current password';
+
+  @override
+  String get profileTitle => 'Profile';
 }
