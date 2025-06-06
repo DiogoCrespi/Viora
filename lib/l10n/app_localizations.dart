@@ -407,7 +407,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Viora'**
+  /// **'Login'**
   String get loginTitle;
 
   /// No description provided for @loginEmailLabel.
@@ -467,8 +467,26 @@ abstract class AppLocalizations {
   /// No description provided for @loginError.
   ///
   /// In en, this message translates to:
-  /// **'Invalid email or password'**
+  /// **'Error logging in. Please try again.'**
   String get loginError;
+
+  /// No description provided for @loginErrorNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your connection and try again.'**
+  String get loginErrorNoConnection;
+
+  /// No description provided for @loginErrorServerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Server is currently unavailable. Please try again later.'**
+  String get loginErrorServerUnavailable;
+
+  /// No description provided for @loginErrorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password.'**
+  String get loginErrorInvalidCredentials;
 
   /// No description provided for @registerTitle.
   ///
@@ -503,7 +521,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerButton.
   ///
   /// In en, this message translates to:
-  /// **'Register'**
+  /// **'Create Account'**
   String get registerButton;
 
   /// No description provided for @registerLoginButton.
@@ -565,6 +583,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error creating account. Please try again.'**
   String get registerError;
+
+  /// No description provided for @registerErrorNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your connection and try again.'**
+  String get registerErrorNoConnection;
+
+  /// No description provided for @registerErrorServerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Server is currently unavailable. Please try again later.'**
+  String get registerErrorServerUnavailable;
+
+  /// No description provided for @registerErrorEmailInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered.'**
+  String get registerErrorEmailInUse;
+
+  /// No description provided for @registerErrorInvalidData.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid data provided. Please check your information.'**
+  String get registerErrorInvalidData;
+
+  /// No description provided for @registerErrorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get registerErrorInvalidEmail;
+
+  /// No description provided for @registerErrorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission error. Please try again.'**
+  String get registerErrorPermissionDenied;
 
   /// No description provided for @forgotPasswordTitle.
   ///
@@ -677,13 +731,19 @@ abstract class AppLocalizations {
   /// No description provided for @profileEmailInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid email'**
+  /// **'Please enter a valid email address'**
   String get profileEmailInvalid;
+
+  /// No description provided for @profileUpdateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Profile'**
+  String get profileUpdateButton;
 
   /// No description provided for @profileUpdateError.
   ///
   /// In en, this message translates to:
-  /// **'Error updating profile'**
+  /// **'Error updating profile. Please try again.'**
   String get profileUpdateError;
 
   /// No description provided for @resetPasswordTitle.
@@ -710,17 +770,17 @@ abstract class AppLocalizations {
   /// **'Password reset successfully'**
   String get resetPasswordSuccess;
 
-  /// No description provided for @resetPasswordError.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to reset password'**
-  String get resetPasswordError;
-
   /// No description provided for @resetPasswordSamePassword.
   ///
   /// In en, this message translates to:
   /// **'New password must be different from current password'**
   String get resetPasswordSamePassword;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
 }
 
 class _AppLocalizationsDelegate

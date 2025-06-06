@@ -15,7 +15,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage1Title => 'Welcome to Viora';
 
   @override
-  String get onboardingPage1Description => 'Mission system to transform your journey';
+  String get onboardingPage1Description =>
+      'Mission system to transform your journey';
 
   @override
   String get onboardingPage2Title => 'Custom Missions';
@@ -27,7 +28,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage3Title => 'Track Your Progress';
 
   @override
-  String get onboardingPage3Description => 'Visualize your evolution in real time';
+  String get onboardingPage3Description =>
+      'Visualize your evolution in real time';
 
   @override
   String get skipButton => 'Skip';
@@ -114,7 +116,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Welcome to Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle => 'Get ready for an epic space journey!';
+  String get statusScreenWelcomeSubtitle =>
+      'Get ready for an epic space journey!';
 
   @override
   String get playButton => 'PLAY';
@@ -162,7 +165,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionCardViewDetailsButton => 'View Details';
 
   @override
-  String get loginTitle => 'Welcome to Viora';
+  String get loginTitle => 'Login';
 
   @override
   String get loginEmailLabel => 'Email';
@@ -192,7 +195,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPasswordLength => 'Password must be at least 6 characters';
 
   @override
-  String get loginError => 'Invalid email or password';
+  String get loginError => 'Error logging in. Please try again.';
+
+  @override
+  String get loginErrorNoConnection =>
+      'No internet connection. Please check your connection and try again.';
+
+  @override
+  String get loginErrorServerUnavailable =>
+      'Server is currently unavailable. Please try again later.';
+
+  @override
+  String get loginErrorInvalidCredentials => 'Invalid email or password.';
 
   @override
   String get registerTitle => 'Create Account';
@@ -210,7 +224,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerConfirmPasswordLabel => 'Confirm Password';
 
   @override
-  String get registerButton => 'Register';
+  String get registerButton => 'Create Account';
 
   @override
   String get registerLoginButton => 'Already have an account? Login';
@@ -243,10 +257,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerError => 'Error creating account. Please try again.';
 
   @override
+  String get registerErrorNoConnection =>
+      'No internet connection. Please check your connection and try again.';
+
+  @override
+  String get registerErrorServerUnavailable =>
+      'Server is currently unavailable. Please try again later.';
+
+  @override
+  String get registerErrorEmailInUse => 'This email is already registered.';
+
+  @override
+  String get registerErrorInvalidData =>
+      'Invalid data provided. Please check your information.';
+
+  @override
+  String get registerErrorInvalidEmail => 'Please enter a valid email address';
+
+  @override
+  String get registerErrorPermissionDenied =>
+      'Permission error. Please try again.';
+
+  @override
   String get forgotPasswordTitle => 'Reset Password';
 
   @override
-  String get forgotPasswordSubtitle => 'Enter your email to receive password reset instructions';
+  String get forgotPasswordSubtitle =>
+      'Enter your email to receive password reset instructions';
 
   @override
   String get forgotPasswordEmailLabel => 'Email';
@@ -270,7 +307,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordError => 'Error sending recovery email';
 
   @override
-  String get forgotPasswordDescription => 'Enter your email address and we\'ll send you instructions to reset your password.';
+  String get forgotPasswordDescription =>
+      'Enter your email address and we\'ll send you instructions to reset your password.';
 
   @override
   String get profileChangeAvatar => 'Change Avatar';
@@ -297,10 +335,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileEmailRequired => 'Email is required';
 
   @override
-  String get profileEmailInvalid => 'Please enter a valid email';
+  String get profileEmailInvalid => 'Please enter a valid email address';
 
   @override
-  String get profileUpdateError => 'Error updating profile';
+  String get profileUpdateButton => 'Update Profile';
+
+  @override
+  String get profileUpdateError => 'Error updating profile. Please try again.';
 
   @override
   String get resetPasswordTitle => 'Reset Password';
@@ -315,8 +356,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPasswordSuccess => 'Password reset successfully';
 
   @override
-  String get resetPasswordError => 'Failed to reset password';
+  String get resetPasswordSamePassword =>
+      'New password must be different from current password';
 
   @override
-  String get resetPasswordSamePassword => 'New password must be different from current password';
+  String get profileTitle => 'Profile';
 }

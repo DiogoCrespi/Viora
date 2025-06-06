@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:viora/presentation/screens/auth/register_screen.dart';
@@ -8,6 +7,7 @@ import 'package:viora/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/core/config/supabase_config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -49,6 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
+        debugPrint(
+            'LoginScreen: Attempting login with email: ${_emailController.text}');
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         final success = await userProvider.login(
           _emailController.text,
@@ -56,17 +58,55 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (success && mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(selectedIndex: 0),
-            ),
-          );
+          debugPrint('LoginScreen: Login successful, navigating to main');
+          // Verifica se a sessão foi criada corretamente
+          final session = SupabaseConfig.client.auth.currentSession;
+          debugPrint(
+              'LoginScreen: Current session after login: ${session?.user.id}');
+
+          if (session != null) {
+            Navigator.pushReplacementNamed(context, '/main');
+          } else {
+            debugPrint('LoginScreen: No session found after login');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Error: No session created',
+                    style: Theme.of(context).futuristicBody,
+                  ),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              );
+            }
+          }
         } else if (mounted) {
+          debugPrint('LoginScreen: Login failed');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 AppLocalizations.of(context)!.loginError,
+                style: Theme.of(context).futuristicBody,
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('LoginScreen: Error during login: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error: $e',
                 style: Theme.of(context).futuristicBody,
               ),
               backgroundColor: Colors.red,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/core/providers/theme_provider.dart';
 import 'package:viora/core/providers/font_size_provider.dart';

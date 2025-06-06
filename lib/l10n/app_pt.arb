@@ -79,6 +79,12 @@
   "registerConfirmPasswordRequired": "Por favor, confirme sua senha",
   "registerPasswordsDontMatch": "As senhas não coincidem",
   "registerError": "Erro ao criar conta. Por favor, tente novamente.",
+  "registerErrorNoConnection": "Sem conexão com a internet. Por favor, verifique sua conexão e tente novamente.",
+  "registerErrorServerUnavailable": "Servidor indisponível. Por favor, tente novamente mais tarde.",
+  "registerErrorEmailInUse": "Este e-mail já está cadastrado.",
+  "registerErrorInvalidData": "Dados inválidos. Por favor, verifique suas informações.",
+  "registerErrorInvalidEmail": "Por favor, insira um endereço de email válido",
+  "registerErrorPermissionDenied": "Erro de permissão. Por favor, tente novamente.",
   
   "forgotPasswordTitle": "Recuperar Senha",
   "forgotPasswordSubtitle": "Digite seu e-mail para receber as instruções de recuperação de senha",
@@ -105,5 +111,6 @@
   "resetPasswordButton": "Redefinir Senha",
   "resetPasswordSuccess": "Senha redefinida com sucesso",
   "resetPasswordError": "Falha ao redefinir senha",
-  "resetPasswordSamePassword": "A nova senha deve ser diferente da senha atual"
+  "resetPasswordSamePassword": "A nova senha deve ser diferente da senha atual",
+  "profileUpdateButton": "Atualizar Perfil"
 }

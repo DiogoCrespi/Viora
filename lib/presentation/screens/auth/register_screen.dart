@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/screens/auth/login_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
@@ -62,6 +61,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: Theme.of(context).futuristicBody,
+        ),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -70,33 +97,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       try {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final success = await userProvider.register(
+        await userProvider.register(
           _nameController.text,
           _emailController.text,
           _passwordController.text,
         );
 
-        if (success && mounted) {
+        if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const LoginScreen(),
             ),
           );
-        } else if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.registerError,
-                style: Theme.of(context).futuristicBody,
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+
+        final errorMessage = e.toString();
+        final localizations = AppLocalizations.of(context)!;
+
+        debugPrint('Registration error: $errorMessage'); // Debug log
+
+        if (errorMessage.contains('registerErrorNoConnection')) {
+          _showErrorSnackBar(localizations.registerErrorNoConnection);
+        } else if (errorMessage.contains('registerErrorServerUnavailable')) {
+          _showErrorSnackBar(localizations.registerErrorServerUnavailable);
+        } else if (errorMessage.contains('registerErrorEmailInUse')) {
+          _showErrorSnackBar(localizations.registerErrorEmailInUse);
+        } else if (errorMessage.contains('registerErrorInvalidData')) {
+          _showErrorSnackBar(localizations.registerErrorInvalidData);
+        } else {
+          _showErrorSnackBar(localizations.registerError);
         }
       } finally {
         if (mounted) {

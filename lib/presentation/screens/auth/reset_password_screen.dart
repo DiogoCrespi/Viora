@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';

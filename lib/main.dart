@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/constants/app_theme.dart';
@@ -14,30 +16,55 @@ import 'package:viora/l10n/app_localizations.dart';
 import 'core/providers/user_provider.dart';
 import 'core/repositories/user_repository.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'dart:io';
+import 'package:viora/core/config/supabase_config.dart';
+import 'package:viora/presentation/screens/auth/login_screen.dart';
+
+// Conditional imports for platform-specific code
+import 'platform_stub.dart' if (dart.library.io) 'platform_io.dart';
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  WidgetsFlutterBinding.ensureInitialized();
 
-  final prefs = await SharedPreferences.getInstance();
-  bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
-  // Initialize sqflite_ffi for Windows
-  if (Platform.isWindows) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+  // Initialize SQLite for desktop platforms
+  if (!kIsWeb) {
+    try {
+      if (Platform.isDesktop) {
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+      }
+    } catch (e) {
+      debugPrint('Error initializing SQLite: $e');
+    }
   }
+
+  // Initialize Supabase
+  try {
+    await SupabaseConfig.initialize();
+    final session = SupabaseConfig.client.auth.currentSession;
+    debugPrint('Main: Current session after init: ${session?.user.id}');
+  } catch (e) {
+    debugPrint('Error initializing Supabase: $e');
+  }
+
+  // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+  debugPrint('Main: Has seen onboarding: $hasSeenOnboarding');
 
   // Initialize database and repositories
   final userRepository = await UserRepository.create();
+  final userProvider = UserProvider(userRepository);
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => UserProvider(userRepository),
-        ),
+        ChangeNotifierProvider(create: (_) => userProvider),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(prefs),
         ),
@@ -48,11 +75,9 @@ void main() async {
           create: (_) => LocaleProvider(prefs),
         ),
       ],
-      child: const VioraApp(hasSeenOnboarding: false),
+      child: VioraApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
-
-  FlutterNativeSplash.remove();
 }
 
 class VioraApp extends StatelessWidget {
@@ -84,16 +109,77 @@ class VioraApp extends StatelessWidget {
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaleFactor: fontSizeProvider.fontSize,
+                textScaler: TextScaler.linear(fontSizeProvider.fontSize),
               ),
               child: child!,
             );
           },
-          initialRoute: hasSeenOnboarding ? '/main' : '/',
-          routes: {
-            '/': (context) => const OnboardingScreen(),
-            '/main': (context) => const MainScreen(selectedIndex: 0),
-            '/game': (context) => const SpaceShooterGame(),
+          initialRoute: '/',
+          onGenerateRoute: (settings) {
+            final session = SupabaseConfig.client.auth.currentSession;
+            debugPrint(
+                'VioraApp: Generating route ${settings.name} with session: ${session?.user.id}');
+
+            // Se não estiver autenticado e não estiver na tela de login ou onboarding
+            if (session == null &&
+                settings.name != '/login' &&
+                settings.name != '/') {
+              debugPrint('VioraApp: Redirecting to login');
+              return MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              );
+            }
+
+            switch (settings.name) {
+              case '/':
+                if (!hasSeenOnboarding) {
+                  debugPrint('VioraApp: Showing onboarding');
+                  return MaterialPageRoute(
+                    builder: (context) => const OnboardingScreen(),
+                  );
+                } else if (session == null) {
+                  debugPrint('VioraApp: Redirecting to login (no session)');
+                  return MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  );
+                } else {
+                  debugPrint('VioraApp: Redirecting to main');
+                  return MaterialPageRoute(
+                    builder: (context) => const MainScreen(selectedIndex: 0),
+                  );
+                }
+              case '/main':
+                if (session == null) {
+                  debugPrint(
+                      'VioraApp: Redirecting to login (no session for main)');
+                  return MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  );
+                }
+                return MaterialPageRoute(
+                  builder: (context) => const MainScreen(selectedIndex: 0),
+                );
+              case '/game':
+                if (session == null) {
+                  debugPrint(
+                      'VioraApp: Redirecting to login (no session for game)');
+                  return MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  );
+                }
+                return MaterialPageRoute(
+                  builder: (context) => const SpaceShooterGame(),
+                );
+              case '/login':
+                return MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                );
+              default:
+                debugPrint('VioraApp: Redirecting to login (default)');
+                return MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                );
+            }
           },
         );
       },

@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/profile/status_screen.dart';
-import 'package:viora/presentation/screens/game/missions_screen.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
@@ -12,7 +9,6 @@ import 'package:flame/input.dart';
 import 'package:flame/collisions.dart';
 import 'dart:math' as math;
 import 'package:flame/events.dart';
-import 'package:flame/timer.dart';
 
 class SpaceShooterGame extends StatefulWidget {
   const SpaceShooterGame({super.key});
@@ -182,7 +178,7 @@ class SpaceGame extends FlameGame
         Paint()..color = Colors.black.withOpacity(0.7),
       );
       final gameOverText = TextPainter(
-        text: TextSpan(
+        text: const TextSpan(
           text: 'GAME OVER',
           style: TextStyle(
             color: AppTheme.sunsetOrange,
@@ -201,7 +197,7 @@ class SpaceGame extends FlameGame
       final scoreText = TextPainter(
         text: TextSpan(
           text: 'Pontuação: $score',
-          style: TextStyle(
+          style: const TextStyle(
             color: AppTheme.agedBeige,
             fontSize: 24,
             fontFamily: 'Exo2',
@@ -227,7 +223,7 @@ class SpaceGame extends FlameGame
         buttonPaint,
       );
       final buttonText = TextPainter(
-        text: TextSpan(
+        text: const TextSpan(
           text: 'Voltar ao Menu',
           style: TextStyle(
             color: AppTheme.geometricBlack,

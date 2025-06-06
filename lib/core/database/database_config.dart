@@ -1,23 +1,52 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
-import 'migrations/initial_schema.dart';
+import '../../platform_stub.dart' if (dart.library.io) '../../platform_io.dart';
 
 class DatabaseConfig {
-  static const String databaseName = 'viora.db';
-  static const int databaseVersion = 1;
-
   static Future<Database> getDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = join(databasePath, databaseName);
+    if (kIsWeb) {
+      throw UnsupportedError('SQLite is not supported on web platform');
+    }
 
-    return await openDatabase(
+    // Initialize FFI for desktop platforms
+    if (!kIsWeb && Platform.isDesktop) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, 'viora.db');
+
+    return openDatabase(
       path,
-      version: databaseVersion,
-      onCreate: (Database db, int version) async {
-        await InitialSchema.createTables(db);
-      },
-      onUpgrade: (Database db, int oldVersion, int newVersion) async {
-        // Handle future database upgrades here
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE users (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            password_salt TEXT NOT NULL,
+            avatar_path TEXT,
+            created_at TEXT NOT NULL,
+            last_login TEXT
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE password_reset_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            token TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            is_used INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+          )
+        ''');
       },
     );
   }

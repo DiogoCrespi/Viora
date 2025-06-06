@@ -1,52 +1,20 @@
-class User {
-  final int? id;
-  final String name;
-  final String email;
-  final String passwordHash;
-  final String passwordSalt;
-  final String? avatarPath;
-  final DateTime createdAt;
-  final DateTime? lastLogin;
-  final bool isActive;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  User({
-    this.id,
-    required this.name,
-    required this.email,
-    required this.passwordHash,
-    required this.passwordSalt,
-    this.avatarPath,
-    required this.createdAt,
-    this.lastLogin,
-    this.isActive = true,
-  });
+part 'user.freezed.dart';
+part 'user.g.dart';
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'password_hash': passwordHash,
-      'password_salt': passwordSalt,
-      'avatar_path': avatarPath,
-      'created_at': createdAt.toIso8601String(),
-      'last_login': lastLogin?.toIso8601String(),
-      'is_active': isActive ? 1 : 0,
-    };
-  }
+@freezed
+class User with _$User {
+  const factory User({
+    String? id,
+    required String name,
+    required String email,
+    @JsonKey(name: 'password_hash') required String passwordHash,
+    @JsonKey(name: 'password_salt') required String passwordSalt,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'last_login') DateTime? lastLogin,
+    @JsonKey(name: 'is_active') @Default(true) bool isActive,
+  }) = _User;
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'],
-      name: map['name'],
-      email: map['email'],
-      passwordHash: map['password_hash'],
-      passwordSalt: map['password_salt'],
-      avatarPath: map['avatar_path'],
-      createdAt: DateTime.parse(map['created_at']),
-      lastLogin:
-          map['last_login'] != null ? DateTime.parse(map['last_login']) : null,
-      isActive: map['is_active'] == 1,
-    );
-  }
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
