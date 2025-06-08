@@ -201,14 +201,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loginErrorNoConnection =>
-      'No internet connection. Please check your connection and try again.';
+      'Sem conexão com a internet. Por favor, verifique sua conexão e tente novamente.';
 
   @override
   String get loginErrorServerUnavailable =>
-      'Server is currently unavailable. Please try again later.';
+      'Servidor indisponível. Por favor, tente novamente mais tarde.';
 
   @override
-  String get loginErrorInvalidCredentials => 'Invalid email or password.';
+  String get loginErrorInvalidCredentials => 'E-mail ou senha inválidos.';
 
   @override
   String get registerTitle => 'Criar Conta';
@@ -365,5 +365,23 @@ class AppLocalizationsPt extends AppLocalizations {
       'A nova senha deve ser diferente da senha atual';
 
   @override
-  String get profileTitle => 'Profile';
+  String get profileTitle => 'Perfil';
+
+  @override
+  String get loginErrorNoSession => 'Erro: Nenhuma sessão criada. Por favor, tente fazer login novamente.';
+
+  @override
+  String get loginErrorEmailNotConfirmed => 'Por favor, confirme seu endereço de e-mail antes de fazer login.';
+
+  @override
+  String get registerErrorEmailConfirmationRequired => 'Confirmação de e-mail é necessária. Por favor, verifique sua caixa de entrada.';
+
+  @override
+  String get loginResendConfirmation => 'Reenviar Confirmação';
+
+  @override
+  String get loginConfirmationEmailSent => 'E-mail de confirmação enviado! Por favor, verifique sua caixa de entrada.';
+
+  @override
+  String get loginErrorResendingConfirmation => 'Erro ao enviar e-mail de confirmação. Por favor, tente novamente.';
 }

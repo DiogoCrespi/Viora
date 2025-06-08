@@ -43,13 +43,19 @@ void main() async {
     }
   }
 
-  // Initialize Supabase
+  // Initialize Supabase (apenas verificar conexão, não inicializar novamente)
   try {
-    await SupabaseConfig.initialize();
-    final session = SupabaseConfig.client.auth.currentSession;
-    debugPrint('Main: Current session after init: ${session?.user.id}');
+    final isConnected = await SupabaseConfig.checkConnection();
+    if (!isConnected) {
+      debugPrint('Erro: Não foi possível conectar ao Supabase. Último erro: ${SupabaseConfig.lastError}');
+      // TODO: Mostrar uma tela de erro ou tentar reconectar
+    } else {
+      final session = SupabaseConfig.client.auth.currentSession;
+      debugPrint('Main: Current session after init: ${session?.user.id}');
+    }
   } catch (e) {
-    debugPrint('Error initializing Supabase: $e');
+    debugPrint('Error checking Supabase connection: $e');
+    // TODO: Mostrar uma tela de erro ou tentar reconectar
   }
 
   // Initialize SharedPreferences
@@ -58,7 +64,7 @@ void main() async {
   debugPrint('Main: Has seen onboarding: $hasSeenOnboarding');
 
   // Initialize database and repositories
-  final userRepository = await UserRepository.create();
+  final userRepository = UserRepository();
   final userProvider = UserProvider(userRepository);
 
   runApp(

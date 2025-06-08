@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
 import '../config/supabase_config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class UserProvider with ChangeNotifier {
   User? _currentUser;
@@ -15,105 +16,53 @@ class UserProvider with ChangeNotifier {
     try {
       debugPrint('UserProvider: Tentando fazer login com email: $email');
 
-      // Primeiro, verifica se o usuário existe no banco de dados
-      final user = await _userRepository.getUserByEmail(email);
-      if (user == null) {
-        debugPrint('UserProvider: Usuário não encontrado no banco de dados');
-        return false;
-      }
-
-      // Verifica a senha
-      final isValid = await _userRepository.verifyPassword(email, password);
-      if (!isValid) {
-        debugPrint('UserProvider: Senha inválida');
-        return false;
-      }
-
+      // Primeiro tenta fazer login no Supabase
       try {
-        // Tenta fazer login no Supabase
-        debugPrint('UserProvider: Tentando autenticar no Supabase');
         final response = await SupabaseConfig.client.auth.signInWithPassword(
           email: email,
           password: password,
         );
 
         if (response.user != null) {
-          debugPrint(
-              'UserProvider: Autenticação no Supabase bem-sucedida, ID do usuário: ${response.user?.id}');
+          // Verifica se o email está confirmado
+          if (response.user?.emailConfirmedAt == null) {
+            debugPrint('UserProvider: Email não confirmado');
+            throw Exception('loginErrorEmailNotConfirmed');
+          }
+
+          debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
+          
+          // Verifica se o usuário existe no SQLite
+          var user = await _userRepository.getUserByEmail(email);
+          if (user == null) {
+            // Se não existe no SQLite, cria o usuário
+            debugPrint('UserProvider: Criando usuário no SQLite');
+            user = await _userRepository.createUser(
+              response.user!.userMetadata?['name'] ?? email.split('@')[0],
+              email,
+              password,
+              response.user!.id,
+            );
+          }
+
           _currentUser = user;
-          await _userRepository.updateLastLogin(user.id!);
+          if (user?.id != null) {
+            await _userRepository.updateLastLogin(user!.id!);
+          }
           notifyListeners();
           return true;
-        } else {
-          debugPrint('UserProvider: Falha na autenticação no Supabase');
-          return false;
         }
       } catch (e) {
-        // Se o erro for de email não confirmado
-        if (e.toString().contains('email_not_confirmed')) {
+        if (e.toString().contains('email_not_confirmed') || 
+            e.toString().contains('loginErrorEmailNotConfirmed')) {
           debugPrint('UserProvider: Email não confirmado');
-          throw Exception(
-              'Por favor, verifique seu email para confirmar sua conta. Se você não recebeu o email, aguarde um minuto antes de tentar novamente.');
-        }
-        // Se o erro for de credenciais inválidas, tenta criar o usuário no Supabase
-        else if (e.toString().contains('invalid_credentials')) {
-          debugPrint(
-              'UserProvider: Usuário não encontrado no Supabase, tentando criar novo usuário');
-          try {
-            final signUpResponse = await SupabaseConfig.client.auth.signUp(
-              email: email,
-              password: password,
-              data: {
-                'user_id': user.id,
-                'name': user.name,
-              },
-              emailRedirectTo: null, // Desabilita o redirecionamento de email
-            );
-
-            if (signUpResponse.user != null) {
-              debugPrint(
-                  'UserProvider: Usuário criado no Supabase, ID: ${signUpResponse.user?.id}');
-              _currentUser = user;
-              await _userRepository.updateLastLogin(user.id!);
-              notifyListeners();
-              throw Exception(
-                  'Por favor, verifique seu email para confirmar sua conta. Se você não recebeu o email, aguarde um minuto antes de tentar novamente.');
-            }
-          } catch (signUpError) {
-            if (signUpError.toString().contains('over_email_send_rate_limit')) {
-              throw Exception(
-                  'Muitas tentativas. Por favor, aguarde um minuto antes de tentar novamente.');
-            }
-            // Se o erro for que o usuário já existe, tenta fazer login novamente
-            if (signUpError.toString().contains('User already registered')) {
-              debugPrint(
-                  'UserProvider: Usuário já existe no Supabase, tentando login novamente');
-              try {
-                final loginResponse =
-                    await SupabaseConfig.client.auth.signInWithPassword(
-                  email: email,
-                  password: password,
-                );
-
-                if (loginResponse.user != null) {
-                  debugPrint(
-                      'UserProvider: Login bem-sucedido após nova tentativa');
-                  _currentUser = user;
-                  await _userRepository.updateLastLogin(user.id!);
-                  notifyListeners();
-                  return true;
-                }
-              } catch (retryError) {
-                debugPrint(
-                    'UserProvider: Erro durante nova tentativa de login: $retryError');
-                rethrow;
-              }
-            }
-            rethrow;
-          }
+          throw Exception('loginErrorEmailNotConfirmed');
         }
         rethrow;
       }
+
+      debugPrint('UserProvider: Falha na autenticação');
+      return false;
     } catch (e) {
       debugPrint('UserProvider: Erro durante o login: $e');
       return false;
@@ -124,31 +73,110 @@ class UserProvider with ChangeNotifier {
     try {
       debugPrint('UserProvider: Tentando registrar usuário com email: $email');
 
-      // Primeiro, cria o usuário no Supabase Auth com email_confirm desabilitado
-      final response = await SupabaseConfig.client.auth.signUp(
+      // Validação mais rigorosa do email
+      if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+        debugPrint('UserProvider: Email inválido');
+        throw Exception('registerErrorInvalidEmail');
+      }
+
+      // Primeiro, verifica se o usuário já existe no Supabase Auth
+      try {
+        final authResponse = await SupabaseConfig.client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        if (authResponse.user != null) {
+          debugPrint('UserProvider: Usuário já existe no Supabase Auth');
+          // Verifica se o usuário existe no SQLite
+          final localUser = await _userRepository.getUserByEmail(email);
+          if (localUser == null) {
+            // Se não existe no SQLite, cria o usuário local
+            debugPrint('UserProvider: Criando usuário no SQLite');
+            final user = await _userRepository.createUser(
+              name,
+              email,
+              password,
+              authResponse.user!.id,
+            );
+            _currentUser = user;
+            notifyListeners();
+            return true;
+          }
+          throw Exception('registerErrorEmailInUse');
+        }
+      } catch (e) {
+        // Se o erro for de credenciais inválidas, significa que o usuário não existe
+        if (!e.toString().contains('Invalid login credentials')) {
+          if (e.toString().contains('email_address_invalid')) {
+            throw Exception('registerErrorInvalidEmail');
+          }
+          // Se o erro for de email em uso, verifica se é um usuário não confirmado
+          if (e.toString().contains('Email not confirmed')) {
+            debugPrint('UserProvider: Email não confirmado, tentando reenviar confirmação');
+            try {
+              await SupabaseConfig.client.auth.resend(
+                type: supabase.OtpType.signup,
+                email: email,
+              );
+              throw Exception('registerErrorEmailConfirmationRequired');
+            } catch (resendError) {
+              debugPrint('UserProvider: Erro ao reenviar confirmação: $resendError');
+              throw Exception('registerErrorEmailConfirmationRequired');
+            }
+          }
+          rethrow;
+        }
+      }
+
+      // Cria o usuário no Supabase Auth
+      final authResponse = await SupabaseConfig.client.auth.signUp(
         email: email,
         password: password,
         data: {
           'name': name,
+          'email_confirm': true,
         },
-        emailRedirectTo: null, // Desabilita o redirecionamento de email
+        emailRedirectTo: 'io.supabase.viora://login-callback/',
       );
 
-      if (response.user != null) {
-        debugPrint(
-            'UserProvider: Registro no Supabase bem-sucedido, ID do usuário: ${response.user?.id}');
-
-        // Depois, cria o usuário no banco de dados
-        final user = await _userRepository.createUser(name, email, password);
-        _currentUser = user;
-        notifyListeners();
-        return true;
-      } else {
-        debugPrint('UserProvider: Falha no registro no Supabase');
+      if (authResponse.user == null) {
+        debugPrint('UserProvider: Falha no registro no Supabase Auth');
         return false;
       }
+
+      debugPrint('UserProvider: Registro no Supabase Auth bem-sucedido');
+
+      // Verifica se o email precisa ser confirmado
+      if (authResponse.user?.emailConfirmedAt == null) {
+        debugPrint('UserProvider: Email precisa ser confirmado');
+        debugPrint('UserProvider: Email de confirmação já foi enviado automaticamente');
+        throw Exception('registerErrorEmailConfirmationRequired');
+      }
+
+      // Cria o usuário na tabela users do SQLite
+      final user = await _userRepository.createUser(
+        name,
+        email,
+        password,
+        authResponse.user!.id,
+      );
+
+      _currentUser = user;
+      notifyListeners();
+      return true;
     } catch (e) {
       debugPrint('UserProvider: Erro durante o registro: $e');
+      if (e.toString().contains('registerErrorEmailInUse')) {
+        throw Exception('registerErrorEmailInUse');
+      }
+      if (e.toString().contains('email_not_confirmed') || 
+          e.toString().contains('registerErrorEmailConfirmationRequired')) {
+        throw Exception('registerErrorEmailConfirmationRequired');
+      }
+      if (e.toString().contains('email_address_invalid') ||
+          e.toString().contains('registerErrorInvalidEmail')) {
+        throw Exception('registerErrorInvalidEmail');
+      }
       return false;
     }
   }
@@ -243,6 +271,25 @@ class UserProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('UserProvider: Error resetting password: $e');
       return false;
+    }
+  }
+
+  // Adicionar novo método para reenviar email de confirmação
+  Future<bool> resendConfirmationEmail(String email) async {
+    try {
+      debugPrint('UserProvider: Tentando reenviar email de confirmação para: $email');
+      await SupabaseConfig.client.auth.resend(
+        type: supabase.OtpType.signup,
+        email: email,
+      );
+      debugPrint('UserProvider: Email de confirmação reenviado com sucesso');
+      return true;
+    } catch (e) {
+      debugPrint('UserProvider: Erro ao reenviar email de confirmação: $e');
+      if (e.toString().contains('over_email_send_rate_limit')) {
+        throw Exception('loginErrorResendingConfirmation');
+      }
+      rethrow;
     }
   }
 }

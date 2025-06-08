@@ -361,4 +361,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileTitle => 'Profile';
+
+  @override
+  String get loginErrorNoSession => 'Error: No session created. Please try logging in again.';
+
+  @override
+  String get loginErrorEmailNotConfirmed => 'Please confirm your email address before logging in.';
+
+  @override
+  String get registerErrorEmailConfirmationRequired => 'Email confirmation is required. Please check your inbox.';
+
+  @override
+  String get loginResendConfirmation => 'Resend Confirmation';
+
+  @override
+  String get loginConfirmationEmailSent => 'Confirmation email sent! Please check your inbox.';
+
+  @override
+  String get loginErrorResendingConfirmation => 'Error sending confirmation email. Please try again.';
 }

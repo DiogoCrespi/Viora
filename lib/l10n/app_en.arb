@@ -118,5 +118,12 @@
   "resetPasswordButton": "Reset Password",
   "resetPasswordSuccess": "Password reset successfully",
   "resetPasswordSamePassword": "New password must be different from current password",
-  "profileTitle": "Profile"
+  "profileTitle": "Profile",
+
+  "loginErrorNoSession": "Error: No session created. Please try logging in again.",
+  "loginErrorEmailNotConfirmed": "Please confirm your email address before logging in.",
+  "registerErrorEmailConfirmationRequired": "Email confirmation is required. Please check your inbox.",
+  "loginResendConfirmation": "Resend Confirmation",
+  "loginConfirmationEmailSent": "Confirmation email sent! Please check your inbox.",
+  "loginErrorResendingConfirmation": "Error sending confirmation email. Please try again."
 }

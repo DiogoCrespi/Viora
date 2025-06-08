@@ -46,12 +46,12 @@ import 'app_localizations_pt.dart';
 ///
 /// iOS applications define key application metadata, including supported
 /// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you’ll need to edit this
+/// To configure the locales supported by your app, you'll need to edit this
 /// file.
 ///
-/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// First, open your project's ios/Runner.xcworkspace Xcode workspace file.
 /// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project’s Runner folder.
+/// project's Runner folder.
 ///
 /// Next, select the Information Property List item, select Add Item from the
 /// Editor menu, then select Localizations from the pop-up menu.
@@ -781,6 +781,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get profileTitle;
+
+  /// No description provided for @loginErrorNoSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: No session created. Please try logging in again.'**
+  String get loginErrorNoSession;
+
+  /// No description provided for @loginErrorEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your email address before logging in.'**
+  String get loginErrorEmailNotConfirmed;
+
+  /// No description provided for @registerErrorEmailConfirmationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmation is required. Please check your inbox.'**
+  String get registerErrorEmailConfirmationRequired;
+
+  /// No description provided for @loginResendConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Confirmation'**
+  String get loginResendConfirmation;
+
+  /// No description provided for @loginConfirmationEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation email sent! Please check your inbox.'**
+  String get loginConfirmationEmailSent;
+
+  /// No description provided for @loginErrorResendingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sending confirmation email. Please try again.'**
+  String get loginErrorResendingConfirmation;
 }
 
 class _AppLocalizationsDelegate

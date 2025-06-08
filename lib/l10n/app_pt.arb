@@ -112,5 +112,15 @@
   "resetPasswordSuccess": "Senha redefinida com sucesso",
   "resetPasswordError": "Falha ao redefinir senha",
   "resetPasswordSamePassword": "A nova senha deve ser diferente da senha atual",
-  "profileUpdateButton": "Atualizar Perfil"
+  "profileUpdateButton": "Atualizar Perfil",
+  "profileTitle": "Perfil",
+  "loginErrorNoSession": "Erro: Nenhuma sessão criada. Por favor, tente fazer login novamente.",
+  "loginErrorEmailNotConfirmed": "Por favor, confirme seu endereço de e-mail antes de fazer login.",
+  "registerErrorEmailConfirmationRequired": "Confirmação de e-mail é necessária. Por favor, verifique sua caixa de entrada.",
+  "loginResendConfirmation": "Reenviar Confirmação",
+  "loginConfirmationEmailSent": "E-mail de confirmação enviado! Por favor, verifique sua caixa de entrada.",
+  "loginErrorResendingConfirmation": "Erro ao enviar e-mail de confirmação. Por favor, tente novamente.",
+  "loginErrorNoConnection": "Erro de conexão. Verifique sua conexão com a internet e tente novamente.",
+  "loginErrorServerUnavailable": "Servidor indisponível. Por favor, tente novamente mais tarde.",
+  "loginErrorInvalidCredentials": "Email ou senha inválidos. Por favor, verifique suas credenciais e tente novamente."
 }

@@ -8,6 +8,7 @@ import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/core/providers/user_provider.dart';
 import 'package:viora/core/config/supabase_config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Error: No session created',
+                    AppLocalizations.of(context)!.loginErrorNoSession,
                     style: Theme.of(context).futuristicBody,
                   ),
                   backgroundColor: Colors.red,
@@ -84,29 +85,26 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             }
           }
-        } else if (mounted) {
-          debugPrint('LoginScreen: Login failed');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.loginError,
-                style: Theme.of(context).futuristicBody,
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          );
         }
       } catch (e) {
         debugPrint('LoginScreen: Error during login: $e');
         if (mounted) {
+          final errorMessage = e.toString();
+          final localizations = AppLocalizations.of(context)!;
+
+          String message;
+          if (errorMessage.contains('loginErrorEmailNotConfirmed')) {
+            message = localizations.loginErrorEmailNotConfirmed;
+          } else if (errorMessage.contains('registerErrorEmailConfirmationRequired')) {
+            message = localizations.registerErrorEmailConfirmationRequired;
+          } else {
+            message = localizations.loginError;
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Error: $e',
+                message,
                 style: Theme.of(context).futuristicBody,
               ),
               backgroundColor: Colors.red,
@@ -114,6 +112,56 @@ class _LoginScreenState extends State<LoginScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
+              duration: const Duration(seconds: 5),
+              action: errorMessage.contains('email_not_confirmed') || 
+                     errorMessage.contains('loginErrorEmailNotConfirmed') ||
+                     errorMessage.contains('registerErrorEmailConfirmationRequired')
+                  ? SnackBarAction(
+                      label: localizations.loginResendConfirmation,
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        try {
+                          final userProvider = Provider.of<UserProvider>(context, listen: false);
+                          await userProvider.resendConfirmationEmail(_emailController.text);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  localizations.loginConfirmationEmailSent,
+                                  style: Theme.of(context).futuristicBody,
+                                ),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            String message = localizations.loginErrorResendingConfirmation;
+                            if (e.toString().contains('over_email_send_rate_limit')) {
+                              message = 'Por favor, aguarde 60 segundos antes de tentar novamente.';
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  message,
+                                  style: Theme.of(context).futuristicBody,
+                                ),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    )
+                  : null,
             ),
           );
         }
