@@ -30,24 +30,24 @@ class UserProvider with ChangeNotifier {
 
       debugPrint('UserProvider: Tentando fazer login com email: $email');
       final response = await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+          email: email,
+          password: password,
+        );
 
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
-      }
+          }
 
-      debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
+          debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
       debugPrint('UserProvider: Session: ${response.session?.user.id}');
       debugPrint('UserProvider: User: ${response.user?.id}');
-
+          
       // Buscar ou criar usuário no repositório
-      var user = await _userRepository.getUserByEmail(email);
+          var user = await _userRepository.getUserByEmail(email);
 
-      if (user == null) {
+          if (user == null) {
         debugPrint('UserProvider: Criando usuário no repositório');
-        user = await _userRepository.createUser(
+            user = await _userRepository.createUser(
           AppUser(
             id: response.user!.id,
             name: response.user!.userMetadata?['name'] ?? email,
@@ -56,13 +56,13 @@ class UserProvider with ChangeNotifier {
             passwordSalt: '',
             createdAt: DateTime.now(),
           ),
-        );
-      }
+            );
+          }
 
-      _currentUser = user;
+          _currentUser = user;
       _isLoading = false;
-      notifyListeners();
-      return true;
+          notifyListeners();
+          return true;
     } catch (e) {
       debugPrint('UserProvider: Erro durante o login: $e');
       _error = e.toString();
@@ -124,10 +124,10 @@ class UserProvider with ChangeNotifier {
           throw Exception('registerErrorEmailInUse');
         }
       } catch (e) {
-        if (e.toString().contains('email_address_invalid')) {
-          throw Exception('registerErrorInvalidEmail');
-        }
-        rethrow;
+          if (e.toString().contains('email_address_invalid')) {
+            throw Exception('registerErrorInvalidEmail');
+          }
+          rethrow;
       }
 
       // Cria o usuário no Supabase Auth

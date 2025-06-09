@@ -73,14 +73,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           );
 
           // Navega de volta para a tela de login
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-            (route) => false,
-          );
-        }
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+              (route) => false,
+            );
+          }
       } catch (e) {
         if (!mounted) return;
 

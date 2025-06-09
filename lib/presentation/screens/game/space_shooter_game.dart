@@ -10,6 +10,11 @@ import 'package:flame/collisions.dart';
 import 'dart:math' as math;
 import 'package:flame/events.dart';
 
+class JoystickDetails {
+  final Vector2 direction;
+  JoystickDetails(this.direction);
+}
+
 class SpaceShooterGame extends StatefulWidget {
   const SpaceShooterGame({super.key});
 
@@ -19,11 +24,22 @@ class SpaceShooterGame extends StatefulWidget {
 
 class _SpaceShooterGameState extends State<SpaceShooterGame> {
   late SpaceGame game;
+  static bool isMouseControl = true;
 
   @override
   void initState() {
     super.initState();
-    game = SpaceGame(onReturnToMenu: _goToStatusScreen);
+    game = SpaceGame(
+      onReturnToMenu: _goToStatusScreen,
+      isMouseControl: isMouseControl,
+    );
+  }
+
+  void _toggleControl() {
+    setState(() {
+      isMouseControl = !isMouseControl;
+      game.toggleControl(isMouseControl);
+    });
   }
 
   void _goToStatusScreen() {
@@ -51,20 +67,204 @@ class _SpaceShooterGameState extends State<SpaceShooterGame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GameWidget(
-        game: game,
-        overlayBuilderMap: {
-          'pause': (context, game) => PauseMenu(game: game as SpaceGame),
-        },
+      body: Stack(
+        children: [
+          GameWidget(
+            game: game,
+            overlayBuilderMap: {
+              'pause': (context, game) => PauseMenu(game: game as SpaceGame),
+              'controls': (context, game) => ControlOverlay(
+                    game: game as SpaceGame,
+                    isMouseControl: isMouseControl,
+                    onToggleControl: _toggleControl,
+                  ),
+            },
+          ),
+        ],
       ),
     );
+  }
+}
+
+class ControlOverlay extends StatelessWidget {
+  final SpaceGame game;
+  final bool isMouseControl;
+  final VoidCallback onToggleControl;
+
+  const ControlOverlay({
+    super.key,
+    required this.game,
+    required this.isMouseControl,
+    required this.onToggleControl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Botão de alternância de controles
+        Positioned(
+          top: 20,
+          right: 20,
+          child: IconButton(
+            icon: Icon(
+              isMouseControl ? Icons.touch_app : Icons.mouse,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: onToggleControl,
+          ),
+        ),
+        // Joystick e botão de tiro (apenas quando não estiver usando mouse)
+        if (!isMouseControl) ...[
+          // Joystick
+          Positioned(
+            left: 50,
+            bottom: 50,
+            child: JoystickArea(
+              onDirectionChanged: (direction) {
+                game.updateJoystick(JoystickDetails(direction));
+              },
+            ),
+          ),
+          // Botão de tiro
+          Positioned(
+            right: 50,
+            bottom: 50,
+            child: GestureDetector(
+              onTapDown: (_) => game.player.shoot(game),
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppTheme.sunsetOrange.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppTheme.sunsetOrange,
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.radio_button_checked,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class JoystickArea extends StatefulWidget {
+  final Function(Vector2) onDirectionChanged;
+
+  const JoystickArea({
+    super.key,
+    required this.onDirectionChanged,
+  });
+
+  @override
+  State<JoystickArea> createState() => _JoystickAreaState();
+}
+
+class _JoystickAreaState extends State<JoystickArea> {
+  Offset? _dragPosition;
+  final double _joystickSize = 120.0;
+  final double _knobSize = 40.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanStart: (details) {
+        setState(() {
+          _dragPosition = details.localPosition;
+        });
+        _updateDirection();
+      },
+      onPanUpdate: (details) {
+        setState(() {
+          _dragPosition = details.localPosition;
+        });
+        _updateDirection();
+      },
+      onPanEnd: (_) {
+        setState(() {
+          _dragPosition = null;
+        });
+        widget.onDirectionChanged(Vector2.zero());
+      },
+      child: Container(
+        width: _joystickSize,
+        height: _joystickSize,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: AppTheme.sunsetOrange,
+            width: 2,
+          ),
+        ),
+        child: Center(
+          child: Transform.translate(
+            offset: _dragPosition != null
+                ? Offset(
+                    (_dragPosition!.dx - _joystickSize / 2).clamp(
+                      -(_joystickSize - _knobSize) / 2,
+                      (_joystickSize - _knobSize) / 2,
+                    ),
+                    (_dragPosition!.dy - _joystickSize / 2).clamp(
+                      -(_joystickSize - _knobSize) / 2,
+                      (_joystickSize - _knobSize) / 2,
+                    ),
+                  )
+                : Offset.zero,
+            child: Container(
+              width: _knobSize,
+              height: _knobSize,
+              decoration: BoxDecoration(
+                color: AppTheme.sunsetOrange.withOpacity(0.7),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppTheme.sunsetOrange,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _updateDirection() {
+    if (_dragPosition == null) return;
+    
+    final center = Offset(_joystickSize / 2, _joystickSize / 2);
+    final delta = _dragPosition! - center;
+    final distance = delta.distance;
+    final maxDistance = (_joystickSize - _knobSize) / 2;
+    
+    final normalizedDelta = distance > maxDistance
+        ? delta * (maxDistance / distance)
+        : delta;
+    
+    final direction = Vector2(
+      normalizedDelta.dx / maxDistance,
+      normalizedDelta.dy / maxDistance,
+    );
+    
+    widget.onDirectionChanged(direction);
   }
 }
 
 class SpaceGame extends FlameGame
     with HasCollisionDetection, MouseMovementDetector, TapDetector {
   final VoidCallback onReturnToMenu;
-  SpaceGame({required this.onReturnToMenu});
+  bool isMouseControl;
+  Vector2? joystickDirection;
   late Player player;
   late TextComponent scoreText;
   int score = 0;
@@ -73,16 +273,35 @@ class SpaceGame extends FlameGame
   final List<ProjectileComponent> projectiles = [];
   final navigatorKey = GlobalKey<NavigatorState>();
   late final Timer _enemySpawnTimer;
+  
+  // Variáveis de progressão
+  double _gameSpeed = 1.0;
+  int _currentLevel = 1;
+  final Map<int, int> _levelThresholds = {
+    1: 0,     // Nível 1: Início
+    2: 500,   // Nível 2: Nebulosa
+    3: 1000,  // Nível 3: Galáxia
+    4: 2000,  // Nível 4: Super Nova
+    5: 4000,  // Nível 5: Buraco Negro
+  };
+
+  // Constantes para cálculo exponencial
+  static const double _baseSpeed = 1.0;
+  static const double _speedMultiplier = 0.2;
+  static const double _exponentialFactor = 1.5;
+
+  SpaceGame({
+    required this.onReturnToMenu,
+    this.isMouseControl = true,
+  });
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Fundo gradiente do tema
+    overlays.add('controls');
     add(BackgroundComponent());
-    // Player
     player = Player();
     add(player);
-    // Pontuação
     scoreText = TextComponent(
       text: 'Score: 0',
       position: Vector2(20, 20),
@@ -96,10 +315,95 @@ class SpaceGame extends FlameGame
       priority: 10,
     );
     add(scoreText);
-    // Iniciar spawn de inimigos
     _enemySpawnTimer = Timer(2, onTick: _spawnEnemy, repeat: true);
     _enemySpawnTimer.start();
     add(TimerComponent(period: 2, onTick: _spawnEnemy, repeat: true));
+  }
+
+  void _spawnEnemy() {
+    if (!gameOver) {
+      final random = math.Random();
+      final enemyType = _getRandomEnemyType();
+      final enemy = EnemyComponent(
+        position: Vector2(
+          random.nextDouble() * size.x,
+          -40,
+        ),
+        type: enemyType,
+      );
+      add(enemy);
+    }
+  }
+
+  EnemyType _getRandomEnemyType() {
+    final random = math.Random();
+    final chance = random.nextDouble();
+    
+    if (_currentLevel >= 3) {
+      if (chance < 0.1) return EnemyType.diamond; // 10% chance
+      if (chance < 0.3) return EnemyType.triangle; // 20% chance
+      if (chance < 0.6) return EnemyType.circle; // 30% chance
+      return EnemyType.square; // 40% chance
+    } else if (_currentLevel >= 2) {
+      if (chance < 0.2) return EnemyType.triangle; // 20% chance
+      if (chance < 0.5) return EnemyType.circle; // 30% chance
+      return EnemyType.square; // 50% chance
+    }
+    
+    return EnemyType.square; // Nível 1: apenas quadrados
+  }
+
+  void updateScore(int points) {
+    score += points;
+    scoreText.text = 'Score: $score';
+    
+    // Atualiza o nível e velocidade do jogo
+    _updateGameProgress();
+  }
+
+  void _updateGameProgress() {
+    // Atualiza o nível baseado na pontuação
+    final sortedLevels = _levelThresholds.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+    
+    for (var entry in sortedLevels) {
+      if (score >= entry.value) {
+        if (_currentLevel != entry.key) {
+          _currentLevel = entry.key;
+          // Cálculo exponencial da velocidade
+          _gameSpeed = _baseSpeed + (_speedMultiplier * math.pow(_exponentialFactor, _currentLevel - 1));
+          
+          // Atualiza o timer de spawn com a nova velocidade
+          _enemySpawnTimer.stop();
+          add(TimerComponent(
+            period: 2 / _gameSpeed,
+            onTick: _spawnEnemy,
+            repeat: true,
+          ));
+        }
+        break;
+      }
+    }
+  }
+
+  void resetGame() {
+    score = 0;
+    gameOver = false;
+    _currentLevel = 1;
+    _gameSpeed = _baseSpeed;
+    scoreText.text = 'Score: 0';
+    projectiles.clear();
+    children.whereType<EnemyComponent>().forEach((enemy) => enemy.removeFromParent());
+    children.whereType<ProjectileComponent>().forEach((projectile) => projectile.removeFromParent());
+    
+    player.position = Vector2(
+      size.x / 2 - player.size.x / 2,
+      size.y * 0.8 - player.size.y / 2,
+    );
+    
+    _enemySpawnTimer.stop();
+    add(TimerComponent(period: 2, onTick: _spawnEnemy, repeat: true));
+    resumeEngine();
   }
 
   @override
@@ -114,17 +418,28 @@ class SpaceGame extends FlameGame
       return;
     }
 
+    if (!isMouseControl && joystickDirection != null) {
+      player.position += joystickDirection! * 500 * dt;
+      player.position.x = player.position.x.clamp(
+        player.size.x / 2,
+        size.x - player.size.x / 2,
+      );
+      player.position.y = player.position.y.clamp(
+        player.size.y / 2,
+        size.y - player.size.y / 2,
+      );
+    }
+
     // Verificar colisões
     for (final projectile in List<ProjectileComponent>.from(projectiles)) {
       for (final component in children) {
         if (component is EnemyComponent) {
           if (projectile.hitbox.containsPoint(component.position) ||
               component.hitbox.containsPoint(projectile.position)) {
-            // Colisão projétil-inimigo
             projectile.removeFromParent();
             projectiles.remove(projectile);
             component.removeFromParent();
-            updateScore(100);
+            updateScore(component.points);
             break;
           }
         }
@@ -136,31 +451,12 @@ class SpaceGame extends FlameGame
       if (component is EnemyComponent) {
         if (player.hitbox.containsPoint(component.position) ||
             component.hitbox.containsPoint(player.position)) {
-          // Colisão player-inimigo
           component.removeFromParent();
           endGame();
           break;
         }
       }
     }
-  }
-
-  void _spawnEnemy() {
-    if (!gameOver) {
-      final random = math.Random();
-      final enemy = EnemyComponent(
-        position: Vector2(
-          random.nextDouble() * size.x,
-          -40,
-        ),
-      );
-      add(enemy);
-    }
-  }
-
-  void updateScore(int points) {
-    score += points;
-    scoreText.text = 'Score: $score';
   }
 
   void endGame() {
@@ -210,8 +506,10 @@ class SpaceGame extends FlameGame
         canvas,
         Offset((size.x - scoreText.width) / 2, size.y * 0.45),
       );
-      final buttonRect = Rect.fromCenter(
-        center: Offset(size.x / 2, size.y * 0.6),
+
+      // Botão de reiniciar
+      final restartButtonRect = Rect.fromCenter(
+        center: Offset(size.x / 2, size.y * 0.55),
         width: 200,
         height: 50,
       );
@@ -219,10 +517,41 @@ class SpaceGame extends FlameGame
         ..color = AppTheme.sunsetOrange
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
-        RRect.fromRectAndRadius(buttonRect, const Radius.circular(25)),
+        RRect.fromRectAndRadius(restartButtonRect, const Radius.circular(25)),
         buttonPaint,
       );
-      final buttonText = TextPainter(
+      final restartButtonText = TextPainter(
+        text: const TextSpan(
+          text: 'Reiniciar',
+          style: TextStyle(
+            color: AppTheme.geometricBlack,
+            fontSize: 18,
+            fontFamily: 'Orbitron',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      restartButtonText.layout();
+      restartButtonText.paint(
+        canvas,
+        Offset(
+          restartButtonRect.center.dx - restartButtonText.width / 2,
+          restartButtonRect.center.dy - restartButtonText.height / 2,
+        ),
+      );
+
+      // Botão de voltar ao menu
+      final menuButtonRect = Rect.fromCenter(
+        center: Offset(size.x / 2, size.y * 0.65),
+        width: 200,
+        height: 50,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(menuButtonRect, const Radius.circular(25)),
+        buttonPaint,
+      );
+      final menuButtonText = TextPainter(
         text: const TextSpan(
           text: 'Voltar ao Menu',
           style: TextStyle(
@@ -234,15 +563,15 @@ class SpaceGame extends FlameGame
         ),
         textDirection: TextDirection.ltr,
       );
-      buttonText.layout();
-      buttonText.paint(
+      menuButtonText.layout();
+      menuButtonText.paint(
         canvas,
         Offset(
-          buttonRect.center.dx - buttonText.width / 2,
-          buttonRect.center.dy - buttonText.height / 2,
+          menuButtonRect.center.dx - menuButtonText.width / 2,
+          menuButtonRect.center.dy - menuButtonText.height / 2,
         ),
       );
-      _menuButtonRect = buttonRect;
+      _menuButtonRect = menuButtonRect;
     }
   }
 
@@ -256,15 +585,44 @@ class SpaceGame extends FlameGame
   @override
   void onTapDown(TapDownInfo info) {
     if (gameOver && _menuButtonRect != null) {
-      final touchPoint =
-          Offset(info.eventPosition.global.x, info.eventPosition.global.y);
+      final touchPoint = Offset(info.eventPosition.global.x, info.eventPosition.global.y);
       if (_menuButtonRect!.contains(touchPoint)) {
         onReturnToMenu();
+      } else {
+        // Verificar se clicou no botão de reiniciar
+        final restartButtonRect = Rect.fromCenter(
+          center: Offset(size.x / 2, size.y * 0.55),
+          width: 200,
+          height: 50,
+        );
+        if (restartButtonRect.contains(touchPoint)) {
+          resetGame();
+        }
       }
     } else if (!gameOver) {
       player.shoot(this);
     }
   }
+
+  void toggleControl(bool useMouse) {
+    isMouseControl = useMouse;
+    if (useMouse) {
+      joystickDirection = null;
+    }
+  }
+
+  void updateJoystick(JoystickDetails details) {
+    if (!isMouseControl) {
+      joystickDirection = details.direction;
+    }
+  }
+}
+
+enum EnemyType {
+  square,    // Básico: 50 pontos
+  circle,    // Médio: 75 pontos
+  triangle,  // Difícil: 100 pontos
+  diamond,   // Raro: 150 pontos
 }
 
 class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
@@ -359,7 +717,7 @@ class Player extends PositionComponent
   late RectangleHitbox hitbox;
   late Paint _paint;
 
-  Player() : super(size: Vector2(50, 50), position: Vector2(400, 500)) {
+  Player() : super(size: Vector2(50, 50)) {
     hitbox = RectangleHitbox(
       size: Vector2(40, 40),
       position: Vector2(5, 5),
@@ -369,10 +727,32 @@ class Player extends PositionComponent
   }
 
   @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    // Posiciona o player no centro da tela na primeira vez
+    position = Vector2(
+      gameRef.size.x / 2 - size.x / 2,
+      gameRef.size.y * 0.8 - size.y / 2,
+    );
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    // Atualiza a posição quando a tela for redimensionada
+    position = Vector2(
+      size.x / 2 - this.size.x / 2,
+      size.y * 0.8 - this.size.y / 2,
+    );
+  }
+
+  @override
   void update(double dt) {
     super.update(dt);
     if (!gameRef.gameOver) {
-      position += (target - position) * 0.2;
+      if (gameRef.isMouseControl) {
+        position += (target - position) * 0.2;
+      }
     }
   }
 
@@ -436,22 +816,54 @@ class EnemyComponent extends PositionComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
   late Paint _paint;
+  final EnemyType type;
+  final int points;
 
-  EnemyComponent({required Vector2 position}) : super(size: Vector2(40, 40)) {
+  EnemyComponent({
+    required Vector2 position,
+    this.type = EnemyType.square,
+  }) : points = _getPointsForType(type),
+       super(size: Vector2(40, 40)) {
     this.position = position;
     hitbox = RectangleHitbox(
       size: Vector2(36, 36),
       position: Vector2(2, 2),
     );
     add(hitbox);
-    _paint = Paint()..color = Colors.white;
+    _paint = Paint()..color = _getColorForType(type);
+  }
+
+  static int _getPointsForType(EnemyType type) {
+    switch (type) {
+      case EnemyType.square:
+        return 50;
+      case EnemyType.circle:
+        return 75;
+      case EnemyType.triangle:
+        return 100;
+      case EnemyType.diamond:
+        return 150;
+    }
+  }
+
+  static Color _getColorForType(EnemyType type) {
+    switch (type) {
+      case EnemyType.square:
+        return Colors.red;
+      case EnemyType.circle:
+        return Colors.orange;
+      case EnemyType.triangle:
+        return Colors.purple;
+      case EnemyType.diamond:
+        return Colors.cyan;
+    }
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     if (!gameRef.gameOver) {
-      position.y += 100 * dt;
+      position.y += 100 * dt * gameRef._gameSpeed;
       if (position.y > gameRef.size.y) {
         removeFromParent();
       }
@@ -460,7 +872,35 @@ class EnemyComponent extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
+    switch (type) {
+      case EnemyType.square:
+        canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
+        break;
+      case EnemyType.circle:
+        canvas.drawCircle(
+          Offset(size.x / 2, size.y / 2),
+          size.x / 2,
+          _paint,
+        );
+        break;
+      case EnemyType.triangle:
+        final path = Path()
+          ..moveTo(size.x / 2, 0)
+          ..lineTo(size.x, size.y)
+          ..lineTo(0, size.y)
+          ..close();
+        canvas.drawPath(path, _paint);
+        break;
+      case EnemyType.diamond:
+        final path = Path()
+          ..moveTo(size.x / 2, 0)
+          ..lineTo(size.x, size.y / 2)
+          ..lineTo(size.x / 2, size.y)
+          ..lineTo(0, size.y / 2)
+          ..close();
+        canvas.drawPath(path, _paint);
+        break;
+    }
   }
 }
 

@@ -310,7 +310,7 @@ class UserRepository {
 
         // Cria o usuário no SQLite
         final db = await _database;
-
+        
         // Verifica a estrutura da tabela antes da inserção
         final tableInfo = await db!.rawQuery('PRAGMA table_info(users)');
         debugPrint('Table structure before insert: $tableInfo');
@@ -376,7 +376,7 @@ class UserRepository {
     try {
       final db = await _database;
       final now = DateTime.now().toUtc().toIso8601String();
-
+      
       await db!.update(
         'users',
         {'last_login': now},
@@ -497,7 +497,7 @@ class UserRepository {
       if (userData['is_active'] is bool) {
         userData['is_active'] = (userData['is_active'] as bool) ? 1 : 0;
       }
-
+      
       await _dbInstance!.insert(
         'users',
         userData,
