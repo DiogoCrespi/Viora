@@ -45,16 +45,17 @@ void main() async {
 
   // Initialize Supabase (apenas verificar conexão, não inicializar novamente)
   try {
-    final isConnected = await SupabaseConfig.checkConnection();
-    if (!isConnected) {
-      debugPrint('Erro: Não foi possível conectar ao Supabase. Último erro: ${SupabaseConfig.lastError}');
+    // Inicializa o Supabase primeiro
+    final initialized = await SupabaseConfig.initialize();
+    if (!initialized) {
+      debugPrint('Erro: Não foi possível inicializar o Supabase. Último erro: ${SupabaseConfig.lastError}');
       // TODO: Mostrar uma tela de erro ou tentar reconectar
     } else {
       final session = SupabaseConfig.client.auth.currentSession;
       debugPrint('Main: Current session after init: ${session?.user.id}');
     }
   } catch (e) {
-    debugPrint('Error checking Supabase connection: $e');
+    debugPrint('Error initializing Supabase: $e');
     // TODO: Mostrar uma tela de erro ou tentar reconectar
   }
 
@@ -126,24 +127,17 @@ class VioraApp extends StatelessWidget {
             debugPrint(
                 'VioraApp: Generating route ${settings.name} with session: ${session?.user.id}');
 
-            // Se não estiver autenticado e não estiver na tela de login ou onboarding
-            if (session == null &&
-                settings.name != '/login' &&
-                settings.name != '/') {
-              debugPrint('VioraApp: Redirecting to login');
-              return MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              );
-            }
-
             switch (settings.name) {
               case '/':
+                // Primeiro, verifica se o usuário já viu o onboarding
                 if (!hasSeenOnboarding) {
                   debugPrint('VioraApp: Showing onboarding');
                   return MaterialPageRoute(
                     builder: (context) => const OnboardingScreen(),
                   );
-                } else if (session == null) {
+                } 
+                // Se já viu o onboarding, verifica se está autenticado
+                else if (session == null) {
                   debugPrint('VioraApp: Redirecting to login (no session)');
                   return MaterialPageRoute(
                     builder: (context) => const LoginScreen(),
@@ -155,6 +149,7 @@ class VioraApp extends StatelessWidget {
                   );
                 }
               case '/main':
+                // Para acessar a tela principal, o usuário deve estar autenticado
                 if (session == null) {
                   debugPrint(
                       'VioraApp: Redirecting to login (no session for main)');
@@ -166,6 +161,7 @@ class VioraApp extends StatelessWidget {
                   builder: (context) => const MainScreen(selectedIndex: 0),
                 );
               case '/game':
+                // Para acessar o jogo, o usuário deve estar autenticado
                 if (session == null) {
                   debugPrint(
                       'VioraApp: Redirecting to login (no session for game)');
@@ -181,9 +177,10 @@ class VioraApp extends StatelessWidget {
                   builder: (context) => const LoginScreen(),
                 );
               default:
-                debugPrint('VioraApp: Redirecting to login (default)');
+                // Para qualquer rota desconhecida, redireciona para a rota inicial
+                debugPrint('VioraApp: Redirecting to root (unknown route)');
                 return MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => const OnboardingScreen(),
                 );
             }
           },

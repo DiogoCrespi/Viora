@@ -313,3 +313,18 @@ lib/
 │   └── repositories/        # Interfaces dos repositórios
 │
 └── main.dart                # Ponto de entrada da aplicação
+
+
+
+
+1. App Inicia
+   ↓
+2. Verifica has_seen_onboarding
+   ↓
+   3a. Se FALSE → OnboardingScreen
+   ↓
+   3b. Se TRUE → Verifica sessão
+   ↓
+   4a. Se sem sessão → LoginScreen
+   ↓
+   4b. Se com sessão → MainScreen

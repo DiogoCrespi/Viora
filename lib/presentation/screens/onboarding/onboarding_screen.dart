@@ -116,38 +116,28 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       await prefs.setBool('has_seen_onboarding', true);
       debugPrint('OnboardingScreen: Saved has_seen_onboarding = true');
 
-      final session = SupabaseConfig.client.auth.currentSession;
-      debugPrint('OnboardingScreen: Current session: ${session?.user.id}');
-
       if (mounted) {
-        if (session != null) {
-          debugPrint(
-              'OnboardingScreen: User is authenticated, navigating to main');
-          Navigator.pushReplacementNamed(context, '/main');
-        } else {
-          debugPrint(
-              'OnboardingScreen: User is not authenticated, navigating to login');
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const LoginScreen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOutCubic;
-                var tween = Tween(
-                  begin: begin,
-                  end: end,
-                ).chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(position: offsetAnimation, child: child);
-              },
-              transitionDuration: Theme.of(context).themeChangeDuration,
-            ),
-          );
-        }
+        debugPrint('OnboardingScreen: Navigating to login');
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const LoginScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOutCubic;
+              var tween = Tween(
+                begin: begin,
+                end: end,
+              ).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(position: offsetAnimation, child: child);
+            },
+            transitionDuration: Theme.of(context).themeChangeDuration,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('OnboardingScreen: Error in _navigateToNext: $e');
