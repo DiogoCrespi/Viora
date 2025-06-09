@@ -48,7 +48,8 @@ void main() async {
     // Inicializa o Supabase primeiro
     final initialized = await SupabaseConfig.initialize();
     if (!initialized) {
-      debugPrint('Erro: Não foi possível inicializar o Supabase. Último erro: ${SupabaseConfig.lastError}');
+      debugPrint(
+          'Erro: Não foi possível inicializar o Supabase. Último erro: ${SupabaseConfig.lastError}');
       // TODO: Mostrar uma tela de erro ou tentar reconectar
     } else {
       final session = SupabaseConfig.client.auth.currentSession;
@@ -65,8 +66,19 @@ void main() async {
   debugPrint('Main: Has seen onboarding: $hasSeenOnboarding');
 
   // Initialize database and repositories
-  final userRepository = UserRepository();
-  final userProvider = UserProvider(userRepository);
+  Database? db;
+  if (!kIsWeb) {
+    try {
+      if (Platform.isDesktop) {
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+        db = await databaseFactoryFfi.openDatabase('viora.db');
+      }
+    } catch (e) {
+      debugPrint('Error initializing SQLite: $e');
+    }
+  }
+  final userProvider = UserProvider(db);
 
   runApp(
     MultiProvider(
@@ -135,7 +147,7 @@ class VioraApp extends StatelessWidget {
                   return MaterialPageRoute(
                     builder: (context) => const OnboardingScreen(),
                   );
-                } 
+                }
                 // Se já viu o onboarding, verifica se está autenticado
                 else if (session == null) {
                   debugPrint('VioraApp: Redirecting to login (no session)');

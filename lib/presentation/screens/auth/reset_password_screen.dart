@@ -54,7 +54,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
 
         await userProvider.resetPassword(
-          widget.email,
           _passwordController.text,
         );
 

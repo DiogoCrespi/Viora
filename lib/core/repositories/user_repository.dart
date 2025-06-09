@@ -2,10 +2,156 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/user.dart';
+import '../models/app_user.dart';
 import '../config/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 import '../database/migrations/initial_schema.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+
+abstract class IUserRepository {
+  Future<AppUser?> getUserByEmail(String email);
+  Future<AppUser> createUser(AppUser user);
+  Future<void> updateUser(AppUser user);
+  Future<void> deleteUser(String id);
+}
+
+class SupabaseUserRepository implements IUserRepository {
+  final SupabaseClient _client;
+
+  SupabaseUserRepository(this._client);
+
+  @override
+  Future<AppUser?> getUserByEmail(String email) async {
+    try {
+      final response =
+          await _client.from('users').select().eq('email', email).single();
+
+      if (response == null) return null;
+
+      return AppUser.fromJson(response);
+    } catch (e) {
+      debugPrint('Supabase error: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<AppUser> createUser(AppUser user) async {
+    try {
+      final response =
+          await _client.from('users').insert(user.toJson()).select().single();
+      return AppUser.fromJson(response);
+    } catch (e) {
+      debugPrint('Supabase error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateUser(AppUser user) async {
+    try {
+      await _client.from('users').update(user.toJson()).eq('id', user.id);
+    } catch (e) {
+      debugPrint('Supabase error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteUser(String id) async {
+    try {
+      await _client.from('users').delete().eq('id', id);
+    } catch (e) {
+      debugPrint('Supabase error: $e');
+      rethrow;
+    }
+  }
+}
+
+class SQLiteUserRepository implements IUserRepository {
+  final Database _db;
+
+  SQLiteUserRepository(this._db);
+
+  @override
+  Future<AppUser?> getUserByEmail(String email) async {
+    try {
+      final List<Map<String, dynamic>> maps = await _db.query(
+        'users',
+        where: 'email = ?',
+        whereArgs: [email],
+      );
+
+      if (maps.isEmpty) return null;
+      return AppUser(
+        id: maps.first['id'] as String,
+        name: maps.first['name'] as String,
+        email: maps.first['email'] as String,
+        passwordHash: maps.first['password_hash'] as String? ?? '',
+        passwordSalt: maps.first['password_salt'] as String? ?? '',
+        avatarPath: maps.first['avatar_path'] as String?,
+        createdAt: DateTime.parse(maps.first['created_at'] as String),
+        lastLogin: maps.first['last_login'] != null
+            ? DateTime.parse(maps.first['last_login'] as String)
+            : null,
+        isActive: (maps.first['is_active'] as int) == 1,
+      );
+    } catch (e) {
+      debugPrint('SQLite error: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<AppUser> createUser(AppUser user) async {
+    try {
+      final id = await _db.insert('users', user.toJson());
+      return user.copyWith(id: id.toString());
+    } catch (e) {
+      debugPrint('SQLite error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateUser(AppUser user) async {
+    try {
+      await _db.update(
+        'users',
+        user.toJson(),
+        where: 'id = ?',
+        whereArgs: [user.id],
+      );
+    } catch (e) {
+      debugPrint('SQLite error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteUser(String id) async {
+    try {
+      await _db.delete(
+        'users',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      debugPrint('SQLite error: $e');
+      rethrow;
+    }
+  }
+}
+
+// Factory para criar o repositório apropriado
+class UserRepositoryFactory {
+  static IUserRepository create(SupabaseClient supabaseClient, [Database? db]) {
+    if (!kIsWeb && db != null) {
+      return SQLiteUserRepository(db);
+    }
+    return SupabaseUserRepository(supabaseClient);
+  }
+}
 
 class UserRepository {
   static Database? _dbInstance;
@@ -60,7 +206,7 @@ class UserRepository {
     return digest.toString();
   }
 
-  Future<User?> getUserByEmail(String email) async {
+  Future<AppUser?> getUserByEmail(String email) async {
     try {
       final db = await _database;
       final List<Map<String, dynamic>> maps = await db!.query(
@@ -74,16 +220,18 @@ class UserRepository {
       }
 
       final map = maps.first;
-      return User(
+      return AppUser(
         id: map['id'] as String,
         name: map['name'] as String,
         email: map['email'] as String,
-        passwordHash: map['password_hash'] as String,
-        passwordSalt: map['password_salt'] as String,
+        passwordHash: map['password_hash'] as String? ?? '',
+        passwordSalt: map['password_salt'] as String? ?? '',
         avatarPath: map['avatar_path'] as String?,
-        createdAt: map['created_at'] as String,
-        lastLogin: map['last_login'] as String?,
-        isActive: map['is_active'] as int,
+        createdAt: DateTime.parse(map['created_at'] as String),
+        lastLogin: map['last_login'] != null
+            ? DateTime.parse(map['last_login'] as String)
+            : null,
+        isActive: (map['is_active'] as int) == 1,
       );
     } catch (e) {
       debugPrint('Error getting user by email: $e');
@@ -91,7 +239,8 @@ class UserRepository {
     }
   }
 
-  Future<User?> createUser(String name, String email, String password, String supabaseId) async {
+  Future<AppUser?> createUser(
+      String name, String email, String password, String supabaseId) async {
     try {
       debugPrint('Attempting to create user with email: $email');
 
@@ -132,7 +281,7 @@ class UserRepository {
 
         // Cria o usuário no SQLite
         final db = await _database;
-        
+
         // Verifica a estrutura da tabela antes da inserção
         final tableInfo = await db!.rawQuery('PRAGMA table_info(users)');
         debugPrint('Table structure before insert: $tableInfo');
@@ -166,16 +315,16 @@ class UserRepository {
         final insertedUser = await getUserByEmail(email);
         debugPrint('Inserted user from SQLite: $insertedUser');
 
-        return User(
+        return AppUser(
           id: supabaseId,
           name: name,
           email: email,
           passwordHash: hashedPassword,
           passwordSalt: salt,
           avatarPath: null,
-          createdAt: createdAt,
+          createdAt: DateTime.now(),
           lastLogin: null,
-          isActive: 1,
+          isActive: true,
         );
       } catch (e) {
         debugPrint('Supabase error: $e');
@@ -198,7 +347,7 @@ class UserRepository {
     try {
       final db = await _database;
       final now = DateTime.now().toUtc().toIso8601String();
-      
+
       await db!.update(
         'users',
         {'last_login': now},
@@ -235,7 +384,10 @@ class UserRepository {
     if (avatarPath != null) updates['avatar_path'] = avatarPath;
 
     if (updates.isNotEmpty) {
-      await SupabaseConfig.client.from('users').update(updates).eq('id', userId);
+      await SupabaseConfig.client
+          .from('users')
+          .update(updates)
+          .eq('id', userId);
 
       if (_dbInstance != null) {
         await _dbInstance!.update(
@@ -309,14 +461,14 @@ class UserRepository {
     }
   }
 
-  Future<void> _cacheUser(User user) async {
+  Future<void> _cacheUser(AppUser user) async {
     if (_dbInstance != null) {
       final userData = user.toJson();
       // Converte valores booleanos para inteiros
       if (userData['is_active'] is bool) {
         userData['is_active'] = (userData['is_active'] as bool) ? 1 : 0;
       }
-      
+
       await _dbInstance!.insert(
         'users',
         userData,

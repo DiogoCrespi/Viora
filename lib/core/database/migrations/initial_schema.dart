@@ -4,16 +4,16 @@ class InitialSchema {
   static Future<void> createTables(Database db) async {
     // Users Table - Ajustado para corresponder ao Supabase
     await db.execute('''
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        password_salt TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT,
+        password_salt TEXT,
         avatar_path TEXT,
         created_at TEXT NOT NULL,
         last_login TEXT,
-        is_active INTEGER DEFAULT 1
+        is_active INTEGER NOT NULL DEFAULT 1
       )
     ''');
 
@@ -85,14 +85,14 @@ class InitialSchema {
 
     // PasswordResetTokens Table - Ajustado para corresponder ao Supabase
     await db.execute('''
-      CREATE TABLE password_reset_tokens (
-        id TEXT PRIMARY KEY,
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         token TEXT NOT NULL,
         expires_at TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now', 'utc')),
-        is_used INTEGER DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        created_at TEXT NOT NULL,
+        is_used INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
 
@@ -111,16 +111,15 @@ class InitialSchema {
 
     // UserPreferences Table - Ajustado para corresponder ao Supabase
     await db.execute('''
-      CREATE TABLE user_preferences (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL UNIQUE,
-        theme_mode TEXT DEFAULT 'system',
-        language TEXT DEFAULT 'pt',
-        font_size TEXT DEFAULT 'medium',
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        user_id TEXT PRIMARY KEY,
+        theme_mode TEXT,
+        language TEXT,
+        font_size REAL,
         avatar_url TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
 

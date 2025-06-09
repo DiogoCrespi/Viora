@@ -1,78 +1,102 @@
 import 'package:flutter/foundation.dart';
-import '../models/user.dart';
-import '../repositories/user_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import '../repositories/user_repository.dart';
+import '../models/app_user.dart';
+import 'package:sqflite/sqflite.dart';
+import '../database/database_helper.dart';
 
 class UserProvider with ChangeNotifier {
-  User? _currentUser;
-  final UserRepository _userRepository;
+  final SupabaseClient _supabase = SupabaseConfig.client;
+  final IUserRepository _userRepository;
+  AppUser? _currentUser;
+  bool _isLoading = false;
+  String? _error;
   DateTime? _lastPasswordResetRequest;
 
-  UserProvider(this._userRepository);
+  UserProvider([Database? db])
+      : _userRepository =
+            UserRepositoryFactory.create(SupabaseConfig.client, db);
 
-  User? get currentUser => _currentUser;
+  AppUser? get currentUser => _currentUser;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   Future<bool> login(String email, String password) async {
     try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
       debugPrint('UserProvider: Tentando fazer login com email: $email');
+      final response = await _supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
 
-      // Primeiro tenta fazer login no Supabase
-      try {
-        final response = await SupabaseConfig.client.auth.signInWithPassword(
-          email: email,
-          password: password,
-        );
-
-        if (response.user != null) {
-          // Verifica se o email está confirmado
-          if (response.user?.emailConfirmedAt == null) {
-            debugPrint('UserProvider: Email não confirmado');
-            throw Exception('loginErrorEmailNotConfirmed');
-          }
-
-          debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
-          debugPrint('UserProvider: Session: ${response.session?.user.id}');
-          debugPrint('UserProvider: User: ${response.user?.id}');
-
-          // Verifica se o usuário existe no SQLite
-          var user = await _userRepository.getUserByEmail(email);
-          if (user == null) {
-            // Se não existe no SQLite, cria o usuário
-            debugPrint('UserProvider: Criando usuário no SQLite');
-            user = await _userRepository.createUser(
-              response.user!.userMetadata?['name'] ?? email.split('@')[0],
-              email,
-              password,
-              response.user!.id,
-            );
-          }
-
-          _currentUser = user;
-          if (user?.id != null) {
-            await _userRepository.updateLastLogin(user!.id!);
-          }
-          notifyListeners();
-          return true;
-        }
-      } catch (e) {
-        debugPrint('UserProvider: Erro durante o login: $e');
-        if (e.toString().contains('Invalid login credentials') ||
-            e.toString().contains('invalid_credentials')) {
-          throw Exception('loginError');
-        }
-        if (e.toString().contains('email_not_confirmed') ||
-            e.toString().contains('loginErrorEmailNotConfirmed')) {
-          debugPrint('UserProvider: Email não confirmado');
-          throw Exception('loginErrorEmailNotConfirmed');
-        }
-        rethrow;
+      if (response.user == null) {
+        throw Exception('Login failed: No user returned');
       }
 
-      debugPrint('UserProvider: Falha na autenticação');
-      return false;
+      debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
+      debugPrint('UserProvider: Session: ${response.session?.user.id}');
+      debugPrint('UserProvider: User: ${response.user?.id}');
+
+      // Buscar ou criar usuário no repositório
+      var user = await _userRepository.getUserByEmail(email);
+
+      if (user == null) {
+        debugPrint('UserProvider: Criando usuário no repositório');
+        user = await _userRepository.createUser(
+          AppUser(
+            id: response.user!.id,
+            name: response.user!.userMetadata?['name'] ?? email,
+            email: email,
+            passwordHash: '',
+            passwordSalt: '',
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
+
+      _currentUser = user;
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
       debugPrint('UserProvider: Erro durante o login: $e');
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await _supabase.auth.signOut();
+      _currentUser = null;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error during logout: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateProfile(String name, String? avatarPath) async {
+    try {
+      if (_currentUser == null) throw Exception('No user logged in');
+
+      final updatedUser = _currentUser!.copyWith(
+        name: name,
+        avatarPath: avatarPath,
+      );
+
+      await _userRepository.updateUser(updatedUser);
+      _currentUser = updatedUser;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating profile: $e');
       rethrow;
     }
   }
@@ -139,10 +163,14 @@ class UserProvider with ChangeNotifier {
 
       // Cria o usuário na tabela users do SQLite
       final user = await _userRepository.createUser(
-        name,
-        email,
-        password,
-        authResponse.user!.id,
+        AppUser(
+          id: authResponse.user!.id,
+          name: name,
+          email: email,
+          passwordHash: '', // Empty for Supabase auth
+          passwordSalt: '', // Empty for Supabase auth
+          createdAt: DateTime.now(),
+        ),
       );
 
       _currentUser = user;
@@ -154,111 +182,35 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> logout() async {
-    try {
-      debugPrint('UserProvider: Attempting logout');
-      await SupabaseConfig.client.auth.signOut();
-      _currentUser = null;
-      notifyListeners();
-      debugPrint('UserProvider: Logout successful');
-    } catch (e) {
-      debugPrint('UserProvider: Error during logout: $e');
-    }
-  }
-
-  Future<bool> updateProfile({
-    String? name,
-    String? email,
-    String? avatarPath,
-  }) async {
-    if (_currentUser == null) return false;
-
-    try {
-      debugPrint(
-          'UserProvider: Updating profile for user: ${_currentUser!.id}');
-
-      await _userRepository.updateUserProfile(
-        _currentUser!.id!,
-        name: name,
-        email: email,
-        avatarPath: avatarPath,
-      );
-
-      // Update current user
-      _currentUser = await _userRepository.getUserByEmail(
-        email ?? _currentUser!.email,
-      );
-      notifyListeners();
-      debugPrint('UserProvider: Profile update successful');
-      return true;
-    } catch (e) {
-      debugPrint('UserProvider: Error updating profile: $e');
-      return false;
-    }
-  }
-
   Future<bool> requestPasswordReset(String email) async {
     try {
-      debugPrint('UserProvider: Requesting password reset for email: $email');
-
-      // Verifica se já passou o tempo mínimo desde o último pedido
+      // Verificar se já fez uma requisição recente (dentro de 1 minuto)
       if (_lastPasswordResetRequest != null) {
         final timeSinceLastRequest =
             DateTime.now().difference(_lastPasswordResetRequest!);
-        if (timeSinceLastRequest.inSeconds < 60) {
-          final remainingSeconds = 60 - timeSinceLastRequest.inSeconds;
-          throw Exception('resetPasswordRateLimit: $remainingSeconds');
+        if (timeSinceLastRequest.inMinutes < 1) {
+          throw Exception(
+              'Please wait before requesting another password reset');
         }
       }
 
-      // Usa o Supabase para enviar o email de reset
-      await SupabaseConfig.client.auth.resetPasswordForEmail(
-        email,
-        redirectTo: 'io.supabase.viora://reset-password-callback/',
-      );
-
-      // Atualiza o timestamp do último pedido
+      await _supabase.auth.resetPasswordForEmail(email);
       _lastPasswordResetRequest = DateTime.now();
-
-      debugPrint('UserProvider: Password reset email sent');
       return true;
     } catch (e) {
-      debugPrint('UserProvider: Error requesting password reset: $e');
-      if (e.toString().contains('over_email_send_rate_limit')) {
-        throw Exception('resetPasswordRateLimit: 60');
-      }
+      debugPrint('Error requesting password reset: $e');
       rethrow;
     }
   }
 
-  Future<bool> resetPassword(String email, String newPassword) async {
+  Future<void> resetPassword(String newPassword) async {
     try {
-      debugPrint('UserProvider: Resetting password for email: $email');
-
-      // Usa o método de recuperação de senha do Supabase
-      final response = await SupabaseConfig.client.auth.updateUser(
-        supabase.UserAttributes(
-          password: newPassword,
-        ),
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
       );
-
-      if (response.user != null) {
-        debugPrint('UserProvider: Password updated successfully in Supabase');
-        return true;
-      }
-
-      throw Exception('resetPasswordError');
     } catch (e) {
-      debugPrint('UserProvider: Error updating password in Supabase: $e');
-      if (e
-          .toString()
-          .contains('New password should be different from the old password')) {
-        throw Exception('resetPasswordSamePassword');
-      }
-      if (e.toString().contains('Auth session missing')) {
-        throw Exception('resetPasswordSessionExpired');
-      }
-      throw Exception('resetPasswordError');
+      debugPrint('Error resetting password: $e');
+      rethrow;
     }
   }
 
@@ -268,7 +220,7 @@ class UserProvider with ChangeNotifier {
       debugPrint(
           'UserProvider: Tentando reenviar email de confirmação para: $email');
       await SupabaseConfig.client.auth.resend(
-        type: supabase.OtpType.signup,
+        type: OtpType.signup,
         email: email,
       );
       debugPrint('UserProvider: Email de confirmação reenviado com sucesso');
