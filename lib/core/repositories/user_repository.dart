@@ -71,7 +71,13 @@ class SupabaseUserRepository implements IUserRepository {
 class SQLiteUserRepository implements IUserRepository {
   final Database _db;
 
-  SQLiteUserRepository(this._db);
+  SQLiteUserRepository(this._db) {
+    _initDatabase();
+  }
+
+  Future<void> _initDatabase() async {
+    await InitialSchema.createTables(_db);
+  }
 
   @override
   Future<AppUser?> getUserByEmail(String email) async {
@@ -105,8 +111,20 @@ class SQLiteUserRepository implements IUserRepository {
   @override
   Future<AppUser> createUser(AppUser user) async {
     try {
-      final id = await _db.insert('users', user.toJson());
-      return user.copyWith(id: id.toString());
+      final userData = {
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'password_hash': user.passwordHash,
+        'password_salt': user.passwordSalt,
+        'avatar_path': user.avatarPath,
+        'created_at': user.createdAt.toIso8601String(),
+        'last_login': user.lastLogin?.toIso8601String(),
+        'is_active': user.isActive ? 1 : 0,
+      };
+
+      await _db.insert('users', userData);
+      return user;
     } catch (e) {
       debugPrint('SQLite error: $e');
       rethrow;
@@ -116,9 +134,20 @@ class SQLiteUserRepository implements IUserRepository {
   @override
   Future<void> updateUser(AppUser user) async {
     try {
+      final userData = {
+        'name': user.name,
+        'email': user.email,
+        'password_hash': user.passwordHash,
+        'password_salt': user.passwordSalt,
+        'avatar_path': user.avatarPath,
+        'created_at': user.createdAt.toIso8601String(),
+        'last_login': user.lastLogin?.toIso8601String(),
+        'is_active': user.isActive ? 1 : 0,
+      };
+
       await _db.update(
         'users',
-        user.toJson(),
+        userData,
         where: 'id = ?',
         whereArgs: [user.id],
       );
