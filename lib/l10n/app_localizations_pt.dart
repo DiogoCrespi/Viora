@@ -15,22 +15,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboardingPage1Title => 'Bem-vindo ao Viora';
 
   @override
-  String get onboardingPage1Description =>
-      'Sistema de missões para transformar sua jornada';
+  String get onboardingPage1Description => 'Sistema de missões para transformar sua jornada';
 
   @override
   String get onboardingPage2Title => 'Missões Personalizadas';
 
   @override
-  String get onboardingPage2Description =>
-      'Desafios únicos para seu crescimento';
+  String get onboardingPage2Description => 'Desafios únicos para seu crescimento';
 
   @override
   String get onboardingPage3Title => 'Acompanhe seu Progresso';
 
   @override
-  String get onboardingPage3Description =>
-      'Visualize sua evolução em tempo real';
+  String get onboardingPage3Description => 'Visualize sua evolução em tempo real';
 
   @override
   String get skipButton => 'Pular';
@@ -96,8 +93,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacySettingTitle => 'Privacidade';
 
   @override
-  String get privacySettingSubtitle =>
-      'Configure suas preferências de privacidade';
+  String get privacySettingSubtitle => 'Configure suas preferências de privacidade';
 
   @override
   String get logoutSettingTitle => 'Sair';
@@ -118,8 +114,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Bem-vindo ao Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle =>
-      'Prepare-se para uma jornada espacial épica!';
+  String get statusScreenWelcomeSubtitle => 'Prepare-se para uma jornada espacial épica!';
 
   @override
   String get playButton => 'JOGAR';
@@ -200,15 +195,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loginError => 'E-mail ou senha inválidos';
 
   @override
-  String get loginErrorNoConnection =>
-      'Sem conexão com a internet. Por favor, verifique sua conexão e tente novamente.';
+  String get loginErrorNoConnection => 'Erro de conexão. Verifique sua conexão com a internet e tente novamente.';
 
   @override
-  String get loginErrorServerUnavailable =>
-      'Servidor indisponível. Por favor, tente novamente mais tarde.';
+  String get loginErrorServerUnavailable => 'Servidor indisponível. Por favor, tente novamente mais tarde.';
 
   @override
-  String get loginErrorInvalidCredentials => 'E-mail ou senha inválidos.';
+  String get loginErrorInvalidCredentials => 'Email ou senha inválidos. Por favor, verifique suas credenciais e tente novamente.';
 
   @override
   String get registerTitle => 'Criar Conta';
@@ -247,8 +240,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registerPasswordRequired => 'Por favor, insira sua senha';
 
   @override
-  String get registerPasswordLength =>
-      'A senha deve ter pelo menos 6 caracteres';
+  String get registerPasswordLength => 'A senha deve ter pelo menos 6 caracteres';
 
   @override
   String get registerConfirmPasswordRequired => 'Por favor, confirme sua senha';
@@ -257,38 +249,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registerPasswordsDontMatch => 'As senhas não coincidem';
 
   @override
-  String get registerError =>
-      'Erro ao criar conta. Por favor, tente novamente.';
+  String get registerError => 'Erro ao criar conta. Por favor, tente novamente.';
 
   @override
-  String get registerErrorNoConnection =>
-      'Sem conexão com a internet. Por favor, verifique sua conexão e tente novamente.';
+  String get registerErrorNoConnection => 'Sem conexão com a internet. Por favor, verifique sua conexão e tente novamente.';
 
   @override
-  String get registerErrorServerUnavailable =>
-      'Servidor indisponível. Por favor, tente novamente mais tarde.';
+  String get registerErrorServerUnavailable => 'Servidor indisponível. Por favor, tente novamente mais tarde.';
 
   @override
   String get registerErrorEmailInUse => 'Este e-mail já está cadastrado.';
 
   @override
-  String get registerErrorInvalidData =>
-      'Dados inválidos. Por favor, verifique suas informações.';
+  String get registerErrorInvalidData => 'Dados inválidos. Por favor, verifique suas informações.';
 
   @override
-  String get registerErrorInvalidEmail =>
-      'Por favor, insira um endereço de email válido';
+  String get registerErrorInvalidEmail => 'Por favor, insira um endereço de email válido';
 
   @override
-  String get registerErrorPermissionDenied =>
-      'Erro de permissão. Por favor, tente novamente.';
+  String get registerErrorPermissionDenied => 'Erro de permissão. Por favor, tente novamente.';
 
   @override
   String get forgotPasswordTitle => 'Recuperar Senha';
 
   @override
-  String get forgotPasswordSubtitle =>
-      'Digite seu e-mail para receber as instruções de recuperação de senha';
+  String get forgotPasswordSubtitle => 'Digite seu e-mail para receber as instruções de recuperação de senha';
 
   @override
   String get forgotPasswordEmailLabel => 'E-mail';
@@ -312,8 +297,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get forgotPasswordError => 'Erro ao enviar e-mail de recuperação';
 
   @override
-  String get forgotPasswordDescription =>
-      'Digite seu endereço de e-mail e enviaremos instruções para redefinir sua senha.';
+  String get forgotPasswordDescription => 'Digite seu endereço de e-mail e enviaremos instruções para redefinir sua senha.';
 
   @override
   String get profileChangeAvatar => 'Alterar Avatar';
@@ -361,8 +345,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get resetPasswordSuccess => 'Senha redefinida com sucesso';
 
   @override
-  String get resetPasswordSamePassword =>
-      'A nova senha deve ser diferente da senha atual';
+  String get resetPasswordError => 'Falha ao redefinir senha. Por favor, tente novamente.';
+
+  @override
+  String get resetPasswordSamePassword => 'A nova senha deve ser diferente da senha atual';
 
   @override
   String get profileTitle => 'Perfil';
@@ -384,4 +370,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loginErrorResendingConfirmation => 'Erro ao enviar e-mail de confirmação. Por favor, tente novamente.';
+
+  @override
+  String get resetPasswordEmailSent => 'Email de redefinição de senha enviado. Por favor, verifique sua caixa de entrada.';
+
+  @override
+  String get resetPasswordSessionExpired => 'O link de recuperação expirou. Por favor, solicite um novo email de recuperação.';
+
+  @override
+  String resetPasswordRateLimit(String seconds) {
+    return 'Por favor, aguarde $seconds segundos antes de solicitar outro email de redefinição de senha.';
+  }
 }

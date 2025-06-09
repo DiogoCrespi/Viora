@@ -113,7 +113,7 @@ class InitialSchema {
     await db.execute('''
       CREATE TABLE user_preferences (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id TEXT NOT NULL UNIQUE,
         theme_mode TEXT DEFAULT 'system',
         language TEXT DEFAULT 'pt',
         font_size TEXT DEFAULT 'medium',
@@ -126,13 +126,21 @@ class InitialSchema {
 
     // Create indexes for better performance
     await db.execute('CREATE INDEX idx_users_email ON users(email)');
-    await db.execute('CREATE INDEX idx_user_settings_user_id ON user_settings(user_id)');
-    await db.execute('CREATE INDEX idx_game_progress_user_id ON game_progress(user_id)');
-    await db.execute('CREATE INDEX idx_user_missions_user_id ON user_missions(user_id)');
-    await db.execute('CREATE INDEX idx_user_missions_mission_id ON user_missions(mission_id)');
-    await db.execute('CREATE INDEX idx_onboarding_progress_user_id ON onboarding_progress(user_id)');
-    await db.execute('CREATE INDEX idx_password_reset_tokens_user_id ON password_reset_tokens(user_id)');
-    await db.execute('CREATE INDEX idx_game_sessions_user_id ON game_sessions(user_id)');
-    await db.execute('CREATE INDEX idx_user_preferences_user_id ON user_preferences(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_user_settings_user_id ON user_settings(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_game_progress_user_id ON game_progress(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_user_missions_user_id ON user_missions(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_user_missions_mission_id ON user_missions(mission_id)');
+    await db.execute(
+        'CREATE INDEX idx_onboarding_progress_user_id ON onboarding_progress(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_password_reset_tokens_user_id ON password_reset_tokens(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_game_sessions_user_id ON game_sessions(user_id)');
+    await db.execute(
+        'CREATE INDEX idx_user_preferences_user_id ON user_preferences(user_id)');
   }
 }

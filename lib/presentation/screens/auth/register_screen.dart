@@ -119,17 +119,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         debugPrint('Registration error: $errorMessage'); // Debug log
 
-        if (errorMessage.contains('registerErrorNoConnection')) {
-          _showErrorSnackBar(localizations.registerErrorNoConnection);
+        String message;
+        if (errorMessage.contains('registerErrorEmailInUse')) {
+          message = localizations.registerErrorEmailInUse;
+        } else if (errorMessage.contains('registerErrorNoConnection')) {
+          message = localizations.registerErrorNoConnection;
         } else if (errorMessage.contains('registerErrorServerUnavailable')) {
-          _showErrorSnackBar(localizations.registerErrorServerUnavailable);
-        } else if (errorMessage.contains('registerErrorEmailInUse')) {
-          _showErrorSnackBar(localizations.registerErrorEmailInUse);
+          message = localizations.registerErrorServerUnavailable;
         } else if (errorMessage.contains('registerErrorInvalidData')) {
-          _showErrorSnackBar(localizations.registerErrorInvalidData);
+          message = localizations.registerErrorInvalidData;
+        } else if (errorMessage
+            .contains('registerErrorEmailConfirmationRequired')) {
+          message = localizations.registerErrorEmailConfirmationRequired;
+        } else if (errorMessage.contains('registerErrorInvalidEmail')) {
+          message = localizations.registerErrorInvalidEmail;
         } else {
-          _showErrorSnackBar(localizations.registerError);
+          message = localizations.registerError;
         }
+
+        _showErrorSnackBar(message);
       } finally {
         if (mounted) {
           setState(() {

@@ -117,6 +117,7 @@
   "resetPasswordDescription": "Enter your new password below",
   "resetPasswordButton": "Reset Password",
   "resetPasswordSuccess": "Password reset successfully",
+  "resetPasswordError": "Failed to reset password. Please try again.",
   "resetPasswordSamePassword": "New password must be different from current password",
   "profileTitle": "Profile",
 
@@ -125,5 +126,15 @@
   "registerErrorEmailConfirmationRequired": "Email confirmation is required. Please check your inbox.",
   "loginResendConfirmation": "Resend Confirmation",
   "loginConfirmationEmailSent": "Confirmation email sent! Please check your inbox.",
-  "loginErrorResendingConfirmation": "Error sending confirmation email. Please try again."
+  "loginErrorResendingConfirmation": "Error sending confirmation email. Please try again.",
+  "resetPasswordEmailSent": "Password reset email sent. Please check your inbox.",
+  "resetPasswordSessionExpired": "The recovery link has expired. Please request a new password reset email.",
+  "resetPasswordRateLimit": "Please wait {seconds} seconds before requesting another password reset email.",
+  "@resetPasswordRateLimit": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  }
 }

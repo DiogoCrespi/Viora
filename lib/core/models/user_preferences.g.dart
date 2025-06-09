@@ -9,23 +9,23 @@ part of 'user_preferences.dart';
 _$UserPreferencesImpl _$$UserPreferencesImplFromJson(
         Map<String, dynamic> json) =>
     _$UserPreferencesImpl(
-      userId: json['userId'] as String,
-      themeMode: json['themeMode'] as String?,
+      userId: json['user_id'] as String,
+      themeMode: json['theme_mode'] as String?,
       language: json['language'] as String?,
-      fontSize: json['fontSize'] as String?,
-      avatarUrl: json['avatarUrl'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      fontSize: json['font_size'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
 
 Map<String, dynamic> _$$UserPreferencesImplToJson(
         _$UserPreferencesImpl instance) =>
     <String, dynamic>{
-      'userId': instance.userId,
-      'themeMode': instance.themeMode,
+      'user_id': instance.userId,
+      'theme_mode': instance.themeMode,
       'language': instance.language,
-      'fontSize': instance.fontSize,
-      'avatarUrl': instance.avatarUrl,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'font_size': instance.fontSize,
+      'avatar_url': instance.avatarUrl,
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
     };

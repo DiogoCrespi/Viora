@@ -15,8 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage1Title => 'Welcome to Viora';
 
   @override
-  String get onboardingPage1Description =>
-      'Mission system to transform your journey';
+  String get onboardingPage1Description => 'Mission system to transform your journey';
 
   @override
   String get onboardingPage2Title => 'Custom Missions';
@@ -28,8 +27,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPage3Title => 'Track Your Progress';
 
   @override
-  String get onboardingPage3Description =>
-      'Visualize your evolution in real time';
+  String get onboardingPage3Description => 'Visualize your evolution in real time';
 
   @override
   String get skipButton => 'Skip';
@@ -116,8 +114,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusScreenWelcomeTitle => 'Welcome to Viora';
 
   @override
-  String get statusScreenWelcomeSubtitle =>
-      'Get ready for an epic space journey!';
+  String get statusScreenWelcomeSubtitle => 'Get ready for an epic space journey!';
 
   @override
   String get playButton => 'PLAY';
@@ -198,12 +195,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginError => 'Error logging in. Please try again.';
 
   @override
-  String get loginErrorNoConnection =>
-      'No internet connection. Please check your connection and try again.';
+  String get loginErrorNoConnection => 'No internet connection. Please check your connection and try again.';
 
   @override
-  String get loginErrorServerUnavailable =>
-      'Server is currently unavailable. Please try again later.';
+  String get loginErrorServerUnavailable => 'Server is currently unavailable. Please try again later.';
 
   @override
   String get loginErrorInvalidCredentials => 'Invalid email or password.';
@@ -257,33 +252,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerError => 'Error creating account. Please try again.';
 
   @override
-  String get registerErrorNoConnection =>
-      'No internet connection. Please check your connection and try again.';
+  String get registerErrorNoConnection => 'No internet connection. Please check your connection and try again.';
 
   @override
-  String get registerErrorServerUnavailable =>
-      'Server is currently unavailable. Please try again later.';
+  String get registerErrorServerUnavailable => 'Server is currently unavailable. Please try again later.';
 
   @override
   String get registerErrorEmailInUse => 'This email is already registered.';
 
   @override
-  String get registerErrorInvalidData =>
-      'Invalid data provided. Please check your information.';
+  String get registerErrorInvalidData => 'Invalid data provided. Please check your information.';
 
   @override
   String get registerErrorInvalidEmail => 'Please enter a valid email address';
 
   @override
-  String get registerErrorPermissionDenied =>
-      'Permission error. Please try again.';
+  String get registerErrorPermissionDenied => 'Permission error. Please try again.';
 
   @override
   String get forgotPasswordTitle => 'Reset Password';
 
   @override
-  String get forgotPasswordSubtitle =>
-      'Enter your email to receive password reset instructions';
+  String get forgotPasswordSubtitle => 'Enter your email to receive password reset instructions';
 
   @override
   String get forgotPasswordEmailLabel => 'Email';
@@ -307,8 +297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordError => 'Error sending recovery email';
 
   @override
-  String get forgotPasswordDescription =>
-      'Enter your email address and we\'ll send you instructions to reset your password.';
+  String get forgotPasswordDescription => 'Enter your email address and we\'ll send you instructions to reset your password.';
 
   @override
   String get profileChangeAvatar => 'Change Avatar';
@@ -356,8 +345,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPasswordSuccess => 'Password reset successfully';
 
   @override
-  String get resetPasswordSamePassword =>
-      'New password must be different from current password';
+  String get resetPasswordError => 'Failed to reset password. Please try again.';
+
+  @override
+  String get resetPasswordSamePassword => 'New password must be different from current password';
 
   @override
   String get profileTitle => 'Profile';
@@ -379,4 +370,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginErrorResendingConfirmation => 'Error sending confirmation email. Please try again.';
+
+  @override
+  String get resetPasswordEmailSent => 'Password reset email sent. Please check your inbox.';
+
+  @override
+  String get resetPasswordSessionExpired => 'The recovery link has expired. Please request a new password reset email.';
+
+  @override
+  String resetPasswordRateLimit(String seconds) {
+    return 'Please wait $seconds seconds before requesting another password reset email.';
+  }
 }

@@ -60,13 +60,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (success && mounted) {
           debugPrint('LoginScreen: Login successful, navigating to main');
-          // Verifica se a sessão foi criada corretamente
           final session = SupabaseConfig.client.auth.currentSession;
           debugPrint(
               'LoginScreen: Current session after login: ${session?.user.id}');
 
           if (session != null) {
-            Navigator.pushReplacementNamed(context, '/main');
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+              (route) => false,
+            );
           } else {
             debugPrint('LoginScreen: No session found after login');
             if (mounted) {
@@ -93,10 +96,17 @@ class _LoginScreenState extends State<LoginScreen> {
           final localizations = AppLocalizations.of(context)!;
 
           String message;
-          if (errorMessage.contains('loginErrorEmailNotConfirmed')) {
+          if (errorMessage.contains('loginError')) {
+            message = localizations.loginError;
+          } else if (errorMessage.contains('loginErrorEmailNotConfirmed')) {
             message = localizations.loginErrorEmailNotConfirmed;
-          } else if (errorMessage.contains('registerErrorEmailConfirmationRequired')) {
+          } else if (errorMessage
+              .contains('registerErrorEmailConfirmationRequired')) {
             message = localizations.registerErrorEmailConfirmationRequired;
+          } else if (errorMessage.contains('No internet connection')) {
+            message = localizations.loginErrorNoConnection;
+          } else if (errorMessage.contains('Server unavailable')) {
+            message = localizations.loginErrorServerUnavailable;
           } else {
             message = localizations.loginError;
           }
@@ -113,16 +123,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               duration: const Duration(seconds: 5),
-              action: errorMessage.contains('email_not_confirmed') || 
-                     errorMessage.contains('loginErrorEmailNotConfirmed') ||
-                     errorMessage.contains('registerErrorEmailConfirmationRequired')
+              action: errorMessage.contains('loginErrorEmailNotConfirmed') ||
+                      errorMessage
+                          .contains('registerErrorEmailConfirmationRequired')
                   ? SnackBarAction(
                       label: localizations.loginResendConfirmation,
                       textColor: Colors.white,
                       onPressed: () async {
                         try {
-                          final userProvider = Provider.of<UserProvider>(context, listen: false);
-                          await userProvider.resendConfirmationEmail(_emailController.text);
+                          final userProvider =
+                              Provider.of<UserProvider>(context, listen: false);
+                          await userProvider
+                              .resendConfirmationEmail(_emailController.text);
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -140,9 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         } catch (e) {
                           if (mounted) {
-                            String message = localizations.loginErrorResendingConfirmation;
-                            if (e.toString().contains('over_email_send_rate_limit')) {
-                              message = 'Por favor, aguarde 60 segundos antes de tentar novamente.';
+                            String message =
+                                localizations.loginErrorResendingConfirmation;
+                            if (e
+                                .toString()
+                                .contains('over_email_send_rate_limit')) {
+                              message =
+                                  'Por favor, aguarde 60 segundos antes de tentar novamente.';
                             }
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

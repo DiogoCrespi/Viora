@@ -110,7 +110,17 @@
   "resetPasswordDescription": "Digite sua nova senha abaixo",
   "resetPasswordButton": "Redefinir Senha",
   "resetPasswordSuccess": "Senha redefinida com sucesso",
-  "resetPasswordError": "Falha ao redefinir senha",
+  "resetPasswordError": "Falha ao redefinir senha. Por favor, tente novamente.",
+  "resetPasswordEmailSent": "Email de redefinição de senha enviado. Por favor, verifique sua caixa de entrada.",
+  "resetPasswordSessionExpired": "O link de recuperação expirou. Por favor, solicite um novo email de recuperação.",
+  "resetPasswordRateLimit": "Por favor, aguarde {seconds} segundos antes de solicitar outro email de redefinição de senha.",
+  "@resetPasswordRateLimit": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "resetPasswordSamePassword": "A nova senha deve ser diferente da senha atual",
   "profileUpdateButton": "Atualizar Perfil",
   "profileTitle": "Perfil",

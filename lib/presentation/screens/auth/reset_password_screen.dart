@@ -52,7 +52,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
       try {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final success = await userProvider.resetPassword(
+
+        await userProvider.resetPassword(
           widget.email,
           _passwordController.text,
         );
@@ -61,12 +62,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                success
-                    ? AppLocalizations.of(context)!.resetPasswordSuccess
-                    : AppLocalizations.of(context)!.resetPasswordSamePassword,
+                AppLocalizations.of(context)!.resetPasswordSuccess,
                 style: Theme.of(context).futuristicBody,
               ),
-              backgroundColor: success ? Colors.green : Colors.red,
+              backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -74,16 +73,43 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
           );
 
-          if (success) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              ),
-              (route) => false,
-            );
-          }
+          // Navega de volta para a tela de login
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginScreen(),
+            ),
+            (route) => false,
+          );
         }
+      } catch (e) {
+        if (!mounted) return;
+
+        final errorMessage = e.toString();
+        final localizations = AppLocalizations.of(context)!;
+
+        String message;
+        if (errorMessage.contains('resetPasswordSamePassword')) {
+          message = localizations.resetPasswordSamePassword;
+        } else if (errorMessage.contains('resetPasswordSessionExpired')) {
+          message = localizations.resetPasswordSessionExpired;
+        } else {
+          message = localizations.resetPasswordError;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              message,
+              style: Theme.of(context).futuristicBody,
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
       } finally {
         if (mounted) {
           setState(() {

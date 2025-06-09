@@ -20,12 +20,19 @@ UserPreferences _$UserPreferencesFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserPreferences {
+  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'theme_mode')
   String? get themeMode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'language')
   String? get language => throw _privateConstructorUsedError;
+  @JsonKey(name: 'font_size')
   String? get fontSize => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserPreferences to a JSON map.
@@ -45,13 +52,13 @@ abstract class $UserPreferencesCopyWith<$Res> {
       _$UserPreferencesCopyWithImpl<$Res, UserPreferences>;
   @useResult
   $Res call(
-      {String userId,
-      String? themeMode,
-      String? language,
-      String? fontSize,
-      String? avatarUrl,
-      DateTime createdAt,
-      DateTime updatedAt});
+      {@JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'theme_mode') String? themeMode,
+      @JsonKey(name: 'language') String? language,
+      @JsonKey(name: 'font_size') String? fontSize,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt});
 }
 
 /// @nodoc
@@ -119,13 +126,13 @@ abstract class _$$UserPreferencesImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String userId,
-      String? themeMode,
-      String? language,
-      String? fontSize,
-      String? avatarUrl,
-      DateTime createdAt,
-      DateTime updatedAt});
+      {@JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'theme_mode') String? themeMode,
+      @JsonKey(name: 'language') String? language,
+      @JsonKey(name: 'font_size') String? fontSize,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt});
 }
 
 /// @nodoc
@@ -186,30 +193,37 @@ class __$$UserPreferencesImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserPreferencesImpl implements _UserPreferences {
   const _$UserPreferencesImpl(
-      {required this.userId,
-      this.themeMode,
-      this.language,
-      this.fontSize,
-      this.avatarUrl,
-      required this.createdAt,
-      required this.updatedAt});
+      {@JsonKey(name: 'user_id') required this.userId,
+      @JsonKey(name: 'theme_mode') this.themeMode,
+      @JsonKey(name: 'language') this.language,
+      @JsonKey(name: 'font_size') this.fontSize,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt});
 
   factory _$UserPreferencesImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserPreferencesImplFromJson(json);
 
   @override
+  @JsonKey(name: 'user_id')
   final String userId;
   @override
+  @JsonKey(name: 'theme_mode')
   final String? themeMode;
   @override
+  @JsonKey(name: 'language')
   final String? language;
   @override
+  @JsonKey(name: 'font_size')
   final String? fontSize;
   @override
+  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -261,30 +275,38 @@ class _$UserPreferencesImpl implements _UserPreferences {
 
 abstract class _UserPreferences implements UserPreferences {
   const factory _UserPreferences(
-      {required final String userId,
-      final String? themeMode,
-      final String? language,
-      final String? fontSize,
-      final String? avatarUrl,
-      required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$UserPreferencesImpl;
+          {@JsonKey(name: 'user_id') required final String userId,
+          @JsonKey(name: 'theme_mode') final String? themeMode,
+          @JsonKey(name: 'language') final String? language,
+          @JsonKey(name: 'font_size') final String? fontSize,
+          @JsonKey(name: 'avatar_url') final String? avatarUrl,
+          @JsonKey(name: 'created_at') required final DateTime createdAt,
+          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
+      _$UserPreferencesImpl;
 
   factory _UserPreferences.fromJson(Map<String, dynamic> json) =
       _$UserPreferencesImpl.fromJson;
 
   @override
+  @JsonKey(name: 'user_id')
   String get userId;
   @override
+  @JsonKey(name: 'theme_mode')
   String? get themeMode;
   @override
+  @JsonKey(name: 'language')
   String? get language;
   @override
+  @JsonKey(name: 'font_size')
   String? get fontSize;
   @override
+  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
+  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of UserPreferences

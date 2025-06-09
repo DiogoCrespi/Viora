@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/repositories/preferences_repository.dart';
 import '../../../core/config/supabase_config.dart';
+import '../../../presentation/screens/auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -49,12 +50,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _isLoading = false;
             _errorMessage = 'Session expired. Please login again.';
           });
+          // Use Future.microtask to schedule navigation after the build
+          Future.microtask(() {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
+          });
         }
         return;
       }
 
       // Verificar se a sessão está expirada
-      final now = DateTime.now().millisecondsSinceEpoch;
+      final now =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000; // Convert to seconds
       final expiresAt = session.expiresAt;
       debugPrint('ProfileScreen: Session expires at: $expiresAt');
       debugPrint('ProfileScreen: Current time: $now');
@@ -65,6 +75,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             _isLoading = false;
             _errorMessage = 'Session expired. Please login again.';
+          });
+          // Use Future.microtask to schedule navigation after the build
+          Future.microtask(() {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
           });
         }
         return;
@@ -78,6 +96,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _isLoading = false;
           _errorMessage = 'Error checking authentication: $e';
+        });
+        // Use Future.microtask to schedule navigation after the build
+        Future.microtask(() {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
         });
       }
     }
@@ -167,7 +193,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final fileExt = _imageFile!.path.split('.').last;
         final fileName = '${user.id}/avatar.$fileExt';
 
-        await _supabase.storage.from('avatars').upload(fileName, _imageFile!);
+        // Remove old avatar if exists
+        if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
+          try {
+            debugPrint('ProfileScreen: Removing old avatar...');
+            // Extract the file path from the current avatar URL
+            final currentAvatarPath = _avatarUrl!.split('/').last;
+            debugPrint(
+                'ProfileScreen: Removing old avatar path: $currentAvatarPath');
+            await _supabase.storage
+                .from('avatars')
+                .remove(['${user.id}/$currentAvatarPath']);
+            debugPrint('ProfileScreen: Old avatar removed successfully');
+          } catch (e) {
+            debugPrint('ProfileScreen: Error removing old avatar: $e');
+            // Continue with upload even if removal fails
+          }
+        }
+
+        // Upload new avatar with overwrite option
+        await _supabase.storage.from('avatars').upload(
+              fileName,
+              _imageFile!,
+              fileOptions: const FileOptions(upsert: true),
+            );
         newAvatarUrl = _supabase.storage.from('avatars').getPublicUrl(fileName);
         debugPrint('ProfileScreen: Avatar uploaded: $newAvatarUrl');
       }

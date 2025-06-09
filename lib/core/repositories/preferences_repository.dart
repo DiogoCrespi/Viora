@@ -1,38 +1,61 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_preferences.dart';
 import '../config/supabase_config.dart';
+import 'package:flutter/foundation.dart';
 
 class PreferencesRepository {
   final _supabase = SupabaseConfig.client;
 
   Future<UserPreferences> getUserPreferences(String userId) async {
     try {
+      debugPrint(
+          'PreferencesRepository: Fetching preferences for user: $userId');
       final response = await _supabase
           .from('user_preferences')
           .select()
           .eq('user_id', userId)
           .single();
 
+      debugPrint('PreferencesRepository: Raw response: $response');
       return UserPreferences.fromJson(response);
     } catch (e) {
+      debugPrint('PreferencesRepository: Error fetching preferences: $e');
       // Se não encontrar preferências, cria um novo registro com valores padrão
-      final defaultPreferences = UserPreferences(
-        userId: userId,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      final now = DateTime.now().toIso8601String();
+      final defaultData = {
+        'user_id': userId,
+        'theme_mode': 'system',
+        'language': 'pt',
+        'font_size': 'medium',
+        'avatar_url': null,
+        'created_at': now,
+        'updated_at': now,
+      };
 
-      await _supabase
+      debugPrint('PreferencesRepository: Creating default preferences');
+      final response = await _supabase
           .from('user_preferences')
-          .insert(defaultPreferences.toJson());
-      return defaultPreferences;
+          .insert(defaultData)
+          .select()
+          .single();
+
+      debugPrint('PreferencesRepository: Created preferences: $response');
+      return UserPreferences.fromJson(response);
     }
   }
 
   Future<void> updateUserPreferences(UserPreferences preferences) async {
+    final data = {
+      'theme_mode': preferences.themeMode,
+      'language': preferences.language,
+      'font_size': preferences.fontSize,
+      'avatar_url': preferences.avatarUrl,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
     await _supabase
         .from('user_preferences')
-        .update(preferences.toJson())
+        .update(data)
         .eq('user_id', preferences.userId);
   }
 
