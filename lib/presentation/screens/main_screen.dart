@@ -5,6 +5,7 @@ import 'package:viora/presentation/widgets/futuristic_drawer.dart';
 import 'package:viora/presentation/screens/profile/status_screen.dart';
 import 'package:viora/presentation/screens/game/missions_screen.dart';
 import 'package:viora/presentation/screens/profile/settings_screen.dart';
+import 'package:viora/presentation/screens/auth/profile_screen.dart';
 import 'package:viora/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
@@ -79,7 +80,12 @@ class _MainScreenState extends State<MainScreen>
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
-              // TODO: Implementar perfil
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
+              );
             },
           ),
         ],

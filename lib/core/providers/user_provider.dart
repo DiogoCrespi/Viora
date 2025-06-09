@@ -114,25 +114,20 @@ class UserProvider with ChangeNotifier {
 
       // Verifica se o usuário já existe no Supabase Auth
       try {
-        // Tenta buscar o usuário pelo email usando a API de admin
         final response = await SupabaseConfig.client
             .from('users')
             .select()
-            .eq('email', email)
-            .single();
+            .eq('email', email);
 
-        if (response != null) {
+        if (response.isNotEmpty) {
           debugPrint('UserProvider: Usuário já existe no Supabase Auth');
           throw Exception('registerErrorEmailInUse');
         }
       } catch (e) {
-        // Se o erro for de registro não encontrado, podemos prosseguir com o registro
-        if (!e.toString().contains('No rows found')) {
-          if (e.toString().contains('email_address_invalid')) {
-            throw Exception('registerErrorInvalidEmail');
-          }
-          rethrow;
+        if (e.toString().contains('email_address_invalid')) {
+          throw Exception('registerErrorInvalidEmail');
         }
+        rethrow;
       }
 
       // Cria o usuário no Supabase Auth
@@ -161,7 +156,7 @@ class UserProvider with ChangeNotifier {
         throw Exception('registerErrorEmailConfirmationRequired');
       }
 
-      // Cria o usuário na tabela users do SQLite
+      // Cria o usuário na tabela users do Supabase
       final user = await _userRepository.createUser(
         AppUser(
           id: authResponse.user!.id,

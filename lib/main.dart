@@ -141,21 +141,17 @@ class VioraApp extends StatelessWidget {
 
             switch (settings.name) {
               case '/':
-                // Primeiro, verifica se o usuário já viu o onboarding
-                if (!hasSeenOnboarding) {
-                  debugPrint('VioraApp: Showing onboarding');
+                // Se não estiver autenticado, mostra o onboarding
+                if (session == null) {
+                  debugPrint('VioraApp: No session, showing onboarding');
                   return MaterialPageRoute(
                     builder: (context) => const OnboardingScreen(),
                   );
                 }
-                // Se já viu o onboarding, verifica se está autenticado
-                else if (session == null) {
-                  debugPrint('VioraApp: Redirecting to login (no session)');
-                  return MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  );
-                } else {
-                  debugPrint('VioraApp: Redirecting to main');
+                // Se estiver autenticado, vai para a tela principal
+                else {
+                  debugPrint(
+                      'VioraApp: User is authenticated, redirecting to main');
                   return MaterialPageRoute(
                     builder: (context) => const MainScreen(selectedIndex: 0),
                   );
@@ -164,9 +160,9 @@ class VioraApp extends StatelessWidget {
                 // Para acessar a tela principal, o usuário deve estar autenticado
                 if (session == null) {
                   debugPrint(
-                      'VioraApp: Redirecting to login (no session for main)');
+                      'VioraApp: Redirecting to onboarding (no session for main)');
                   return MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
+                    builder: (context) => const OnboardingScreen(),
                   );
                 }
                 return MaterialPageRoute(
@@ -176,9 +172,9 @@ class VioraApp extends StatelessWidget {
                 // Para acessar o jogo, o usuário deve estar autenticado
                 if (session == null) {
                   debugPrint(
-                      'VioraApp: Redirecting to login (no session for game)');
+                      'VioraApp: Redirecting to onboarding (no session for game)');
                   return MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
+                    builder: (context) => const OnboardingScreen(),
                   );
                 }
                 return MaterialPageRoute(
@@ -189,8 +185,9 @@ class VioraApp extends StatelessWidget {
                   builder: (context) => const LoginScreen(),
                 );
               default:
-                // Para qualquer rota desconhecida, redireciona para a rota inicial
-                debugPrint('VioraApp: Redirecting to root (unknown route)');
+                // Para qualquer rota desconhecida, redireciona para o onboarding
+                debugPrint(
+                    'VioraApp: Redirecting to onboarding (unknown route)');
                 return MaterialPageRoute(
                   builder: (context) => const OnboardingScreen(),
                 );

@@ -4,6 +4,7 @@ import 'package:viora/presentation/screens/auth/login_screen.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/config/supabase_config.dart';
+import 'package:viora/presentation/screens/main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -117,27 +118,56 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       debugPrint('OnboardingScreen: Saved has_seen_onboarding = true');
 
       if (mounted) {
-        debugPrint('OnboardingScreen: Navigating to login');
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const LoginScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOutCubic;
-              var tween = Tween(
-                begin: begin,
-                end: end,
-              ).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
-            transitionDuration: Theme.of(context).themeChangeDuration,
-          ),
-        );
+        debugPrint('OnboardingScreen: Checking authentication status');
+        final session = SupabaseConfig.client.auth.currentSession;
+
+        if (session != null) {
+          debugPrint(
+              'OnboardingScreen: User is authenticated, navigating to main');
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const MainScreen(selectedIndex: 0),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOutCubic;
+                var tween = Tween(
+                  begin: begin,
+                  end: end,
+                ).chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
+              transitionDuration: Theme.of(context).themeChangeDuration,
+            ),
+          );
+        } else {
+          debugPrint(
+              'OnboardingScreen: User is not authenticated, navigating to login');
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const LoginScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOutCubic;
+                var tween = Tween(
+                  begin: begin,
+                  end: end,
+                ).chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
+              transitionDuration: Theme.of(context).themeChangeDuration,
+            ),
+          );
+        }
       }
     } catch (e) {
       debugPrint('OnboardingScreen: Error in _navigateToNext: $e');
