@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/providers/user_provider.dart';
-import 'package:viora/presentation/screens/auth/login_screen.dart';
+import 'package:viora/routes.dart';
 
 class VioraDrawer extends Drawer {
   final int selectedIndex;
@@ -217,11 +217,7 @@ class _VioraDrawerContent extends StatelessWidget {
               final userProvider =
                   Provider.of<UserProvider>(context, listen: false);
               userProvider.logout();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
+              context.pushNamedAndRemoveUntil(AppRoutes.login);
             },
           ),
         ],

@@ -5,6 +5,7 @@ import 'package:viora/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:viora/routes.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -124,49 +125,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         if (session != null) {
           debugPrint(
               'OnboardingScreen: User is authenticated, navigating to main');
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const MainScreen(selectedIndex: 0),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOutCubic;
-                var tween = Tween(
-                  begin: begin,
-                  end: end,
-                ).chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(position: offsetAnimation, child: child);
-              },
-              transitionDuration: Theme.of(context).themeChangeDuration,
-            ),
-          );
+          context.pushReplacementNamed(AppRoutes.main, arguments: {'selectedIndex': 0});
         } else {
           debugPrint(
               'OnboardingScreen: User is not authenticated, navigating to login');
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const LoginScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOutCubic;
-              var tween = Tween(
-                begin: begin,
-                end: end,
-              ).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
-            transitionDuration: Theme.of(context).themeChangeDuration,
-          ),
-        );
+          context.pushReplacementNamed(AppRoutes.login);
         }
       }
     } catch (e) {

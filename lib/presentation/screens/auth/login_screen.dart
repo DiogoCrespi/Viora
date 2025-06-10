@@ -8,6 +8,7 @@ import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/core/providers/user_provider.dart';
 import 'package:viora/core/config/supabase_config.dart';
+import 'package:viora/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -65,11 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
               'LoginScreen: Current session after login: ${session?.user.id}');
 
           if (session != null) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
-              (route) => false,
-            );
+            context.pushNamedAndRemoveUntil(AppRoutes.main);
           } else {
             debugPrint('LoginScreen: No session found after login');
             if (mounted) {
@@ -192,21 +189,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RegisterScreen(),
-      ),
-    );
+    context.pushNamed(AppRoutes.register);
   }
 
   void _navigateToForgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgotPasswordScreen(),
-      ),
-    );
+    context.pushNamed(AppRoutes.forgotPassword);
   }
 
   @override

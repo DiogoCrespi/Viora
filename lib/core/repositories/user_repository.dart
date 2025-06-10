@@ -197,14 +197,6 @@ class UserRepository {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, _dbName);
 
-    // Primeiro, tenta deletar o banco de dados existente para recriar com a estrutura correta
-    try {
-      await deleteDatabase(path);
-      debugPrint('Database deleted successfully');
-    } catch (e) {
-      debugPrint('Error deleting database: $e');
-    }
-
     return await openDatabase(
       path,
       version: _dbVersion,
@@ -213,11 +205,20 @@ class UserRepository {
         await InitialSchema.createTables(db);
         debugPrint('Database tables created successfully');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        debugPrint('Upgrading database from version $oldVersion to $newVersion');
+        await InitialSchema.createTables(db);
+        debugPrint('Database upgrade completed');
+      },
       onOpen: (db) async {
         debugPrint('Database opened successfully');
         // Verifica a estrutura da tabela
-        final tableInfo = await db.rawQuery('PRAGMA table_info(users)');
-        debugPrint('Table structure: $tableInfo');
+        try {
+          final tableInfo = await db.rawQuery('PRAGMA table_info(users)');
+          debugPrint('Table structure: $tableInfo');
+        } catch (e) {
+          debugPrint('Error checking table structure: $e');
+        }
       },
     );
   }

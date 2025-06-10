@@ -18,6 +18,7 @@ import 'core/repositories/user_repository.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/presentation/screens/auth/login_screen.dart';
+import 'package:viora/routes.dart';
 
 // Conditional imports for platform-specific code
 import 'platform_stub.dart' if (dart.library.io) 'platform_io.dart';
@@ -133,69 +134,42 @@ class VioraApp extends StatelessWidget {
               child: child!,
             );
           },
-          initialRoute: '/',
+          initialRoute: AppRoutes.splash,
           onGenerateRoute: (settings) {
             final session = SupabaseConfig.client.auth.currentSession;
             debugPrint(
                 'VioraApp: Generating route ${settings.name} with session: ${session?.user.id}');
 
-            switch (settings.name) {
-              case '/':
-                // Se não estiver autenticado, mostra o onboarding
-                if (session == null) {
-                  debugPrint('VioraApp: No session, showing onboarding');
-                  return MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  );
-                }
-                // Se estiver autenticado, vai para a tela principal
-                else {
-                  debugPrint(
-                      'VioraApp: User is authenticated, redirecting to main');
-                  return MaterialPageRoute(
-                    builder: (context) => const MainScreen(selectedIndex: 0),
-                  );
-                }
-              case '/main':
-                // Para acessar a tela principal, o usuário deve estar autenticado
-                if (session == null) {
-                  debugPrint(
-                      'VioraApp: Redirecting to onboarding (no session for main)');
-                  return MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  );
-                }
-                return MaterialPageRoute(
-                  builder: (context) => const MainScreen(selectedIndex: 0),
-                );
-              case '/game':
-                // Para acessar o jogo, o usuário deve estar autenticado
-                if (session == null) {
-                  debugPrint(
-                      'VioraApp: Redirecting to onboarding (no session for game)');
-                  return MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  );
-                }
-                return MaterialPageRoute(
-                  builder: (context) => const SpaceShooterGame(),
-                );
-              case '/login':
-                return MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                );
-              default:
-                // Para qualquer rota desconhecida, redireciona para o onboarding
-                debugPrint(
-                    'VioraApp: Redirecting to onboarding (unknown route)');
-                return MaterialPageRoute(
-                  builder: (context) => const OnboardingScreen(),
-                );
+            // Lógica de autenticação para rotas protegidas
+            if (_isProtectedRoute(settings.name) && session == null) {
+              debugPrint('VioraApp: Redirecting to login (protected route without session)');
+              return MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              );
             }
+
+            // Usa o sistema de rotas centralizado
+            return AppRoutes.generateRoute(settings);
           },
         );
       },
     );
+  }
+
+  /// Verifica se uma rota requer autenticação
+  bool _isProtectedRoute(String? routeName) {
+    if (routeName == null) return false;
+    
+    final protectedRoutes = [
+      AppRoutes.main,
+      AppRoutes.profile,
+      AppRoutes.status,
+      AppRoutes.settings,
+      AppRoutes.missions,
+      AppRoutes.game,
+    ];
+    
+    return protectedRoutes.contains(routeName);
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:viora/presentation/screens/auth/login_screen.dart';
 import 'package:viora/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/routes.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -104,12 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-          );
+          context.pushReplacementNamed(AppRoutes.login);
         }
       } catch (e) {
         if (!mounted) return;
@@ -146,6 +142,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       }
     }
+  }
+
+  void _navigateToLogin() {
+    context.pushNamed(AppRoutes.login);
   }
 
   @override
@@ -251,9 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 16),
                       // Back to Login Button
                       TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: _navigateToLogin,
                         child: Text(
                           localizations.registerLoginButton,
                           style: theme.futuristicBody.copyWith(
