@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/auth/login_screen.dart';
+import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/config/supabase_config.dart';
-import 'package:viora/presentation/screens/main_screen.dart';
+import 'package:viora/presentation/pages/main_screen.dart';
 import 'package:viora/routes.dart';
 
 class OnboardingScreen extends StatefulWidget {

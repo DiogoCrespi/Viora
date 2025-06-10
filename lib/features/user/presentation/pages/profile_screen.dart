@@ -1,11 +1,10 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../core/repositories/preferences_repository.dart';
-import '../../../core/config/supabase_config.dart';
-import '../../../presentation/screens/auth/login_screen.dart';
+import 'package:viora/features/user/domain/repositories/preferences_repository.dart';
+import 'package:viora/core/config/supabase_config.dart';
+import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,23 +27,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('ProfileScreen: initState');
     _checkAuthAndLoadData();
   }
 
   Future<void> _checkAuthAndLoadData() async {
-    debugPrint('ProfileScreen: Checking authentication...');
     try {
       final session = _supabase.auth.currentSession;
       final user = _supabase.auth.currentUser;
 
-      debugPrint('ProfileScreen: Current session: ${session?.user.id}');
-      debugPrint('ProfileScreen: Current user: ${user?.id}');
-      debugPrint('ProfileScreen: User metadata: ${user?.userMetadata}');
-      debugPrint('ProfileScreen: User email: ${user?.email}');
-
       if (session == null || user == null) {
-        debugPrint('ProfileScreen: No active session or user found');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -66,11 +57,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final now =
           DateTime.now().millisecondsSinceEpoch ~/ 1000; // Convert to seconds
       final expiresAt = session.expiresAt;
-      debugPrint('ProfileScreen: Session expires at: $expiresAt');
-      debugPrint('ProfileScreen: Current time: $now');
 
       if (expiresAt != null && expiresAt < now) {
-        debugPrint('ProfileScreen: Session expired');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -90,8 +78,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       await _loadUserData();
     } catch (e, stackTrace) {
-      debugPrint('ProfileScreen: Error checking auth: $e');
-      debugPrint('ProfileScreen: Stack trace: $stackTrace');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -110,13 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    debugPrint('ProfileScreen: Loading user data...');
     try {
       final user = _supabase.auth.currentUser;
-      debugPrint('ProfileScreen: Current user: ${user?.id}');
 
       if (user == null) {
-        debugPrint('ProfileScreen: No user found');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -126,10 +109,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
-      debugPrint('ProfileScreen: Fetching user preferences...');
       final preferences =
           await _preferencesRepository.getUserPreferences(user.id);
-      debugPrint('ProfileScreen: Preferences loaded: ${preferences.toJson()}');
 
       if (mounted) {
         setState(() {
@@ -141,8 +122,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e, stackTrace) {
-      debugPrint('ProfileScreen: Error loading user data: $e');
-      debugPrint('ProfileScreen: Stack trace: $stackTrace');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -163,7 +142,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error picking image: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error picking image: $e')),
@@ -189,42 +167,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
       String? newAvatarUrl = _avatarUrl;
 
       if (_imageFile != null) {
-        debugPrint('ProfileScreen: Uploading new avatar...');
-        final fileExt = _imageFile!.path.split('.').last;
-        final fileName = '${user.id}/avatar.$fileExt';
-
         // Remove old avatar if exists
         if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
           try {
-            debugPrint('ProfileScreen: Removing old avatar...');
             // Extract the file path from the current avatar URL
             final currentAvatarPath = _avatarUrl!.split('/').last;
-            debugPrint(
-                'ProfileScreen: Removing old avatar path: $currentAvatarPath');
             await _supabase.storage
                 .from('avatars')
                 .remove(['${user.id}/$currentAvatarPath']);
-            debugPrint('ProfileScreen: Old avatar removed successfully');
           } catch (e) {
-            debugPrint('ProfileScreen: Error removing old avatar: $e');
             // Continue with upload even if removal fails
           }
         }
 
         // Upload new avatar with overwrite option
+        final fileExt = _imageFile!.path.split('.').last;
+        final fileName = '${user.id}/avatar.$fileExt';
         await _supabase.storage.from('avatars').upload(
               fileName,
               _imageFile!,
               fileOptions: const FileOptions(upsert: true),
             );
         newAvatarUrl = _supabase.storage.from('avatars').getPublicUrl(fileName);
-        debugPrint('ProfileScreen: Avatar uploaded: $newAvatarUrl');
       }
 
-      debugPrint('ProfileScreen: Updating avatar URL...');
       await _preferencesRepository.updateAvatarUrl(user.id, newAvatarUrl ?? '');
 
-      debugPrint('ProfileScreen: Updating user metadata...');
       await _supabase.auth.updateUser(
         UserAttributes(
           data: {'name': _nameController.text},
@@ -241,8 +209,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     } catch (e, stackTrace) {
-      debugPrint('ProfileScreen: Error updating profile: $e');
-      debugPrint('ProfileScreen: Stack trace: $stackTrace');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -265,7 +231,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _avatarUrl!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          debugPrint('Error loading avatar: $error');
           return const Icon(Icons.error, size: 40);
         },
       );
@@ -289,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.of(context).pushReplacementNamed('/login');
                 }
               } catch (e) {
-                debugPrint('Error signing out: $e');
+                print('Error signing out: $e');
               }
             },
           ),

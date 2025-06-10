@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/game/space_shooter_game.dart';
+import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
 import 'package:viora/l10n/app_localizations.dart';
 
 class StatusScreen extends StatelessWidget {

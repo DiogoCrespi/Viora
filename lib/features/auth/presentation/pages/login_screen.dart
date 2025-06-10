@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/screens/main_screen.dart';
-import 'package:viora/presentation/screens/auth/register_screen.dart';
-import 'package:viora/presentation/screens/auth/forgot_password_screen.dart';
-import 'package:viora/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/presentation/pages/main_screen.dart';
+import 'package:viora/features/auth/presentation/pages/register_screen.dart';
+import 'package:viora/features/auth/presentation/pages/forgot_password_screen.dart';
+import 'package:viora/features/auth/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
-import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

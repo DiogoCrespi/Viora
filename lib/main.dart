@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora/core/constants/app_theme.dart';
-import 'package:viora/core/providers/theme_provider.dart';
-import 'package:viora/core/providers/font_size_provider.dart';
-import 'package:viora/presentation/screens/onboarding/onboarding_screen.dart';
-import 'package:viora/presentation/screens/main_screen.dart';
-import 'package:viora/presentation/screens/game/space_shooter_game.dart';
+import 'package:viora/presentation/providers/theme_provider.dart';
+import 'package:viora/presentation/providers/font_size_provider.dart';
+import 'package:viora/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:viora/presentation/pages/main_screen.dart';
+import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:viora/core/providers/locale_provider.dart';
+import 'package:viora/presentation/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
-import 'core/providers/user_provider.dart';
-import 'core/repositories/user_repository.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
+import 'package:viora/features/user/domain/repositories/user_repository.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:viora/core/config/supabase_config.dart';
-import 'package:viora/presentation/screens/auth/login_screen.dart';
+import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 import 'package:viora/routes.dart';
 
 // Conditional imports for platform-specific code
-import 'platform_stub.dart' if (dart.library.io) 'platform_io.dart';
+import 'core/platform/platform_stub.dart' if (dart.library.io) 'core/platform/platform_io.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

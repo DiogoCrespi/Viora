@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user_preferences.dart';
-import '../config/supabase_config.dart';
+import 'package:viora/features/user/domain/entities/user_preferences.dart';
+import 'package:viora/core/config/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 
 class PreferencesRepository {

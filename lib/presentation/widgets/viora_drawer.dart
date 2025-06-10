@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:provider/provider.dart';
-import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
 import 'package:viora/routes.dart';
 
 class VioraDrawer extends Drawer {

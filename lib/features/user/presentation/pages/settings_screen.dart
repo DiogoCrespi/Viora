@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:viora/presentation/providers/theme_provider.dart';
+import 'package:viora/presentation/providers/font_size_provider.dart';
+import 'package:viora/presentation/providers/locale_provider.dart';
+import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/core/providers/theme_provider.dart';
-import 'package:viora/core/providers/font_size_provider.dart';
-import 'package:viora/core/providers/locale_provider.dart';
 import 'package:viora/l10n/app_localizations.dart';
-import 'package:viora/presentation/screens/auth/profile_screen.dart';
-import 'package:viora/presentation/screens/auth/login_screen.dart';
-import 'package:viora/core/providers/user_provider.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
+import 'package:viora/features/user/presentation/pages/profile_screen.dart';
+import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

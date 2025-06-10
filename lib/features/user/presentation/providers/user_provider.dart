@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../config/supabase_config.dart';
-import '../repositories/user_repository.dart';
-import '../models/app_user.dart';
+import 'package:viora/core/config/supabase_config.dart';
+import 'package:viora/features/user/domain/repositories/user_repository.dart';
+import 'package:viora/features/user/domain/entities/app_user.dart';
 import 'package:sqflite/sqflite.dart';
-import '../database/database_helper.dart';
+import 'package:viora/core/database/database_helper.dart';
 
 class UserProvider with ChangeNotifier {
   final SupabaseClient _supabase = SupabaseConfig.client;

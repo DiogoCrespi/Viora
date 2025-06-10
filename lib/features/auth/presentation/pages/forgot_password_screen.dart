@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/features/auth/presentation/widgets/login_text_form_field.dart';
 import 'package:viora/l10n/app_localizations.dart';
-import 'package:viora/core/providers/user_provider.dart';
-import 'package:viora/presentation/screens/auth/reset_password_screen.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
+import 'package:viora/features/auth/presentation/pages/reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
