@@ -4,13 +4,31 @@ import 'package:provider/provider.dart';
 import 'package:viora/core/providers/user_provider.dart';
 import 'package:viora/presentation/screens/auth/login_screen.dart';
 
-class FuturisticDrawer extends StatelessWidget {
+class VioraDrawer extends Drawer {
   final int selectedIndex;
   final List<String> sections;
   final Function(int) onSectionSelected;
 
-  const FuturisticDrawer({
+  VioraDrawer({
     super.key,
+    required this.selectedIndex,
+    required this.sections,
+    required this.onSectionSelected,
+  }) : super(
+          child: _VioraDrawerContent(
+            selectedIndex: selectedIndex,
+            sections: sections,
+            onSectionSelected: onSectionSelected,
+          ),
+        );
+}
+
+class _VioraDrawerContent extends StatelessWidget {
+  final int selectedIndex;
+  final List<String> sections;
+  final Function(int) onSectionSelected;
+
+  const _VioraDrawerContent({
     required this.selectedIndex,
     required this.sections,
     required this.onSectionSelected,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/widgets/futuristic_drawer.dart';
+import 'package:viora/presentation/widgets/VioraDrawer.dart';
 import 'package:viora/presentation/screens/profile/status_screen.dart';
 import 'package:viora/presentation/screens/game/missions_screen.dart';
 import 'package:viora/presentation/screens/profile/settings_screen.dart';
@@ -90,7 +90,7 @@ class _MainScreenState extends State<MainScreen>
           ),
         ],
       ),
-      drawer: FuturisticDrawer(
+      drawer: VioraDrawer(
         selectedIndex: _selectedIndex,
         sections: sections, // Use localized sections
         onSectionSelected: (index) {
