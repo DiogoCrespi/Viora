@@ -46,14 +46,36 @@
   "missionsCompletedLabel": "Missions Completed",
   "maxScoreLabel": "Max Score",
   "missionsTitle": "Missions",
+  "@missionsTitle": {
+    "description": "Title for the missions screen"
+  },
   "filterAll": "All",
+  "@filterAll": {
+    "description": "Filter for all missions"
+  },
   "filterInProgress": "In Progress",
+  "@filterInProgress": {
+    "description": "Filter for in progress missions"
+  },
   "filterCompleted": "Completed",
+  "@filterCompleted": {
+    "description": "Filter for completed missions"
+  },
   "filterPending": "Pending",
+  "@filterPending": {
+    "description": "Filter for pending missions"
+  },
   "missionCardTitlePrefix": "Mission",
   "missionCardDescriptionPrefix": "Description of mission",
   "missionCardXP": "XP",
+  "@missionCardXP": {
+    "description": "Experience points label"
+  },
   "missionCardViewDetailsButton": "View Details",
+  "missionCardStartButton": "Start Mission",
+  "@missionCardStartButton": {
+    "description": "Text for the start mission button"
+  },
   "loginTitle": "Login",
   "loginEmailLabel": "Email",
   "loginPasswordLabel": "Password",

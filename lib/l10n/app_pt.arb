@@ -43,14 +43,36 @@
   "missionsCompletedLabel": "Missões Concluídas",
   "maxScoreLabel": "Pontuação Máxima",
   "missionsTitle": "Missões",
+  "@missionsTitle": {
+    "description": "Title for the missions screen"
+  },
   "filterAll": "Todas",
+  "@filterAll": {
+    "description": "Filter for all missions"
+  },
   "filterInProgress": "Em Progresso",
+  "@filterInProgress": {
+    "description": "Filter for in progress missions"
+  },
   "filterCompleted": "Concluídas",
+  "@filterCompleted": {
+    "description": "Filter for completed missions"
+  },
   "filterPending": "Pendentes",
+  "@filterPending": {
+    "description": "Filter for pending missions"
+  },
   "missionCardTitlePrefix": "Missão",
   "missionCardDescriptionPrefix": "Descrição da missão",
   "missionCardXP": "XP",
+  "@missionCardXP": {
+    "description": "Experience points label"
+  },
   "missionCardViewDetailsButton": "Ver Detalhes",
+  "missionCardStartButton": "Iniciar Missão",
+  "@missionCardStartButton": {
+    "description": "Text for the start mission button"
+  },
   "loginTitle": "Bem-vindo ao Viora",
   "loginEmailLabel": "E-mail",
   "loginPasswordLabel": "Senha",

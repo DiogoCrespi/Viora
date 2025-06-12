@@ -4,43 +4,122 @@ import 'package:flutter/foundation.dart';
 import 'package:viora/core/database/migrations/initial_schema.dart';
 
 class DatabaseHelper {
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
   static const String _dbName = 'viora.db';
   static const int _dbVersion = 1;
 
+  factory DatabaseHelper() => _instance;
+
+  DatabaseHelper._internal();
+
   /// Obtém a instância do banco de dados
-  static Future<Database> get database async {
+  Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
   /// Inicializa o banco de dados
-  static Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, _dbName);
-
+  Future<Database> _initDatabase() async {
+    final path = join(await getDatabasesPath(), _dbName);
     return await openDatabase(
       path,
       version: _dbVersion,
-      onCreate: (db, version) async {
-        debugPrint('Creating database tables...');
-        await InitialSchema.createTables(db);
-        debugPrint('Database tables created successfully');
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        debugPrint('Upgrading database from version $oldVersion to $newVersion');
-        await InitialSchema.createTables(db);
-        debugPrint('Database upgrade completed');
-      },
-      onOpen: (db) async {
-        debugPrint('Database opened successfully');
-      },
+      onCreate: _onCreate,
     );
   }
 
+  Future<void> _onCreate(Database db, int version) async {
+    // Tabela de sessões do jogo
+    await db.execute('''
+      CREATE TABLE game_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        duration INTEGER NOT NULL,
+        started_at TEXT NOT NULL,
+        ended_at TEXT NOT NULL
+      )
+    ''');
+
+    // Tabela de progresso do jogo
+    await db.execute('''
+      CREATE TABLE game_progress (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        level INTEGER NOT NULL,
+        experience INTEGER NOT NULL,
+        max_score INTEGER NOT NULL,
+        missions_completed INTEGER NOT NULL,
+        last_played TEXT NOT NULL
+      )
+    ''');
+
+    // Tabela de missões
+    await db.execute('''
+      CREATE TABLE missions (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        required_score INTEGER NOT NULL,
+        reward_experience INTEGER NOT NULL,
+        difficulty TEXT NOT NULL
+      )
+    ''');
+
+    // Tabela de missões do usuário
+    await db.execute('''
+      CREATE TABLE user_missions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        mission_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        started_at TEXT,
+        completed_at TEXT,
+        FOREIGN KEY (mission_id) REFERENCES missions (id)
+      )
+    ''');
+
+    // Inserir missões padrão
+    await _insertDefaultMissions(db);
+  }
+
+  Future<void> _insertDefaultMissions(Database db) async {
+    final missions = [
+      {
+        'id': 'mission_1',
+        'title': 'Iniciante',
+        'description': 'Alcance 1000 pontos em uma partida',
+        'required_score': 1000,
+        'reward_experience': 500,
+        'difficulty': 'easy',
+      },
+      {
+        'id': 'mission_2',
+        'title': 'Intermediário',
+        'description': 'Alcance 5000 pontos em uma partida',
+        'required_score': 5000,
+        'reward_experience': 2000,
+        'difficulty': 'medium',
+      },
+      {
+        'id': 'mission_3',
+        'title': 'Avançado',
+        'description': 'Alcance 10000 pontos em uma partida',
+        'required_score': 10000,
+        'reward_experience': 5000,
+        'difficulty': 'hard',
+      },
+    ];
+
+    for (var mission in missions) {
+      await db.insert('missions', mission);
+    }
+  }
+
   /// Fecha a conexão com o banco de dados
-  static Future<void> closeDatabase() async {
+  Future<void> closeDatabase() async {
     if (_database != null) {
       await _database!.close();
       _database = null;
@@ -49,7 +128,7 @@ class DatabaseHelper {
   }
 
   /// Limpa todas as tabelas (apenas para desenvolvimento)
-  static Future<void> clearDatabase() async {
+  Future<void> clearDatabase() async {
     if (kReleaseMode) {
       debugPrint('Cannot clear database in release mode');
       return;
@@ -65,7 +144,7 @@ class DatabaseHelper {
   }
 
   /// Deleta o banco de dados completamente (apenas para desenvolvimento)
-  static Future<void> deleteDatabase() async {
+  Future<void> deleteDatabase() async {
     if (kReleaseMode) {
       debugPrint('Cannot delete database in release mode');
       return;
@@ -83,7 +162,7 @@ class DatabaseHelper {
   }
 
   /// Recria o banco de dados (apenas para desenvolvimento)
-  static Future<void> recreateDatabase() async {
+  Future<void> recreateDatabase() async {
     if (kReleaseMode) {
       debugPrint('Cannot recreate database in release mode');
       return;
@@ -99,7 +178,7 @@ class DatabaseHelper {
   }
 
   /// Verifica se o banco de dados existe
-  static Future<bool> databaseExists() async {
+  Future<bool> databaseExists() async {
     try {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, _dbName);
@@ -112,15 +191,15 @@ class DatabaseHelper {
   }
 
   /// Obtém informações sobre o banco de dados
-  static Future<Map<String, dynamic>> getDatabaseInfo() async {
+  Future<Map<String, dynamic>> getDatabaseInfo() async {
     try {
       final db = await database;
       final tables = await db.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-      );
-      
-      final tableNames = tables.map((table) => table['name'] as String).toList();
-      
+          "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
+
+      final tableNames =
+          tables.map((table) => table['name'] as String).toList();
+
       return {
         'version': _dbVersion,
         'tables': tableNames,

@@ -13,7 +13,8 @@ class SupabaseConfig {
 
   static Future<bool> checkConnection() async {
     if (!_initialized) {
-      debugPrint('SupabaseConfig: Supabase não está inicializado, tentando inicializar...');
+      debugPrint(
+          'SupabaseConfig: Supabase não está inicializado, tentando inicializar...');
       return await initialize();
     }
 
@@ -36,27 +37,36 @@ class SupabaseConfig {
     }
 
     try {
-      await dotenv.load();
+      await dotenv.load(fileName: ".env");
 
       _supabaseUrl = dotenv.env['SUPABASE_URL'];
       _supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
 
-      if (_supabaseUrl == null || _supabaseUrl!.isEmpty || _supabaseAnonKey == null || _supabaseAnonKey!.isEmpty) {
-        throw Exception('Credenciais do Supabase não encontradas no arquivo .env');
+      if (_supabaseUrl == null ||
+          _supabaseUrl!.isEmpty ||
+          _supabaseAnonKey == null ||
+          _supabaseAnonKey!.isEmpty) {
+        throw Exception(
+            'Credenciais do Supabase não encontradas no arquivo .env');
       }
 
       await Supabase.initialize(
         url: _supabaseUrl!,
         anonKey: _supabaseAnonKey!,
+        debug: kDebugMode,
       );
-      
+
       _initialized = true;
       _lastError = null;
       debugPrint('SupabaseConfig: Supabase inicializado com sucesso');
-      
+      debugPrint('SupabaseConfig: URL: $_supabaseUrl');
+      debugPrint(
+          'SupabaseConfig: Key: ${_supabaseAnonKey!.substring(0, 5)}...');
+
       final session = client.auth.currentSession;
-      debugPrint('SupabaseConfig: Current session after init: ${session?.user.id}');
-      
+      debugPrint(
+          'SupabaseConfig: Current session after init: ${session?.user.id}');
+
       return true;
     } catch (e) {
       _initialized = false;
@@ -68,7 +78,8 @@ class SupabaseConfig {
 
   static SupabaseClient get client {
     if (!_initialized) {
-      throw Exception('Supabase não foi inicializado. Chame SupabaseConfig.initialize() primeiro.');
+      throw Exception(
+          'Supabase não está inicializado. Chame SupabaseConfig.initialize() primeiro.');
     }
     return Supabase.instance.client;
   }

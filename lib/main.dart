@@ -20,9 +20,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 import 'package:viora/routes.dart';
+import 'package:viora/features/game/presentation/screens/game_test_screen.dart';
 
 // Conditional imports for platform-specific code
-import 'core/platform/platform_stub.dart' if (dart.library.io) 'core/platform/platform_io.dart';
+import 'core/platform/platform_stub.dart'
+    if (dart.library.io) 'core/platform/platform_io.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -143,7 +145,8 @@ class VioraApp extends StatelessWidget {
 
             // Lógica de autenticação para rotas protegidas
             if (_isProtectedRoute(settings.name) && session == null) {
-              debugPrint('VioraApp: Redirecting to login (protected route without session)');
+              debugPrint(
+                  'VioraApp: Redirecting to login (protected route without session)');
               return MaterialPageRoute(
                 builder: (context) => const LoginScreen(),
               );
@@ -160,7 +163,7 @@ class VioraApp extends StatelessWidget {
   /// Verifica se uma rota requer autenticação
   bool _isProtectedRoute(String? routeName) {
     if (routeName == null) return false;
-    
+
     final protectedRoutes = [
       AppRoutes.main,
       AppRoutes.profile,
@@ -169,7 +172,7 @@ class VioraApp extends StatelessWidget {
       AppRoutes.missions,
       AppRoutes.game,
     ];
-    
+
     return protectedRoutes.contains(routeName);
   }
 }

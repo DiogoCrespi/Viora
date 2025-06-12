@@ -34,7 +34,7 @@ class AppRoutes {
   /// Configuração das rotas da aplicação
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final routeName = settings.name;
-    
+
     if (routeName == splash) {
       return _buildRoute(
         settings,
@@ -300,13 +300,17 @@ extension AppRoutesExtension on BuildContext {
   }
 
   /// Navega para uma rota removendo todas as anteriores
-  Future<dynamic> pushNamedAndRemoveUntil(String routeName, {Object? arguments}) {
-    return AppRoutes.pushNamedAndRemoveUntil(this, routeName, arguments: arguments);
+  Future<dynamic> pushNamedAndRemoveUntil(String routeName,
+      {Object? arguments}) {
+    return AppRoutes.pushNamedAndRemoveUntil(this, routeName,
+        arguments: arguments);
   }
 
   /// Substitui a rota atual
-  Future<dynamic> pushReplacementNamed(String routeName, {Object? arguments, dynamic result}) {
-    return AppRoutes.pushReplacementNamed(this, routeName, arguments: arguments, result: result);
+  Future<dynamic> pushReplacementNamed(String routeName,
+      {Object? arguments, dynamic result}) {
+    return AppRoutes.pushReplacementNamed(this, routeName,
+        arguments: arguments, result: result);
   }
 
   /// Volta para a rota anterior
@@ -319,4 +323,4 @@ extension AppRoutesExtension on BuildContext {
 
   /// Volta para a rota anterior se possível
   Future<bool> maybePop([dynamic result]) => AppRoutes.maybePop(this, result);
-} 
+}
