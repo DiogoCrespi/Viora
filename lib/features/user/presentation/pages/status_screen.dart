@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/features/game/data/repositories/game_repository.dart';
-import 'package:viora/features/game/presentation/screens/game_test_screen.dart';
+import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/presentation/widgets/viora_drawer.dart';
 import 'package:viora/routes.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class StatusScreen extends StatefulWidget {
   const StatusScreen({super.key});
@@ -16,7 +19,7 @@ class StatusScreen extends StatefulWidget {
 
 class _StatusScreenState extends State<StatusScreen> {
   final GameRepository _gameRepository = GameRepository();
-  final String _userId = 'test_user_1';
+  String? _userId;
   Map<String, dynamic> _gameProgress = {
     'level': 1,
     'experience': 0,
@@ -35,12 +38,31 @@ class _StatusScreenState extends State<StatusScreen> {
   @override
   void initState() {
     super.initState();
-    _loadGameProgress();
+    _initUserIdAndProgress();
   }
 
-  Future<void> _loadGameProgress() async {
+  Future<void> _initUserIdAndProgress() async {
+    // Tenta pegar o UUID do Supabase
+    String? userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      // Se não autenticado, tenta pegar do SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      userId = prefs.getString('local_user_id');
+      if (userId == null) {
+        // Se não existe, gera um novo UUID local
+        userId = const Uuid().v4();
+        await prefs.setString('local_user_id', userId);
+      }
+    }
+    setState(() {
+      _userId = userId;
+    });
+    _loadGameProgress(userId);
+  }
+
+  Future<void> _loadGameProgress(String userId) async {
     try {
-      final progress = await _gameRepository.getGameProgress(_userId);
+      final progress = await _gameRepository.getGameProgress(userId);
       setState(() {
         _gameProgress = progress;
       });
@@ -126,35 +148,43 @@ class _StatusScreenState extends State<StatusScreen> {
                                   ),
                                   const SizedBox(height: 32),
                                   ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        PageRouteBuilder(
-                                          pageBuilder: (context, animation,
-                                                  secondaryAnimation) =>
-                                              const GameTestScreen(),
-                                          transitionsBuilder: (context,
-                                              animation,
-                                              secondaryAnimation,
-                                              child) {
-                                            const begin = Offset(1.0, 0.0);
-                                            const end = Offset.zero;
-                                            const curve = Curves.easeInOutCubic;
-                                            var tween = Tween(
-                                              begin: begin,
-                                              end: end,
-                                            ).chain(CurveTween(curve: curve));
-                                            var offsetAnimation =
-                                                animation.drive(tween);
-                                            return SlideTransition(
-                                                position: offsetAnimation,
-                                                child: child);
+                                    onPressed: _userId == null
+                                        ? null
+                                        : () {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              PageRouteBuilder(
+                                                pageBuilder: (context,
+                                                        animation,
+                                                        secondaryAnimation) =>
+                                                    SpaceShooterGame(
+                                                        userId: _userId!),
+                                                transitionsBuilder: (context,
+                                                    animation,
+                                                    secondaryAnimation,
+                                                    child) {
+                                                  const begin =
+                                                      Offset(1.0, 0.0);
+                                                  const end = Offset.zero;
+                                                  const curve =
+                                                      Curves.easeInOutCubic;
+                                                  var tween = Tween(
+                                                    begin: begin,
+                                                    end: end,
+                                                  ).chain(
+                                                      CurveTween(curve: curve));
+                                                  var offsetAnimation =
+                                                      animation.drive(tween);
+                                                  return SlideTransition(
+                                                      position: offsetAnimation,
+                                                      child: child);
+                                                },
+                                                transitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 800),
+                                              ),
+                                            );
                                           },
-                                          transitionDuration:
-                                              const Duration(milliseconds: 800),
-                                        ),
-                                      );
-                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: theme.sunsetOrange,
                                       foregroundColor: AppTheme.geometricBlack,

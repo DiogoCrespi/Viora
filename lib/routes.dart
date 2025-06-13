@@ -95,9 +95,11 @@ class AppRoutes {
         MissionsScreen(),
       );
     } else if (routeName == game) {
+      final args = settings.arguments as Map<String, dynamic>?;
+      final userId = args?['userId'] as String? ?? 'test_user_1';
       return _buildRoute(
         settings,
-        SpaceShooterGame(),
+        SpaceShooterGame(userId: userId),
       );
     } else {
       return _buildRoute(

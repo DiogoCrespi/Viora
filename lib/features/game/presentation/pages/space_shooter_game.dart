@@ -9,6 +9,7 @@ import 'package:flame/input.dart';
 import 'package:flame/collisions.dart';
 import 'dart:math' as math;
 import 'package:flame/events.dart';
+import 'package:viora/features/game/data/repositories/game_repository.dart';
 
 class JoystickDetails {
   final Vector2 direction;
@@ -16,7 +17,8 @@ class JoystickDetails {
 }
 
 class SpaceShooterGame extends StatefulWidget {
-  const SpaceShooterGame({super.key});
+  final String userId;
+  const SpaceShooterGame({super.key, required this.userId});
 
   @override
   State<SpaceShooterGame> createState() => _SpaceShooterGameState();
@@ -32,6 +34,7 @@ class _SpaceShooterGameState extends State<SpaceShooterGame> {
     game = SpaceGame(
       onReturnToMenu: _goToStatusScreen,
       isMouseControl: isMouseControl,
+      userId: widget.userId,
     );
   }
 
@@ -241,21 +244,20 @@ class _JoystickAreaState extends State<JoystickArea> {
 
   void _updateDirection() {
     if (_dragPosition == null) return;
-    
+
     final center = Offset(_joystickSize / 2, _joystickSize / 2);
     final delta = _dragPosition! - center;
     final distance = delta.distance;
     final maxDistance = (_joystickSize - _knobSize) / 2;
-    
-    final normalizedDelta = distance > maxDistance
-        ? delta * (maxDistance / distance)
-        : delta;
-    
+
+    final normalizedDelta =
+        distance > maxDistance ? delta * (maxDistance / distance) : delta;
+
     final direction = Vector2(
       normalizedDelta.dx / maxDistance,
       normalizedDelta.dy / maxDistance,
     );
-    
+
     widget.onDirectionChanged(direction);
   }
 }
@@ -263,6 +265,8 @@ class _JoystickAreaState extends State<JoystickArea> {
 class SpaceGame extends FlameGame
     with HasCollisionDetection, MouseMovementDetector, TapDetector {
   final VoidCallback onReturnToMenu;
+  final String userId;
+  final GameRepository _gameRepository = GameRepository();
   bool isMouseControl;
   Vector2? joystickDirection;
   late Player player;
@@ -273,16 +277,16 @@ class SpaceGame extends FlameGame
   final List<ProjectileComponent> projectiles = [];
   final navigatorKey = GlobalKey<NavigatorState>();
   late final Timer _enemySpawnTimer;
-  
+
   // Variáveis de progressão
   double _gameSpeed = 1.0;
   int _currentLevel = 1;
   final Map<int, int> _levelThresholds = {
-    1: 0,     // Nível 1: Início
-    2: 500,   // Nível 2: Nebulosa
-    3: 1000,  // Nível 3: Galáxia
-    4: 2000,  // Nível 4: Super Nova
-    5: 4000,  // Nível 5: Buraco Negro
+    1: 0, // Nível 1: Início
+    2: 500, // Nível 2: Nebulosa
+    3: 1000, // Nível 3: Galáxia
+    4: 2000, // Nível 4: Super Nova
+    5: 4000, // Nível 5: Buraco Negro
   };
 
   // Constantes para cálculo exponencial
@@ -292,6 +296,7 @@ class SpaceGame extends FlameGame
 
   SpaceGame({
     required this.onReturnToMenu,
+    required this.userId,
     this.isMouseControl = true,
   });
 
@@ -338,7 +343,7 @@ class SpaceGame extends FlameGame
   EnemyType _getRandomEnemyType() {
     final random = math.Random();
     final chance = random.nextDouble();
-    
+
     if (_currentLevel >= 3) {
       if (chance < 0.1) return EnemyType.diamond; // 10% chance
       if (chance < 0.3) return EnemyType.triangle; // 20% chance
@@ -349,14 +354,14 @@ class SpaceGame extends FlameGame
       if (chance < 0.5) return EnemyType.circle; // 30% chance
       return EnemyType.square; // 50% chance
     }
-    
+
     return EnemyType.square; // Nível 1: apenas quadrados
   }
 
   void updateScore(int points) {
     score += points;
     scoreText.text = 'Score: $score';
-    
+
     // Atualiza o nível e velocidade do jogo
     _updateGameProgress();
   }
@@ -365,14 +370,16 @@ class SpaceGame extends FlameGame
     // Atualiza o nível baseado na pontuação
     final sortedLevels = _levelThresholds.entries.toList()
       ..sort((a, b) => b.key.compareTo(a.key));
-    
+
     for (var entry in sortedLevels) {
       if (score >= entry.value) {
         if (_currentLevel != entry.key) {
           _currentLevel = entry.key;
           // Cálculo exponencial da velocidade
-          _gameSpeed = _baseSpeed + (_speedMultiplier * math.pow(_exponentialFactor, _currentLevel - 1));
-          
+          _gameSpeed = _baseSpeed +
+              (_speedMultiplier *
+                  math.pow(_exponentialFactor, _currentLevel - 1));
+
           // Atualiza o timer de spawn com a nova velocidade
           _enemySpawnTimer.stop();
           add(TimerComponent(
@@ -393,14 +400,18 @@ class SpaceGame extends FlameGame
     _gameSpeed = _baseSpeed;
     scoreText.text = 'Score: 0';
     projectiles.clear();
-    children.whereType<EnemyComponent>().forEach((enemy) => enemy.removeFromParent());
-    children.whereType<ProjectileComponent>().forEach((projectile) => projectile.removeFromParent());
-    
+    children
+        .whereType<EnemyComponent>()
+        .forEach((enemy) => enemy.removeFromParent());
+    children
+        .whereType<ProjectileComponent>()
+        .forEach((projectile) => projectile.removeFromParent());
+
     player.position = Vector2(
       size.x / 2 - player.size.x / 2,
       size.y * 0.8 - player.size.y / 2,
     );
-    
+
     _enemySpawnTimer.stop();
     add(TimerComponent(period: 2, onTick: _spawnEnemy, repeat: true));
     resumeEngine();
@@ -463,6 +474,13 @@ class SpaceGame extends FlameGame
     gameOver = true;
     pauseEngine();
     _enemySpawnTimer.stop();
+
+    // Salvar pontuação no banco
+    _gameRepository.saveGameScore(
+      userId: userId,
+      score: score,
+      duration: _currentLevel,
+    );
   }
 
   @override
@@ -585,7 +603,8 @@ class SpaceGame extends FlameGame
   @override
   void onTapDown(TapDownInfo info) {
     if (gameOver && _menuButtonRect != null) {
-      final touchPoint = Offset(info.eventPosition.global.x, info.eventPosition.global.y);
+      final touchPoint =
+          Offset(info.eventPosition.global.x, info.eventPosition.global.y);
       if (_menuButtonRect!.contains(touchPoint)) {
         onReturnToMenu();
       } else {
@@ -619,10 +638,10 @@ class SpaceGame extends FlameGame
 }
 
 enum EnemyType {
-  square,    // Básico: 50 pontos
-  circle,    // Médio: 75 pontos
-  triangle,  // Difícil: 100 pontos
-  diamond,   // Raro: 150 pontos
+  square, // Básico: 50 pontos
+  circle, // Médio: 75 pontos
+  triangle, // Difícil: 100 pontos
+  diamond, // Raro: 150 pontos
 }
 
 class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
@@ -711,39 +730,27 @@ class BackgroundComponent extends Component with HasGameRef<SpaceGame> {
   }
 }
 
-class Player extends PositionComponent
+class Player extends SpriteComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   Vector2 target = Vector2.zero();
   late RectangleHitbox hitbox;
-  late Paint _paint;
 
-  Player() : super(size: Vector2(50, 50)) {
+  Player() : super(size: Vector2(50, 50));
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    sprite = await gameRef.loadSprite('player.png');
+    anchor = Anchor.center;
+    position = Vector2(
+      gameRef.size.x / 2,
+      gameRef.size.y * 0.8,
+    );
     hitbox = RectangleHitbox(
       size: Vector2(40, 40),
       position: Vector2(5, 5),
     );
     add(hitbox);
-    _paint = Paint()..color = Colors.white;
-  }
-
-  @override
-  Future<void> onLoad() async {
-    await super.onLoad();
-    // Posiciona o player no centro da tela na primeira vez
-    position = Vector2(
-      gameRef.size.x / 2 - size.x / 2,
-      gameRef.size.y * 0.8 - size.y / 2,
-    );
-  }
-
-  @override
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-    // Atualiza a posição quando a tela for redimensionada
-    position = Vector2(
-      size.x / 2 - this.size.x / 2,
-      size.y * 0.8 - this.size.y / 2,
-    );
   }
 
   @override
@@ -756,22 +763,10 @@ class Player extends PositionComponent
     }
   }
 
-  @override
-  void render(Canvas canvas) {
-    canvas.drawPath(
-      Path()
-        ..moveTo(size.x / 2, 0)
-        ..lineTo(size.x, size.y)
-        ..lineTo(0, size.y)
-        ..close(),
-      _paint,
-    );
-  }
-
   void shoot(SpaceGame game) {
     if (!game.gameOver) {
       final projectile = ProjectileComponent(
-        position: position + Vector2(size.x / 2 - 5, 0),
+        position: position + Vector2(0, -size.y / 2),
       );
       game.add(projectile);
       game.projectiles.add(projectile);
@@ -779,19 +774,23 @@ class Player extends PositionComponent
   }
 }
 
-class ProjectileComponent extends PositionComponent
+class ProjectileComponent extends SpriteComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
-  late Paint _paint;
 
   ProjectileComponent({required Vector2 position})
-      : super(size: Vector2(10, 20), position: position) {
+      : super(size: Vector2(10, 20), position: position);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    sprite = await gameRef.loadSprite('bullet.png');
+    anchor = Anchor.center;
     hitbox = RectangleHitbox(
       size: Vector2(8, 16),
       position: Vector2(1, 2),
     );
     add(hitbox);
-    _paint = Paint()..color = Colors.white;
   }
 
   @override
@@ -805,32 +804,97 @@ class ProjectileComponent extends PositionComponent
       }
     }
   }
+}
+
+class BulletEnemyComponent extends SpriteComponent
+    with HasGameRef<SpaceGame>, CollisionCallbacks {
+  late RectangleHitbox hitbox;
+
+  BulletEnemyComponent({required Vector2 position})
+      : super(size: Vector2(14, 28), position: position);
 
   @override
-  void render(Canvas canvas) {
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
+  Future<void> onLoad() async {
+    await super.onLoad();
+    sprite = await gameRef.loadSprite('bullet_enemy.png');
+    anchor = Anchor.center;
+    hitbox = RectangleHitbox(
+      size: Vector2(12, 24),
+      position: Vector2(1, 2),
+    );
+    add(hitbox);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (!gameRef.gameOver) {
+      position.y += 300 * dt;
+      if (position.y > gameRef.size.y + size.y) {
+        removeFromParent();
+      }
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (other is Player && !gameRef.gameOver) {
+      removeFromParent();
+      gameRef.endGame();
+    }
   }
 }
 
-class EnemyComponent extends PositionComponent
+class EnemyComponent extends SpriteComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
-  late Paint _paint;
   final EnemyType type;
   final int points;
+
+  // Controle de perseguição
+  bool _isChasing = false;
+  double _chaseTime = 0;
+  static const double _chaseDuration = 5.0; // segundos
+
+  // Controle de tiro para EnemyType.circle
+  double _shootTimer = 0;
+  static const double _shootInterval = 0.7; // segundos
 
   EnemyComponent({
     required Vector2 position,
     this.type = EnemyType.square,
-  }) : points = _getPointsForType(type),
-       super(size: Vector2(40, 40)) {
-    this.position = position;
+  })  : points = _getPointsForType(type),
+        super(size: Vector2(40, 40), position: position);
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    String spritePath;
+    switch (type) {
+      case EnemyType.square:
+        spritePath = 'enemy.png';
+        break;
+      case EnemyType.circle:
+        spritePath = 'enemy1.png';
+        _shootTimer = 0;
+        break;
+      case EnemyType.triangle:
+        spritePath = 'enemy2.png';
+        _isChasing = true;
+        _chaseTime = 0;
+        break;
+      case EnemyType.diamond:
+        spritePath = 'enemy2.png';
+        break;
+    }
+    sprite = await gameRef.loadSprite(spritePath);
+    anchor = Anchor.center;
     hitbox = RectangleHitbox(
       size: Vector2(36, 36),
       position: Vector2(2, 2),
     );
     add(hitbox);
-    _paint = Paint()..color = _getColorForType(type);
   }
 
   static int _getPointsForType(EnemyType type) {
@@ -846,60 +910,42 @@ class EnemyComponent extends PositionComponent
     }
   }
 
-  static Color _getColorForType(EnemyType type) {
-    switch (type) {
-      case EnemyType.square:
-        return Colors.red;
-      case EnemyType.circle:
-        return Colors.orange;
-      case EnemyType.triangle:
-        return Colors.purple;
-      case EnemyType.diamond:
-        return Colors.cyan;
-    }
-  }
-
   @override
   void update(double dt) {
     super.update(dt);
     if (!gameRef.gameOver) {
-      position.y += 100 * dt * gameRef._gameSpeed;
+      if (type == EnemyType.triangle && _isChasing) {
+        _chaseTime += dt;
+        // Persegue o player
+        final playerPos = gameRef.player.position;
+        final direction = (playerPos - position).normalized();
+        position += direction * 120 * dt * gameRef._gameSpeed;
+        if (_chaseTime >= _chaseDuration) {
+          _isChasing = false;
+        }
+      } else {
+        // Movimento normal para baixo
+        position.y += 100 * dt * gameRef._gameSpeed;
+      }
+      if (type == EnemyType.circle) {
+        _shootTimer += dt;
+        if (_shootTimer >= _shootInterval) {
+          _shootTimer = 0;
+          // Probabilidade exponencial baseada na pontuação
+          final score = gameRef.score;
+          // Exemplo: prob = min(0.05 * exp(score/500), 0.8)
+          final prob = (0.05 * math.exp(score / 500)).clamp(0, 0.8);
+          if (math.Random().nextDouble() < prob) {
+            // Atira
+            final bullet = BulletEnemyComponent(
+                position: position + Vector2(0, size.y / 2));
+            gameRef.add(bullet);
+          }
+        }
+      }
       if (position.y > gameRef.size.y) {
         removeFromParent();
       }
-    }
-  }
-
-  @override
-  void render(Canvas canvas) {
-    switch (type) {
-      case EnemyType.square:
-        canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), _paint);
-        break;
-      case EnemyType.circle:
-        canvas.drawCircle(
-          Offset(size.x / 2, size.y / 2),
-          size.x / 2,
-          _paint,
-        );
-        break;
-      case EnemyType.triangle:
-        final path = Path()
-          ..moveTo(size.x / 2, 0)
-          ..lineTo(size.x, size.y)
-          ..lineTo(0, size.y)
-          ..close();
-        canvas.drawPath(path, _paint);
-        break;
-      case EnemyType.diamond:
-        final path = Path()
-          ..moveTo(size.x / 2, 0)
-          ..lineTo(size.x, size.y / 2)
-          ..lineTo(size.x / 2, size.y)
-          ..lineTo(0, size.y / 2)
-          ..close();
-        canvas.drawPath(path, _paint);
-        break;
     }
   }
 }

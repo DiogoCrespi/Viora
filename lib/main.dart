@@ -20,7 +20,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 import 'package:viora/routes.dart';
-import 'package:viora/features/game/presentation/screens/game_test_screen.dart';
 
 // Conditional imports for platform-specific code
 import 'core/platform/platform_stub.dart'
