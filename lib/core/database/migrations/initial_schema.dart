@@ -7,10 +7,10 @@ class InitialSchema {
   static Future<void> createTables(Database db) async {
     // Verifica se já existe uma tabela de controle de versão
     await _createVersionTable(db);
-    
+
     // Verifica a versão atual do schema
     final currentDbVersion = await _getCurrentVersion(db);
-    
+
     if (currentDbVersion < currentVersion) {
       // Executa as migrações necessárias
       await _migrateSchema(db, currentDbVersion);
@@ -37,7 +37,7 @@ class InitialSchema {
         orderBy: 'version DESC',
         limit: 1,
       );
-      
+
       if (result.isNotEmpty) {
         return result.first['version'] as int;
       }
@@ -45,7 +45,7 @@ class InitialSchema {
       // Se a tabela não existe, retorna 0
       print('Schema version table not found, starting from version 0');
     }
-    
+
     return 0;
   }
 
@@ -72,10 +72,10 @@ class InitialSchema {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
-        password_hash TEXT,
-        password_salt TEXT,
+        password_hash TEXT NOT NULL,
+        password_salt TEXT NOT NULL,
         avatar_path TEXT,
-        created_at TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now', 'utc')),
         last_login TEXT,
         is_active INTEGER NOT NULL DEFAULT 1
       )
@@ -103,8 +103,8 @@ class InitialSchema {
         language TEXT DEFAULT 'pt',
         font_size TEXT DEFAULT 'medium',
         avatar_url TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
@@ -119,6 +119,8 @@ class InitialSchema {
         max_score INTEGER DEFAULT 0,
         missions_completed INTEGER DEFAULT 0,
         last_played TEXT,
+        created_at TEXT DEFAULT (datetime('now', 'utc')),
+        updated_at TEXT DEFAULT (datetime('now', 'utc')),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
@@ -129,10 +131,12 @@ class InitialSchema {
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('score', 'level')),
+        required_score INTEGER NOT NULL DEFAULT 0,
+        required_level INTEGER NOT NULL DEFAULT 1,
         xp_reward INTEGER NOT NULL,
-        status TEXT DEFAULT 'pending',
-        difficulty_level INTEGER DEFAULT 1,
-        created_at TEXT DEFAULT (datetime('now', 'utc'))
+        created_at TEXT DEFAULT (datetime('now', 'utc')),
+        updated_at TEXT DEFAULT (datetime('now', 'utc'))
       )
     ''');
 
@@ -142,11 +146,39 @@ class InitialSchema {
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         mission_id TEXT NOT NULL,
-        status TEXT DEFAULT 'pending',
+        status TEXT DEFAULT 'available' CHECK (status IN ('locked', 'available', 'completed')),
         started_at TEXT,
         completed_at TEXT,
+        created_at TEXT DEFAULT (datetime('now', 'utc')),
+        updated_at TEXT DEFAULT (datetime('now', 'utc')),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE
+        FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE,
+        UNIQUE(user_id, mission_id)
+      )
+    ''');
+
+    // GameScores Table - Ajustado para corresponder ao Supabase
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS game_scores (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        duration INTEGER NOT NULL,
+        created_at TEXT DEFAULT (datetime('now', 'utc')),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // GameSessions Table - Ajustado para corresponder ao Supabase
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS game_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        score INTEGER DEFAULT 0,
+        duration INTEGER DEFAULT 0,
+        started_at TEXT DEFAULT (datetime('now', 'utc')),
+        ended_at TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
 
@@ -169,21 +201,8 @@ class InitialSchema {
         user_id TEXT NOT NULL,
         token TEXT NOT NULL,
         expires_at TEXT NOT NULL,
-        created_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
         is_used INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    ''');
-
-    // GameSessions Table - Ajustado para corresponder ao Supabase
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS game_sessions (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        score INTEGER DEFAULT 0,
-        duration INTEGER DEFAULT 0,
-        started_at TEXT DEFAULT (datetime('now', 'utc')),
-        ended_at TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
@@ -205,11 +224,13 @@ class InitialSchema {
       'idx_onboarding_progress_user_id',
       'idx_password_reset_tokens_user_id',
       'idx_game_sessions_user_id',
+      'idx_game_scores_user_id',
     ];
 
     for (final indexName in indexes) {
       try {
-        await db.execute('CREATE INDEX IF NOT EXISTS $indexName ON ${_getTableName(indexName)}(${_getColumnName(indexName)})');
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS $indexName ON ${_getTableName(indexName)}(${_getColumnName(indexName)})');
       } catch (e) {
         // Ignora erros de índices já existentes
         print('Index $indexName already exists or error: $e');
@@ -220,6 +241,7 @@ class InitialSchema {
   /// Limpa todas as tabelas (útil para desenvolvimento)
   static Future<void> clearAllTables(Database db) async {
     final tables = [
+      'game_scores',
       'game_sessions',
       'password_reset_tokens',
       'user_missions',
@@ -262,6 +284,8 @@ class InitialSchema {
         return 'password_reset_tokens';
       case 'idx_game_sessions_user_id':
         return 'game_sessions';
+      case 'idx_game_scores_user_id':
+        return 'game_scores';
       default:
         return 'users';
     }
@@ -279,6 +303,7 @@ class InitialSchema {
       case 'idx_onboarding_progress_user_id':
       case 'idx_password_reset_tokens_user_id':
       case 'idx_game_sessions_user_id':
+      case 'idx_game_scores_user_id':
         return 'user_id';
       case 'idx_user_missions_mission_id':
         return 'mission_id';

@@ -10,6 +10,7 @@ import 'package:flame/collisions.dart';
 import 'dart:math' as math;
 import 'package:flame/events.dart';
 import 'package:viora/features/game/data/repositories/game_repository.dart';
+import 'package:viora/l10n/app_localizations.dart';
 
 class JoystickDetails {
   final Vector2 direction;
@@ -80,6 +81,9 @@ class _SpaceShooterGameState extends State<SpaceShooterGame> {
                     game: game as SpaceGame,
                     isMouseControl: isMouseControl,
                     onToggleControl: _toggleControl,
+                  ),
+              'mission_completed': (context, game) => MissionCompletedOverlay(
+                    game: game as SpaceGame,
                   ),
             },
           ),
@@ -277,6 +281,7 @@ class SpaceGame extends FlameGame
   final List<ProjectileComponent> projectiles = [];
   final navigatorKey = GlobalKey<NavigatorState>();
   late final Timer _enemySpawnTimer;
+  List<Map<String, dynamic>> completedMissions = [];
 
   // Variáveis de progressão
   double _gameSpeed = 1.0;
@@ -479,8 +484,26 @@ class SpaceGame extends FlameGame
     _gameRepository.saveGameScore(
       userId: userId,
       score: score,
-      duration: _currentLevel,
+      level: _currentLevel,
     );
+
+    // Verificar missões completadas
+    _checkCompletedMissions();
+  }
+
+  Future<void> _checkCompletedMissions() async {
+    try {
+      await _gameRepository.checkAndUpdateMissions(
+        userId: userId,
+        score: score,
+        level: _currentLevel,
+      );
+      // Se quiser mostrar o overlay, busque as missões completadas separadamente, por exemplo:
+      // final completed = await _gameRepository.getUserMissions(userId);
+      // overlays.add('mission_completed');
+    } catch (e) {
+      print('Erro ao verificar missões: $e');
+    }
   }
 
   @override
@@ -979,6 +1002,95 @@ class PauseMenu extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.sunsetOrange,
+                foregroundColor: AppTheme.geometricBlack,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                'Continuar',
+                style: theme.futuristicSubtitle,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MissionCompletedOverlay extends StatelessWidget {
+  final SpaceGame game;
+
+  const MissionCompletedOverlay({
+    super.key,
+    required this.game,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppTheme.sunsetOrange,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Missão Concluída!',
+              style: theme.futuristicTitle,
+            ),
+            const SizedBox(height: 16),
+            ...game.completedMissions.map((mission) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        mission['title'],
+                        style: theme.futuristicSubtitle,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        mission['description'],
+                        style: const TextStyle(
+                          color: AppTheme.agedBeige,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Recompensa: ${mission['xp_reward']} XP',
+                        style: TextStyle(
+                          color: AppTheme.sunsetOrange,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                game.overlays.remove('mission_completed');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.sunsetOrange,
                 foregroundColor: AppTheme.geometricBlack,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,

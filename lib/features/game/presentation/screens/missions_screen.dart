@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/features/game/data/repositories/mission_repository.dart';
+import 'package:viora/features/game/data/repositories/game_repository.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/presentation/widgets/viora_drawer.dart';
 import 'package:viora/routes.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MissionsScreen extends StatefulWidget {
-  final String userId;
-
-  const MissionsScreen({
-    Key? key,
-    required this.userId,
-  }) : super(key: key);
+  const MissionsScreen({Key? key}) : super(key: key);
 
   @override
   State<MissionsScreen> createState() => _MissionsScreenState();
 }
 
 class _MissionsScreenState extends State<MissionsScreen> {
-  late MissionRepository _missionRepository;
+  final GameRepository _gameRepository = GameRepository();
   List<Map<String, dynamic>> _missions = [];
-  String _selectedFilter = 'all';
   bool _isLoading = true;
+  String _selectedFilter = 'all';
+  String? _userId;
 
   final List<String> _sections = [
     'Dashboard',
@@ -36,39 +33,72 @@ class _MissionsScreenState extends State<MissionsScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeDatabase();
+    _loadUserId();
   }
 
-  Future<void> _initializeDatabase() async {
-    try {
-      final database = await openDatabase(
-        join(await getDatabasesPath(), 'viora.db'),
-        onCreate: (db, version) async {
-          // O schema será criado automaticamente pelo InitialSchema
-        },
-        version: 1,
-      );
-
-      _missionRepository = MissionRepository(database);
-      await _missionRepository.initializeMissions(widget.userId);
-      await _loadMissions();
-    } catch (e) {
-      print('Erro ao inicializar banco de dados: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_userId != null) {
+      _loadMissions();
     }
   }
 
-  Future<void> _loadMissions() async {
+  Future<void> _loadUserId() async {
+    String? userId;
     try {
-      final missions = await _missionRepository.getMissions(widget.userId);
+      userId = Supabase.instance.client.auth.currentUser?.id;
+    } catch (_) {}
+    if (userId == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+    setState(() {
+      _userId = userId;
+    });
+  }
+
+  Future<void> _loadMissions() async {
+    if (_userId == null) return;
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Primeiro verifica e atualiza as missões
+      final progress = await _gameRepository.getUserProgress(_userId!);
+      final level = progress['level'] ?? 1;
+      final maxScore = progress['max_score'] ?? 0;
+
+      print(
+          'Verificando e atualizando missões para o nível $level e pontuação $maxScore');
+      await _gameRepository.checkAndUpdateMissions(
+        userId: _userId!,
+        score: maxScore,
+        level: level,
+      );
+
+      // Depois carrega as missões atualizadas
+      final missions = await _gameRepository.getMissions(_userId!);
+      print('Missões carregadas: ${missions.length}');
+
+      // Verifica o status de cada missão
+      for (var mission in missions) {
+        print(
+            'Missão: ${mission['title']}, Status: ${mission['status']}, Nível necessário: ${mission['required_level']}');
+      }
+
       setState(() {
         _missions = missions;
+        _isLoading = false;
       });
     } catch (e) {
       print('Erro ao carregar missões: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -153,11 +183,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
                           itemCount: _missions.length,
                           itemBuilder: (context, index) {
                             final mission = _missions[index];
-                            if (_selectedFilter != 'all' &&
-                                mission['status'] != _selectedFilter) {
-                              return const SizedBox.shrink();
+                            if (_selectedFilter == 'all' ||
+                                mission['status'] == _selectedFilter) {
+                              return _buildMissionCard(mission);
                             }
-                            return _buildMissionCard(context, mission);
+                            return const SizedBox.shrink();
                           },
                         ),
                 ),
@@ -195,38 +225,16 @@ class _MissionsScreenState extends State<MissionsScreen> {
     );
   }
 
-  Widget _buildMissionCard(BuildContext context, Map<String, dynamic> mission) {
-    final theme = Theme.of(context);
-    final localizations = AppLocalizations.of(context)!;
-    final status = mission['status'] as String;
+  Widget _buildMissionCard(Map<String, dynamic> mission) {
+    final status = mission['status'] ?? 'available';
     final isCompleted = status == 'completed';
-    final isInProgress = status == 'in_progress';
-
-    Color statusColor;
-    switch (status) {
-      case 'completed':
-        statusColor = theme.twilightPurple;
-        break;
-      case 'in_progress':
-        statusColor = theme.sunsetOrange;
-        break;
-      default:
-        statusColor = theme.dawnPink;
-    }
+    final requiredLevel = mission['required_level'] ?? 1;
+    final xpReward = mission['xp_reward'] ?? 0;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      color: theme.primarySurface.withOpacity(0.95),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.sunsetOrange.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -236,66 +244,38 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 Expanded(
                   child: Text(
                     mission['title'],
-                    style: theme.futuristicSubtitle,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: statusColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    _getStatusLabel(status),
-                    style: TextStyle(
-                      color: statusColor,
+                    style: const TextStyle(
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+                _buildStatusBadge(status),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               mission['description'],
-              style: theme.futuristicBody,
+              style: const TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star_outline,
-                      color: theme.sunsetOrange,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${mission['xp_reward']} ${localizations.missionCardXP}',
-                      style: TextStyle(
-                        color: theme.sunsetOrange,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                if (!isCompleted && !isInProgress)
-                  TextButton(
-                    onPressed: () => _startMission(mission['id']),
-                    style: TextButton.styleFrom(
-                      foregroundColor: theme.sunsetOrange,
-                    ),
-                    child: Text(localizations.missionCardStartButton),
+                Text(
+                  'Nível necessário: $requiredLevel',
+                  style: TextStyle(
+                    color: isCompleted ? Colors.green : Colors.blue,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                Text(
+                  'Recompensa: $xpReward XP',
+                  style: TextStyle(
+                    color: isCompleted ? Colors.green : Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ],
@@ -304,27 +284,47 @@ class _MissionsScreenState extends State<MissionsScreen> {
     );
   }
 
-  String _getStatusLabel(String status) {
+  Widget _buildStatusBadge(String status) {
+    Color color;
+    String text;
+
     switch (status) {
       case 'completed':
-        return 'Concluída';
+        color = Colors.green;
+        text = 'Concluída';
+        break;
+      case 'available':
+        color = Colors.orange;
+        text = 'Disponível';
+        break;
+      case 'locked':
+        color = Colors.grey;
+        text = 'Bloqueada';
+        break;
       case 'in_progress':
-        return 'Em Progresso';
+        color = Colors.blue;
+        text = 'Em Progresso';
+        break;
       default:
-        return 'Pendente';
+        color = Colors.orange;
+        text = 'Disponível';
     }
-  }
 
-  Future<void> _startMission(String missionId) async {
-    try {
-      await _missionRepository.updateMissionStatus(
-        userId: widget.userId,
-        missionId: missionId,
-        status: 'in_progress',
-      );
-      await _loadMissions();
-    } catch (e) {
-      print('Erro ao iniciar missão: $e');
-    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
+    );
   }
 }

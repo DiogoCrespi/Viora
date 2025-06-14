@@ -7,10 +7,12 @@ import 'package:viora/features/auth/presentation/pages/reset_password_screen.dar
 import 'package:viora/features/user/presentation/pages/profile_screen.dart';
 import 'package:viora/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:viora/presentation/pages/main_screen.dart';
-import 'package:viora/features/user/presentation/pages/status_screen.dart';
+import 'package:viora/features/game/presentation/screens/status_screen.dart';
 import 'package:viora/features/user/presentation/pages/settings_screen.dart';
-import 'package:viora/features/game/presentation/pages/missions_screen.dart';
+import 'package:viora/features/game/presentation/screens/missions_screen.dart';
 import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
+
+import 'features/game/presentation/screens/status_screen.dart';
 
 /// Classe responsável por gerenciar todas as rotas da aplicação
 class AppRoutes {
@@ -92,7 +94,7 @@ class AppRoutes {
     } else if (routeName == missions) {
       return _buildRoute(
         settings,
-        MissionsScreen(),
+        const MissionsScreen(),
       );
     } else if (routeName == game) {
       final args = settings.arguments as Map<String, dynamic>?;
