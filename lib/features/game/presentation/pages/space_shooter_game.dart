@@ -283,6 +283,10 @@ class SpaceGame extends FlameGame
   late final Timer _enemySpawnTimer;
   List<Map<String, dynamic>> completedMissions = [];
 
+  // Contador de projéteis do EnemyType.square
+  int _squareEnemyProjectileCount = 0;
+  static const int _maxSquareEnemyProjectiles = 20;
+
   // Variáveis de progressão
   double _gameSpeed = 1.0;
   int _currentLevel = 1;
@@ -799,20 +803,19 @@ class Player extends SpriteComponent
 
 class ProjectileComponent extends SpriteComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
-  late RectangleHitbox hitbox;
+  final RectangleHitbox hitbox = RectangleHitbox(
+    size: Vector2(8, 16),
+    position: Vector2(1, 2),
+  );
 
   ProjectileComponent({required Vector2 position})
-      : super(size: Vector2(10, 20), position: position);
+      : super(size: Vector2(10, 20), position: position) {}
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     sprite = await gameRef.loadSprite('bullet.png');
     anchor = Anchor.center;
-    hitbox = RectangleHitbox(
-      size: Vector2(8, 16),
-      position: Vector2(1, 2),
-    );
     add(hitbox);
   }
 
@@ -869,6 +872,59 @@ class BulletEnemyComponent extends SpriteComponent
   }
 }
 
+class BulletEnemyBallComponent extends SpriteComponent
+    with HasGameRef<SpaceGame>, CollisionCallbacks {
+  final RectangleHitbox hitbox = RectangleHitbox(
+    size: Vector2(18, 18),
+    position: Vector2(1, 1),
+  );
+  final Vector2 direction;
+  final double speed;
+  final VoidCallback? onRemoved;
+
+  BulletEnemyBallComponent({
+    required Vector2 position,
+    required this.direction,
+    this.speed = 200,
+    this.onRemoved,
+  }) : super(size: Vector2(20, 20), position: position) {}
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    sprite = await gameRef.loadSprite('bullet_enemy_ball.png');
+    anchor = Anchor.center;
+    add(hitbox);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (!gameRef.gameOver) {
+      position.x += direction.x * speed * dt;
+      position.y += direction.y * speed * dt;
+
+      if (position.y < -size.y ||
+          position.y > gameRef.size.y + size.y ||
+          position.x < -size.x ||
+          position.x > gameRef.size.x + size.x) {
+        removeFromParent();
+        onRemoved?.call(); // Chama o callback quando removido
+      }
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (other is Player && !gameRef.gameOver) {
+      removeFromParent();
+      onRemoved?.call(); // Chama o callback quando removido
+      gameRef.endGame();
+    }
+  }
+}
+
 class EnemyComponent extends SpriteComponent
     with HasGameRef<SpaceGame>, CollisionCallbacks {
   late RectangleHitbox hitbox;
@@ -880,9 +936,11 @@ class EnemyComponent extends SpriteComponent
   double _chaseTime = 0;
   static const double _chaseDuration = 5.0; // segundos
 
-  // Controle de tiro para EnemyType.circle
+  // Controle de tiro para EnemyType.circle e EnemyType.square
   double _shootTimer = 0;
-  static const double _shootInterval = 0.7; // segundos
+  static const double _shootInterval = 0.7; // segundos para EnemyType.circle
+  static const double _squareShootInterval =
+      1.5; // segundos para EnemyType.square
 
   EnemyComponent({
     required Vector2 position,
@@ -897,6 +955,7 @@ class EnemyComponent extends SpriteComponent
     switch (type) {
       case EnemyType.square:
         spritePath = 'enemy.png';
+        _shootTimer = 0; // Inicializa o timer para o square
         break;
       case EnemyType.circle:
         spritePath = 'enemy1.png';
@@ -950,22 +1009,61 @@ class EnemyComponent extends SpriteComponent
         // Movimento normal para baixo
         position.y += 100 * dt * gameRef._gameSpeed;
       }
-      if (type == EnemyType.circle) {
+
+      // Lógica de tiro para EnemyType.circle e EnemyType.square
+      if (type == EnemyType.circle || type == EnemyType.square) {
         _shootTimer += dt;
-        if (_shootTimer >= _shootInterval) {
+        double currentShootInterval =
+            (type == EnemyType.circle) ? _shootInterval : _squareShootInterval;
+
+        if (_shootTimer >= currentShootInterval) {
           _shootTimer = 0;
           // Probabilidade exponencial baseada na pontuação
           final score = gameRef.score;
-          // Exemplo: prob = min(0.05 * exp(score/500), 0.8)
-          final prob = (0.05 * math.exp(score / 500)).clamp(0, 0.8);
+          final prob = (0.05 * math.exp(score / 500)).clamp(0.0, 0.8);
+
           if (math.Random().nextDouble() < prob) {
-            // Atira
-            final bullet = BulletEnemyComponent(
-                position: position + Vector2(0, size.y / 2));
-            gameRef.add(bullet);
+            if (type == EnemyType.circle) {
+              // Atira uma única bala
+              final bullet = BulletEnemyComponent(
+                  position: position + Vector2(0, size.y / 2));
+              gameRef.add(bullet);
+            } else if (type == EnemyType.square) {
+              // Início do código para _shootEightDirections
+              final double bulletSpeed = 150.0;
+
+              if (gameRef._squareEnemyProjectileCount + 8 >
+                  SpaceGame._maxSquareEnemyProjectiles) {
+                // Não atira se exceder o limite
+              } else {
+                // Direções: cima-esquerda, baixo-esquerda, baixo-direita, cima-direita
+                final List<double> angles = [
+                  (math.pi / 4) * 3, // Cima-esquerda (135 graus)
+                  (math.pi / 4) * 5, // Baixo-esquerda (225 graus)
+                  (math.pi / 4) * 7, // Baixo-direita (315 graus)
+                  (math.pi / 4) * 1, // Cima-direita (45 graus)
+                ];
+
+                for (var angle in angles) {
+                  final direction = Vector2(math.cos(angle), math.sin(angle));
+                  final bullet = BulletEnemyBallComponent(
+                    position: position,
+                    direction: direction,
+                    speed: bulletSpeed,
+                    onRemoved: () {
+                      gameRef._squareEnemyProjectileCount--;
+                    },
+                  );
+                  gameRef.add(bullet);
+                  gameRef._squareEnemyProjectileCount++;
+                }
+              }
+              // Fim do código para _shootEightDirections
+            }
           }
         }
       }
+
       if (position.y > gameRef.size.y) {
         removeFromParent();
       }

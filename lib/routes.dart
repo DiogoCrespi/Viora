@@ -12,8 +12,6 @@ import 'package:viora/features/user/presentation/pages/settings_screen.dart';
 import 'package:viora/features/game/presentation/screens/missions_screen.dart';
 import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
 
-import 'features/game/presentation/screens/status_screen.dart';
-
 /// Classe responsável por gerenciar todas as rotas da aplicação
 class AppRoutes {
   // Construtor privado para evitar instanciação
