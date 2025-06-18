@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/features/game/data/repositories/game_repository.dart';
+import 'package:flutter/foundation.dart'; // For debugPrint
+import 'package:provider/provider.dart'; // For UserProvider
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/presentation/widgets/viora_drawer.dart';
 import 'package:viora/routes.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart'; // No longer directly needed here
+import 'package:viora/features/user/presentation/providers/user_provider.dart'; // Import UserProvider
 
 class MissionsScreen extends StatefulWidget {
   const MissionsScreen({Key? key}) : super(key: key);
@@ -45,60 +46,73 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }
 
   Future<void> _loadUserId() async {
-    String? userId;
-    try {
-      userId = Supabase.instance.client.auth.currentUser?.id;
-    } catch (_) {}
-    if (userId == null) {
-      setState(() {
-        _isLoading = false;
-      });
+    // Assumes UserProvider is available and holds the current user's ID
+    // In a real scenario, UserProvider would be more robust in how it provides this.
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentUserId = userProvider.currentUser?.id; // Example access
+
+    if (currentUserId == null) {
+      if (kDebugMode) {
+        debugPrint('MissionsScreen: _loadUserId: User ID is null. Cannot load missions.');
+      }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Optionally, set an error message to display to the user
+        });
+      }
       return;
     }
-    setState(() {
-      _userId = userId;
-    });
+
+    if (mounted) {
+      setState(() {
+        _userId = currentUserId;
+      });
+    }
   }
 
   Future<void> _loadMissions() async {
-    if (_userId == null) return;
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Primeiro verifica e atualiza as missões
-      final progress = await _gameRepository.getUserProgress(_userId!);
-      final level = progress['level'] ?? 1;
-      final maxScore = progress['max_score'] ?? 0;
-
-      print(
-          'Verificando e atualizando missões para o nível $level e pontuação $maxScore');
-      await _gameRepository.checkAndUpdateMissions(
-        userId: _userId!,
-        score: maxScore,
-        level: level,
-      );
-
-      // Depois carrega as missões atualizadas
-      final missions = await _gameRepository.getMissions(_userId!);
-      print('Missões carregadas: ${missions.length}');
-
-      // Verifica o status de cada missão
-      for (var mission in missions) {
-        print(
-            'Missão: ${mission['title']}, Status: ${mission['status']}, Nível necessário: ${mission['required_level']}');
+    if (_userId == null) {
+      if (kDebugMode) {
+        debugPrint('MissionsScreen: _loadMissions: Aborted because userId is null.');
       }
+      return;
+    }
 
-      setState(() {
-        _missions = missions;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Erro ao carregar missões: $e');
-      setState(() {
-        _isLoading = false;
-      });
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (kDebugMode) {
+        debugPrint('MissionsScreen: _loadMissions: Loading prepared missions for user $_userId');
+      }
+      // This new method in GameRepository will encapsulate the previous logic:
+      // 1. Get user progress.
+      // 2. Check and update mission statuses based on progress.
+      // 3. Fetch the (now potentially updated) list of user missions with details.
+      final missions = await _gameRepository.getPreparedUserMissions(_userId!);
+
+      if (mounted) {
+        setState(() {
+          _missions = missions;
+          _isLoading = false;
+        });
+        if (kDebugMode) {
+          debugPrint('MissionsScreen: _loadMissions: Loaded ${missions.length} missions.');
+        }
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('MissionsScreen: _loadMissions: Error loading missions: $e\n$stackTrace');
+      }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Optionally, set an error message to display to the user
+        });
+      }
     }
   }
 

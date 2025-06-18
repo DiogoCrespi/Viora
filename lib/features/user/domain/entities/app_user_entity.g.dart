@@ -6,8 +6,8 @@ part of 'app_user_entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
-    _$AppUserImpl(
+_$AppUserEntityImpl _$$AppUserEntityImplFromJson(Map<String, dynamic> json) =>
+    _$AppUserEntityImpl(
       id: json['id'] as String,
       name: json['name'] as String,
       email: json['email'] as String,
@@ -21,7 +21,7 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       isActive: json['is_active'] as bool? ?? true,
     );
 
-Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
+Map<String, dynamic> _$$AppUserEntityImplToJson(_$AppUserEntityImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

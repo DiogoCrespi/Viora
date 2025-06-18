@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/features/auth/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/features/auth/presentation/widgets/login_text_form_field_widget.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/features/user/presentation/providers/user_provider.dart';
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
+import 'package:flutter/foundation.dart'; // For kDebugMode
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -73,40 +74,44 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           );
 
           // Navega de volta para a tela de login
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              ),
-              (route) => false,
-            );
-          }
-      } catch (e) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginScreen(),
+            ),
+            (route) => false,
+          );
+        }
+      } catch (e) { // Conceptual: Catch specific exceptions like InvalidPasswordTokenException, PasswordTooWeakException etc.
         if (!mounted) return;
 
-        final errorMessage = e.toString();
-        final localizations = AppLocalizations.of(context)!;
-
-        String message;
-        if (errorMessage.contains('resetPasswordSamePassword')) {
-          message = localizations.resetPasswordSamePassword;
-        } else if (errorMessage.contains('resetPasswordSessionExpired')) {
-          message = localizations.resetPasswordSessionExpired;
-        } else {
-          message = localizations.resetPasswordError;
+        if (kDebugMode) {
+          debugPrint('ResetPasswordScreen: Error resetting password: $e');
         }
+        final localizations = AppLocalizations.of(context)!;
+        String message = localizations.resetPasswordError; // Default error
+        final errorMessageString = e.toString().toLowerCase();
+
+        // This mapping would be simplified if UserProvider threw typed exceptions
+        if (errorMessageString.contains('same_password') || // Example if Supabase/provider throws this
+            errorMessageString.contains('resetpasswordsamepassword')) { // Current custom
+          message = localizations.resetPasswordSamePassword;
+        } else if (errorMessageString.contains('session_expired') || // Example
+                   errorMessageString.contains('resetpasswordsessionexpired')) {
+          message = localizations.resetPasswordSessionExpired;
+        } else if (errorMessageString.contains('weak_password')) { // Example
+            message = localizations.registerErrorWeakPassword; // Re-use if applicable, or add new
+        } else if (errorMessageString.contains('invalid_token')) { // Example
+            message = localizations.resetPasswordErrorTokenInvalid; // Assuming this key exists
+        }
+
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              message,
-              style: Theme.of(context).futuristicBody,
-            ),
+            content: Text(message, style: Theme.of(context).futuristicBody),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         );
       } finally {

@@ -7,10 +7,10 @@ import 'package:viora/features/auth/presentation/pages/reset_password_screen.dar
 import 'package:viora/features/user/presentation/pages/profile_screen.dart';
 import 'package:viora/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:viora/presentation/pages/main_screen.dart';
-import 'package:viora/features/game/presentation/screens/status_screen.dart';
+import 'package:viora/features/game/presentation/pages/status_screen.dart';
 import 'package:viora/features/user/presentation/pages/settings_screen.dart';
-import 'package:viora/features/game/presentation/screens/missions_screen.dart';
-import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
+import 'package:viora/features/game/presentation/pages/missions_screen.dart';
+import 'package:viora/features/game/presentation/pages/space_shooter_game_page.dart';
 
 /// Classe responsável por gerenciar todas as rotas da aplicação
 class AppRoutes {

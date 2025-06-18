@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/features/auth/presentation/pages/login_screen.dart';
-import 'package:viora/features/auth/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/features/auth/presentation/widgets/login_text_form_field_widget.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/features/user/presentation/providers/user_provider.dart';
 import 'package:viora/routes.dart';
+import 'package:flutter/foundation.dart'; // For kDebugMode
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -105,32 +105,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         if (mounted) {
+          // Potentially show a success message before navigating,
+          // or navigate and let the login screen show a "please check your email" message
+          // if email confirmation is required and UserProvider.register now signals this.
+          // For now, direct navigation on success (no exception).
+          if (kDebugMode) {
+            debugPrint('RegisterScreen: Registration successful, navigating to login.');
+          }
           context.pushReplacementNamed(AppRoutes.login);
         }
-      } catch (e) {
+      } catch (e) { // Conceptual: Catch specific exceptions like EmailInUseException, WeakPasswordException etc.
         if (!mounted) return;
 
-        final errorMessage = e.toString();
         final localizations = AppLocalizations.of(context)!;
+        String message = localizations.registerError; // Default error
+        final errorMessageString = e.toString().toLowerCase();
 
-        debugPrint('Registration error: $errorMessage'); // Debug log
+        if (kDebugMode) {
+          debugPrint('RegisterScreen: Registration error: $e');
+        }
 
-        String message;
-        if (errorMessage.contains('registerErrorEmailInUse')) {
+        // This mapping would be simplified if UserProvider threw typed exceptions
+        if (errorMessageString.contains('email_already_in_use') || // Supabase specific
+            errorMessageString.contains('registererroremailinuse')) { // Current custom
           message = localizations.registerErrorEmailInUse;
-        } else if (errorMessage.contains('registerErrorNoConnection')) {
+        } else if (errorMessageString.contains('weak password')) { // Supabase specific
+             message = localizations.registerErrorWeakPassword; // Assuming this key exists or will be added
+        } else if (errorMessageString.contains('network request failed')) {
           message = localizations.registerErrorNoConnection;
-        } else if (errorMessage.contains('registerErrorServerUnavailable')) {
+        } else if (errorMessageString.contains('server unavailable')) {
           message = localizations.registerErrorServerUnavailable;
-        } else if (errorMessage.contains('registerErrorInvalidData')) {
+        } else if (errorMessageString.contains('invalid data') ||
+                   errorMessageString.contains('registererrorinvaliddata')) {
           message = localizations.registerErrorInvalidData;
-        } else if (errorMessage
-            .contains('registerErrorEmailConfirmationRequired')) {
+        } else if (errorMessageString.contains('email confirmation required') ||
+                   errorMessageString.contains('registererroremailconfirmationrequired')) {
+          // UserProvider.register might handle this by not throwing an error but returning a specific success state,
+          // or by throwing a specific EmailConfirmationRequiredException.
+          // For now, if UserProvider throws for this, we show the message.
           message = localizations.registerErrorEmailConfirmationRequired;
-        } else if (errorMessage.contains('registerErrorInvalidEmail')) {
+        } else if (errorMessageString.contains('invalid email') || // Supabase specific for format
+                   errorMessageString.contains('registererrorinvalidemail')) {
           message = localizations.registerErrorInvalidEmail;
-        } else {
-          message = localizations.registerError;
         }
 
         _showErrorSnackBar(message);

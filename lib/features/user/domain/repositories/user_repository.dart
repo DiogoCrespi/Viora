@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:viora/features/user/domain/entities/app_user.dart';
+import 'package:viora/features/user/domain/entities/app_user_entity.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:viora/core/database/migrations/initial_schema.dart';

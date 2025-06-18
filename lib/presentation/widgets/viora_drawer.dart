@@ -34,6 +34,19 @@ class _VioraDrawerContent extends StatelessWidget {
     required this.onSectionSelected,
   });
 
+  IconData _getIconForIndex(int index) {
+    switch (index) {
+      case 0:
+        return Icons.dashboard_outlined;
+      case 1:
+        return Icons.assignment_outlined;
+      case 2:
+        return Icons.settings_outlined;
+      default:
+        return Icons.error_outline;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,21 +58,36 @@ class _VioraDrawerContent extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildHeader(context),
+          _DrawerHeader(theme: theme),
           const Divider(
             color: AppTheme.metallicGold,
             height: 1,
             thickness: 0.5,
           ),
-          Expanded(child: _buildSections(context)),
-          _buildFooter(context),
+          Expanded(
+            child: _DrawerSections(
+              selectedIndex: selectedIndex,
+              sections: sections,
+              onSectionSelected: onSectionSelected,
+              theme: theme,
+              getIconForIndex: _getIconForIndex,
+            ),
+          ),
+          _DrawerFooter(theme: theme, buildContext: context),
         ],
       ),
     );
   }
+}
 
-  Widget _buildHeader(BuildContext context) {
-    final theme = Theme.of(context);
+// New private stateless widget for the Drawer Header
+class _DrawerHeader extends StatelessWidget {
+  final ThemeData theme;
+
+  const _DrawerHeader({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -125,8 +153,24 @@ class _VioraDrawerContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSections(BuildContext context) {
-    final theme = Theme.of(context);
+// New private stateless widget for Drawer Sections
+class _DrawerSections extends StatelessWidget {
+  final int selectedIndex;
+  final List<String> sections;
+  final Function(int) onSectionSelected;
+  final ThemeData theme;
+  final IconData Function(int) getIconForIndex;
+
+  const _DrawerSections({
+    required this.selectedIndex,
+    required this.sections,
+    required this.onSectionSelected,
+    required this.theme,
+    required this.getIconForIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: sections.length,
@@ -185,8 +229,17 @@ class _VioraDrawerContent extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(BuildContext context) {
-    final theme = Theme.of(context);
+// New private stateless widget for the Drawer Footer
+class _DrawerFooter extends StatelessWidget {
+  final ThemeData theme;
+  final BuildContext buildContext; // Pass BuildContext for Provider & Navigator
+
+  const _DrawerFooter({required this.theme, required this.buildContext});
+
+  @override
+  Widget build(BuildContext context) {
+    // Use the passed buildContext for Provider and Navigator operations
+    // to ensure it's the correct context from _VioraDrawerContent's build method.
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -215,26 +268,14 @@ class _VioraDrawerContent extends StatelessWidget {
                     : Colors.white),
             onPressed: () {
               final userProvider =
-                  Provider.of<UserProvider>(context, listen: false);
+                  Provider.of<UserProvider>(buildContext, listen: false);
               userProvider.logout();
-              context.pushNamedAndRemoveUntil(AppRoutes.login);
+              Navigator.pushNamedAndRemoveUntil(
+                  buildContext, AppRoutes.login, (route) => false);
             },
           ),
         ],
       ),
     );
-  }
-
-  IconData _getIconForIndex(int index) {
-    switch (index) {
-      case 0:
-        return Icons.dashboard_outlined;
-      case 1:
-        return Icons.assignment_outlined;
-      case 2:
-        return Icons.settings_outlined;
-      default:
-        return Icons.error_outline;
-    }
   }
 }

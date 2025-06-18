@@ -28,164 +28,90 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, _dbName);
+    if (kDebugMode) {
+      debugPrint('DatabaseHelper: _initDatabase: Database path: $path');
+    }
 
-    try {
-      // Tenta abrir o banco existente
-      return await openDatabase(
-        path,
+    Future<Database> openDbLocal(String dbPath) async {
+      return openDatabase(
+        dbPath,
         version: _dbVersion,
         onCreate: (db, version) async {
+          if (kDebugMode) {
+            debugPrint(
+                'DatabaseHelper: _initDatabase (onCreate): Creating tables for version $version');
+          }
           await InitialSchema.createTables(db);
+          // Potentially call specific version migrations if needed from a fresh install
         },
         onUpgrade: (db, oldVersion, newVersion) async {
+          if (kDebugMode) {
+            debugPrint(
+                'DatabaseHelper: _initDatabase (onUpgrade): Upgrading database from $oldVersion to $newVersion');
+          }
+          // Migration logic seems correct: apply migrations sequentially.
           if (oldVersion < UpdateMissionsSchema.version) {
             await UpdateMissionsSchema.migrate(db);
+            if (kDebugMode) {
+              debugPrint(
+                  'DatabaseHelper: _initDatabase (onUpgrade): Applied UpdateMissionsSchema');
+            }
           }
           if (oldVersion < FixUserMissionsSchema.version) {
             await FixUserMissionsSchema.migrate(db);
+            if (kDebugMode) {
+              debugPrint(
+                  'DatabaseHelper: _initDatabase (onUpgrade): Applied FixUserMissionsSchema');
+            }
           }
           if (oldVersion < FixMissionsSchema.version) {
             await FixMissionsSchema.migrate(db);
+            if (kDebugMode) {
+              debugPrint(
+                  'DatabaseHelper: _initDatabase (onUpgrade): Applied FixMissionsSchema');
+            }
           }
           if (oldVersion < FixMissionsSchemaV2.version) {
             await FixMissionsSchemaV2.migrate(db);
-          }
-        },
-      );
-    } catch (e) {
-      debugPrint('Erro ao abrir banco de dados: $e');
-      debugPrint('Tentando recriar o banco de dados...');
-
-      // Se houver erro, deleta o banco e recria
-      await databaseFactory.deleteDatabase(path);
-
-      return await openDatabase(
-        path,
-        version: _dbVersion,
-        onCreate: (db, version) async {
-          await InitialSchema.createTables(db);
-        },
-        onUpgrade: (db, oldVersion, newVersion) async {
-          if (oldVersion < UpdateMissionsSchema.version) {
-            await UpdateMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixUserMissionsSchema.version) {
-            await FixUserMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixMissionsSchema.version) {
-            await FixMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixMissionsSchemaV2.version) {
-            await FixMissionsSchemaV2.migrate(db);
+            if (kDebugMode) {
+              debugPrint(
+                  'DatabaseHelper: _initDatabase (onUpgrade): Applied FixMissionsSchemaV2');
+            }
           }
         },
       );
     }
-  }
 
-  Future<void> _onCreate(Database db, int version) async {
-    // Tabela de sessões do jogo
-    await db.execute('''
-      CREATE TABLE game_sessions (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        score INTEGER NOT NULL,
-        duration INTEGER NOT NULL,
-        started_at TEXT NOT NULL,
-        ended_at TEXT NOT NULL
-      )
-    ''');
+    try {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: _initDatabase: Attempting to open existing database.');
+      }
+      return await openDbLocal(path);
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: _initDatabase: Error opening database: $e\nStackTrace: $stackTrace');
+        debugPrint(
+            'DatabaseHelper: _initDatabase: Attempting to delete and recreate the database.');
+      }
 
-    // Tabela de progresso do jogo
-    await db.execute('''
-      CREATE TABLE game_progress (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        level INTEGER NOT NULL,
-        experience INTEGER NOT NULL,
-        max_score INTEGER NOT NULL,
-        missions_completed INTEGER NOT NULL,
-        last_played TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now', 'utc')),
-        updated_at TEXT DEFAULT (datetime('now', 'utc'))
-      )
-    ''');
-
-    // Tabela de missões
-    await db.execute('''
-      CREATE TABLE missions (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        xp_reward INTEGER NOT NULL,
-        difficulty_level INTEGER NOT NULL,
-        required_level INTEGER NOT NULL
-      )
-    ''');
-
-    // Tabela de missões do usuário
-    await db.execute('''
-      CREATE TABLE user_missions (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        mission_id TEXT NOT NULL,
-        status TEXT NOT NULL,
-        started_at TEXT,
-        completed_at TEXT,
-        FOREIGN KEY (mission_id) REFERENCES missions (id)
-      )
-    ''');
-
-    // Inserir missões padrão
-    await _insertDefaultMissions(db);
-  }
-
-  Future<void> _insertDefaultMissions(Database db) async {
-    final missions = [
-      {
-        'id': 'mission_1',
-        'title': 'Início da Jornada',
-        'description': 'Alcance o nível 1 para começar sua aventura espacial',
-        'xp_reward': 100,
-        'difficulty_level': 1,
-        'required_level': 1,
-      },
-      {
-        'id': 'mission_2',
-        'title': 'Nebulosa',
-        'description': 'Alcance o nível 2 para explorar a Nebulosa',
-        'xp_reward': 200,
-        'difficulty_level': 2,
-        'required_level': 2,
-      },
-      {
-        'id': 'mission_3',
-        'title': 'Galáxia',
-        'description': 'Alcance o nível 3 para viajar pela Galáxia',
-        'xp_reward': 300,
-        'difficulty_level': 3,
-        'required_level': 3,
-      },
-      {
-        'id': 'mission_4',
-        'title': 'Super Nova',
-        'description': 'Alcance o nível 4 para testemunhar uma Super Nova',
-        'xp_reward': 400,
-        'difficulty_level': 4,
-        'required_level': 4,
-      },
-      {
-        'id': 'mission_5',
-        'title': 'Buraco Negro',
-        'description': 'Alcance o nível 5 para enfrentar o Buraco Negro',
-        'xp_reward': 500,
-        'difficulty_level': 5,
-        'required_level': 5,
-      },
-    ];
-
-    for (var mission in missions) {
-      await db.insert('missions', mission);
+      try {
+        await databaseFactory.deleteDatabase(path);
+        if (kDebugMode) {
+          debugPrint(
+              'DatabaseHelper: _initDatabase: Successfully deleted old database.');
+        }
+        return await openDbLocal(path); // Try opening (and creating) again
+      } catch (deleteError, deleteStackTrace) {
+        if (kDebugMode) {
+          debugPrint(
+              'DatabaseHelper: _initDatabase: CRITICAL ERROR: Failed to delete and recreate database: $deleteError\nStackTrace: $deleteStackTrace');
+        }
+        // If deletion and recreation also fail, rethrow the original error or a new one.
+        throw Exception(
+            'Failed to initialize database after multiple attempts: $deleteError');
+      }
     }
   }
 
@@ -194,69 +120,109 @@ class DatabaseHelper {
     if (_database != null) {
       await _database!.close();
       _database = null;
-      debugPrint('Database connection closed');
+      if (kDebugMode) {
+        debugPrint('DatabaseHelper: closeDatabase: Database connection closed.');
+      }
+    } else {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: closeDatabase: Database was not open, no action taken.');
+      }
     }
   }
 
   /// Limpa todas as tabelas (apenas para desenvolvimento)
   Future<void> clearDatabase() async {
     if (kReleaseMode) {
-      debugPrint('Cannot clear database in release mode');
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: clearDatabase: Cannot clear database in release mode.');
+      }
       return;
     }
 
     try {
       final db = await database;
       await InitialSchema.clearAllTables(db);
-      debugPrint('Database cleared successfully');
-    } catch (e) {
-      debugPrint('Error clearing database: $e');
+      if (kDebugMode) {
+        debugPrint('DatabaseHelper: clearDatabase: Database cleared successfully.');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: clearDatabase: Error clearing database: $e\nStackTrace: $stackTrace');
+      }
     }
   }
 
   /// Deleta o banco de dados completamente (apenas para desenvolvimento)
   Future<void> deleteDatabase() async {
     if (kReleaseMode) {
-      debugPrint('Cannot delete database in release mode');
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: deleteDatabase: Cannot delete database in release mode.');
+      }
       return;
     }
 
     try {
-      await closeDatabase();
+      await closeDatabase(); // Ensure DB is closed before deleting
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, _dbName);
       await databaseFactory.deleteDatabase(path);
-      debugPrint('Database deleted successfully');
-    } catch (e) {
-      debugPrint('Error deleting database: $e');
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: deleteDatabase: Database deleted successfully from path: $path');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: deleteDatabase: Error deleting database: $e\nStackTrace: $stackTrace');
+      }
     }
   }
 
   /// Recria o banco de dados (apenas para desenvolvimento)
   Future<void> recreateDatabase() async {
     if (kReleaseMode) {
-      debugPrint('Cannot recreate database in release mode');
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: recreateDatabase: Cannot recreate database in release mode.');
+      }
       return;
     }
 
     try {
       await deleteDatabase();
-      await database; // Recria o banco
-      debugPrint('Database recreated successfully');
-    } catch (e) {
-      debugPrint('Error recreating database: $e');
+      _database = await _initDatabase(); // Explicitly re-initialize and assign
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: recreateDatabase: Database recreated successfully.');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: recreateDatabase: Error recreating database: $e\nStackTrace: $stackTrace');
+      }
     }
   }
 
   /// Verifica se o banco de dados existe
   Future<bool> databaseExists() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, _dbName);
     try {
-      final dbPath = await getDatabasesPath();
-      final path = join(dbPath, _dbName);
-      final db = await openDatabase(path);
-      await db.close();
-      return true;
-    } catch (e) {
+      final exists = await databaseFactory.databaseExists(path);
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: databaseExists: Database at $path ${exists ? "exists" : "does not exist"}.');
+      }
+      return exists;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: databaseExists: Error checking if database exists at $path: $e\nStackTrace: $stackTrace');
+      }
       return false;
     }
   }
@@ -270,57 +236,66 @@ class DatabaseHelper {
 
       final tableNames =
           tables.map((table) => table['name'] as String).toList();
-
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: getDatabaseInfo: Fetched table names: $tableNames');
+      }
       return {
-        'version': _dbVersion,
+        'version': await db.getVersion(), // Get actual DB version
+        'path': db.path,
         'tables': tableNames,
         'tableCount': tableNames.length,
       };
-    } catch (e) {
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: getDatabaseInfo: Error fetching database info: $e\nStackTrace: $stackTrace');
+      }
       return {
         'error': e.toString(),
+        'stackTrace': stackTrace.toString(),
       };
     }
   }
 
-  /// Força a migração do banco de dados
+  /// Força a migração do banco de dados (apenas para desenvolvimento)
   Future<void> forceMigration() async {
+    // This method is inherently for development/testing.
+    // A kReleaseMode check might be redundant if it's not exposed to UI in prod.
+    if (kReleaseMode) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: forceMigration: Cannot force migration in release mode.');
+      }
+      return;
+    }
     try {
+      if (kDebugMode) {
+        debugPrint('DatabaseHelper: forceMigration: Starting forced migration...');
+      }
       await closeDatabase();
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, _dbName);
 
-      // Deleta o banco de dados existente
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: forceMigration: Deleting existing database at $path for migration.');
+      }
       await databaseFactory.deleteDatabase(path);
-      debugPrint('Database deleted for migration');
 
-      // Abre o banco com a nova versão para forçar a migração
-      _database = await openDatabase(
-        path,
-        version: _dbVersion,
-        onCreate: (db, version) async {
-          await InitialSchema.createTables(db);
-        },
-        onUpgrade: (db, oldVersion, newVersion) async {
-          if (oldVersion < UpdateMissionsSchema.version) {
-            await UpdateMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixUserMissionsSchema.version) {
-            await FixUserMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixMissionsSchema.version) {
-            await FixMissionsSchema.migrate(db);
-          }
-          if (oldVersion < FixMissionsSchemaV2.version) {
-            await FixMissionsSchemaV2.migrate(db);
-          }
-        },
-      );
+      // Re-initialize the database, which will trigger onCreate and onUpgrade as needed.
+      _database = await _initDatabase();
 
-      debugPrint('Database migration forced successfully');
-    } catch (e) {
-      debugPrint('Error forcing database migration: $e');
-      rethrow;
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: forceMigration: Database migration forced successfully.');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+            'DatabaseHelper: forceMigration: Error forcing database migration: $e\nStackTrace: $stackTrace');
+      }
+      rethrow; // Rethrow as this is a significant operation, caller should know.
     }
   }
 }

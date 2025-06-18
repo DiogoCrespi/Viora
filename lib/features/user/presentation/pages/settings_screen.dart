@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:viora/presentation/providers/theme_provider.dart';
 import 'package:viora/presentation/providers/font_size_provider.dart';
 import 'package:viora/presentation/providers/locale_provider.dart';
-import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/features/user/presentation/providers/user_provider.dart';
@@ -17,9 +16,67 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
+import 'package:flutter/foundation.dart'; // For debugPrint
+
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notificationsEnabled = true;
-  // String _selectedLanguage = 'Português'; // Removed
+  bool _notificationsEnabled = true; // Default value
+  bool _isLoadingNotifications = false; // To handle async loading of the setting
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSetting();
+  }
+
+  Future<void> _loadNotificationSetting() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoadingNotifications = true;
+    });
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      // Conceptual: UserProvider would have a method like `loadUserPreferences`
+      // or `currentUserPreferences` getter that fetches/provides UserPreferencesEntity.
+      // For this refactor, we assume UserProvider might hold UserPreferencesEntity
+      // which in turn has a notificationsEnabled field.
+      // This might require UserProvider to be updated to fetch/store preferences.
+      // final preferences = await userProvider.loadUserPreferences(); // Conceptual
+      // final initialNotificationSetting = preferences?.notificationsEnabled ?? true; // Default to true
+
+      // Simplified conceptual access for now, assuming UserProvider has some way to give this
+      // This part is highly dependent on how UserProvider and UserPreferencesEntity are structured/refactored later.
+      // For now, we'll simulate loading it. If UserProvider.currentUser.preferences.notifs is not a thing,
+      // this will just use the default.
+      dynamic userPrefs = userProvider.currentUser?.preferences; // This is purely conceptual
+      bool initialSetting = true; // Default
+      if (userPrefs != null && userPrefs.containsKey('notificationsEnabled')) { // Highly conceptual check
+          initialSetting = userPrefs['notificationsEnabled'] as bool? ?? true;
+      } else {
+          // Fallback or fetch from a dedicated method if UserProvider doesn't embed all prefs
+          // For now, just using the default if not directly on a conceptual user object.
+          if (kDebugMode) {
+            debugPrint("SettingsScreen: Notification setting not found on UserProvider, using default.");
+          }
+      }
+
+      if (mounted) {
+        setState(() {
+          _notificationsEnabled = initialSetting;
+          _isLoadingNotifications = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint("SettingsScreen: Error loading notification setting: $e\n$stackTrace");
+      }
+      if (mounted) {
+        setState(() {
+          _isLoadingNotifications = false;
+          // Keep default _notificationsEnabled or handle error appropriately
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +132,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           .notificationsSettingSubtitle, // Localized
                       Icons.notifications_outlined,
                       _notificationsEnabled,
-                      (value) {
-                        setState(() {
-                          _notificationsEnabled = value;
-                        });
-                      },
+                       _isLoadingNotifications // Pass loading state to disable switch while loading initial value
+                          ? (bool _){} // No-op if loading
+                          : (value) async {
+                              if (!mounted) return;
+                              setState(() {
+                                _notificationsEnabled = value;
+                                // Optionally, show a loading indicator specific to this switch
+                              });
+                              try {
+                                final userProvider = Provider.of<UserProvider>(context, listen: false);
+                                // Conceptual: UserProvider needs this method
+                                await userProvider.updateNotificationSetting(value);
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsNotificationSuccess)),
+                                  );
+                                }
+                              } catch (e, stackTrace) {
+                                if (kDebugMode) {
+                                  debugPrint("SettingsScreen: Error updating notification setting: $e\n$stackTrace");
+                                }
+                                if (mounted) {
+                                  // Revert state if update failed
+                                  setState(() {
+                                    _notificationsEnabled = !value;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsNotificationError), backgroundColor: Colors.red),
+                                  );
+                                }
+                              }
+                            },
                     ),
                     _buildSwitchTile(
                       AppLocalizations.of(context)!

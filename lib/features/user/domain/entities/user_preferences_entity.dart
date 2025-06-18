@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'user_preferences.freezed.dart';
-part 'user_preferences.g.dart';
+part 'user_preferences_entity.freezed.dart';
+part 'user_preferences_entity.g.dart';
 
 @freezed
-class UserPreferences with _$UserPreferences {
-  const factory UserPreferences({
+class UserPreferencesEntity with _$UserPreferencesEntity {
+  const factory UserPreferencesEntity({
     @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'theme_mode') String? themeMode,
     @JsonKey(name: 'language') String? language,
@@ -13,8 +13,8 @@ class UserPreferences with _$UserPreferences {
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
-  }) = _UserPreferences;
+  }) = _UserPreferencesEntity;
 
-  factory UserPreferences.fromJson(Map<String, dynamic> json) =>
-      _$UserPreferencesFromJson(json);
+  factory UserPreferencesEntity.fromJson(Map<String, dynamic> json) =>
+      _$UserPreferencesEntityFromJson(json);
 }

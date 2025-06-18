@@ -14,12 +14,13 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-UserPreferences _$UserPreferencesFromJson(Map<String, dynamic> json) {
-  return _UserPreferences.fromJson(json);
+UserPreferencesEntity _$UserPreferencesEntityFromJson(
+    Map<String, dynamic> json) {
+  return _UserPreferencesEntity.fromJson(json);
 }
 
 /// @nodoc
-mixin _$UserPreferences {
+mixin _$UserPreferencesEntity {
   @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'theme_mode')
@@ -35,21 +36,21 @@ mixin _$UserPreferences {
   @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
-  /// Serializes this UserPreferences to a JSON map.
+  /// Serializes this UserPreferencesEntity to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserPreferences
+  /// Create a copy of UserPreferencesEntity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserPreferencesCopyWith<UserPreferences> get copyWith =>
+  $UserPreferencesEntityCopyWith<UserPreferencesEntity> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserPreferencesCopyWith<$Res> {
-  factory $UserPreferencesCopyWith(
-          UserPreferences value, $Res Function(UserPreferences) then) =
-      _$UserPreferencesCopyWithImpl<$Res, UserPreferences>;
+abstract class $UserPreferencesEntityCopyWith<$Res> {
+  factory $UserPreferencesEntityCopyWith(UserPreferencesEntity value,
+          $Res Function(UserPreferencesEntity) then) =
+      _$UserPreferencesEntityCopyWithImpl<$Res, UserPreferencesEntity>;
   @useResult
   $Res call(
       {@JsonKey(name: 'user_id') String userId,
@@ -62,16 +63,17 @@ abstract class $UserPreferencesCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$UserPreferencesCopyWithImpl<$Res, $Val extends UserPreferences>
-    implements $UserPreferencesCopyWith<$Res> {
-  _$UserPreferencesCopyWithImpl(this._value, this._then);
+class _$UserPreferencesEntityCopyWithImpl<$Res,
+        $Val extends UserPreferencesEntity>
+    implements $UserPreferencesEntityCopyWith<$Res> {
+  _$UserPreferencesEntityCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserPreferences
+  /// Create a copy of UserPreferencesEntity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -118,11 +120,12 @@ class _$UserPreferencesCopyWithImpl<$Res, $Val extends UserPreferences>
 }
 
 /// @nodoc
-abstract class _$$UserPreferencesImplCopyWith<$Res>
-    implements $UserPreferencesCopyWith<$Res> {
-  factory _$$UserPreferencesImplCopyWith(_$UserPreferencesImpl value,
-          $Res Function(_$UserPreferencesImpl) then) =
-      __$$UserPreferencesImplCopyWithImpl<$Res>;
+abstract class _$$UserPreferencesEntityImplCopyWith<$Res>
+    implements $UserPreferencesEntityCopyWith<$Res> {
+  factory _$$UserPreferencesEntityImplCopyWith(
+          _$UserPreferencesEntityImpl value,
+          $Res Function(_$UserPreferencesEntityImpl) then) =
+      __$$UserPreferencesEntityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -136,14 +139,15 @@ abstract class _$$UserPreferencesImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$UserPreferencesImplCopyWithImpl<$Res>
-    extends _$UserPreferencesCopyWithImpl<$Res, _$UserPreferencesImpl>
-    implements _$$UserPreferencesImplCopyWith<$Res> {
-  __$$UserPreferencesImplCopyWithImpl(
-      _$UserPreferencesImpl _value, $Res Function(_$UserPreferencesImpl) _then)
+class __$$UserPreferencesEntityImplCopyWithImpl<$Res>
+    extends _$UserPreferencesEntityCopyWithImpl<$Res,
+        _$UserPreferencesEntityImpl>
+    implements _$$UserPreferencesEntityImplCopyWith<$Res> {
+  __$$UserPreferencesEntityImplCopyWithImpl(_$UserPreferencesEntityImpl _value,
+      $Res Function(_$UserPreferencesEntityImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserPreferences
+  /// Create a copy of UserPreferencesEntity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -156,7 +160,7 @@ class __$$UserPreferencesImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
-    return _then(_$UserPreferencesImpl(
+    return _then(_$UserPreferencesEntityImpl(
       userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -191,8 +195,8 @@ class __$$UserPreferencesImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$UserPreferencesImpl implements _UserPreferences {
-  const _$UserPreferencesImpl(
+class _$UserPreferencesEntityImpl implements _UserPreferencesEntity {
+  const _$UserPreferencesEntityImpl(
       {@JsonKey(name: 'user_id') required this.userId,
       @JsonKey(name: 'theme_mode') this.themeMode,
       @JsonKey(name: 'language') this.language,
@@ -201,8 +205,8 @@ class _$UserPreferencesImpl implements _UserPreferences {
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt});
 
-  factory _$UserPreferencesImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UserPreferencesImplFromJson(json);
+  factory _$UserPreferencesEntityImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UserPreferencesEntityImplFromJson(json);
 
   @override
   @JsonKey(name: 'user_id')
@@ -228,14 +232,14 @@ class _$UserPreferencesImpl implements _UserPreferences {
 
   @override
   String toString() {
-    return 'UserPreferences(userId: $userId, themeMode: $themeMode, language: $language, fontSize: $fontSize, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserPreferencesEntity(userId: $userId, themeMode: $themeMode, language: $language, fontSize: $fontSize, avatarUrl: $avatarUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserPreferencesImpl &&
+            other is _$UserPreferencesEntityImpl &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.themeMode, themeMode) ||
                 other.themeMode == themeMode) &&
@@ -256,25 +260,25 @@ class _$UserPreferencesImpl implements _UserPreferences {
   int get hashCode => Object.hash(runtimeType, userId, themeMode, language,
       fontSize, avatarUrl, createdAt, updatedAt);
 
-  /// Create a copy of UserPreferences
+  /// Create a copy of UserPreferencesEntity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserPreferencesImplCopyWith<_$UserPreferencesImpl> get copyWith =>
-      __$$UserPreferencesImplCopyWithImpl<_$UserPreferencesImpl>(
-          this, _$identity);
+  _$$UserPreferencesEntityImplCopyWith<_$UserPreferencesEntityImpl>
+      get copyWith => __$$UserPreferencesEntityImplCopyWithImpl<
+          _$UserPreferencesEntityImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserPreferencesImplToJson(
+    return _$$UserPreferencesEntityImplToJson(
       this,
     );
   }
 }
 
-abstract class _UserPreferences implements UserPreferences {
-  const factory _UserPreferences(
+abstract class _UserPreferencesEntity implements UserPreferencesEntity {
+  const factory _UserPreferencesEntity(
           {@JsonKey(name: 'user_id') required final String userId,
           @JsonKey(name: 'theme_mode') final String? themeMode,
           @JsonKey(name: 'language') final String? language,
@@ -282,10 +286,10 @@ abstract class _UserPreferences implements UserPreferences {
           @JsonKey(name: 'avatar_url') final String? avatarUrl,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$UserPreferencesImpl;
+      _$UserPreferencesEntityImpl;
 
-  factory _UserPreferences.fromJson(Map<String, dynamic> json) =
-      _$UserPreferencesImpl.fromJson;
+  factory _UserPreferencesEntity.fromJson(Map<String, dynamic> json) =
+      _$UserPreferencesEntityImpl.fromJson;
 
   @override
   @JsonKey(name: 'user_id')
@@ -309,10 +313,10 @@ abstract class _UserPreferences implements UserPreferences {
   @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
-  /// Create a copy of UserPreferences
+  /// Create a copy of UserPreferencesEntity
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserPreferencesImplCopyWith<_$UserPreferencesImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$UserPreferencesEntityImplCopyWith<_$UserPreferencesEntityImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }

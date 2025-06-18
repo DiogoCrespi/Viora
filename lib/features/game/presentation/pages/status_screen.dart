@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/features/game/data/repositories/game_repository.dart';
-import 'package:viora/features/game/presentation/pages/space_shooter_game.dart';
+import 'package:flutter/foundation.dart'; // For debugPrint
+import 'package:provider/provider.dart'; // For UserProvider
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/presentation/widgets/viora_drawer.dart';
 import 'package:viora/routes.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart'; // No longer directly needed
+// import 'package:shared_preferences/shared_preferences.dart'; // No longer directly needed
+// import 'package:uuid/uuid.dart'; // No longer directly needed
+import 'package:viora/features/user/presentation/providers/user_provider.dart'; // Import UserProvider
 
 class StatusScreen extends StatefulWidget {
   const StatusScreen({super.key});
@@ -51,54 +53,67 @@ class _StatusScreenState extends State<StatusScreen> {
   }
 
   Future<void> _initUserIdAndProgress() async {
-    // Tenta pegar o UUID do Supabase
-    String? userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) {
-      // Se não autenticado, tenta pegar do SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      userId = prefs.getString('local_user_id');
-      if (userId == null) {
-        // Se não existe, gera um novo UUID local
-        userId = const Uuid().v4();
-        await prefs.setString('local_user_id', userId);
+    // UserProvider is assumed to handle logic for providing a userID (Supabase or local fallback)
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentUserId = userProvider.currentUser?.id; // Example access
+
+    if (currentUserId == null) {
+      if (kDebugMode) {
+        debugPrint('StatusScreen: _initUserIdAndProgress: User ID is null. Cannot load game progress.');
       }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Optionally, set an error message or guide user to login
+        });
+      }
+      return;
     }
-    setState(() {
-      _userId = userId;
-    });
-    _loadGameProgress(userId);
+
+    if (mounted) {
+      setState(() {
+        _userId = currentUserId;
+      });
+      // Call _loadGameProgress only if userId is successfully obtained and component is still mounted
+      _loadGameProgress(currentUserId);
+    }
   }
 
   Future<void> _loadGameProgress(String userId) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      if (kDebugMode) {
+        debugPrint('StatusScreen: _loadGameProgress: Loading comprehensive game status for user $userId');
+      }
+      // This new method in GameRepository will encapsulate the previous logic:
+      // 1. Get user progress (which might internally also update/check missions).
+      // 2. Return all necessary data for the status screen.
+      // For now, we assume it returns a map compatible with _gameProgress structure.
+      final gameData = await _gameRepository.getComprehensiveGameStatus(userId);
 
-      // Carregar progresso inicial
-      final progress = await _gameRepository.getUserProgress(userId);
-      setState(() {
-        _gameProgress = progress;
-      });
-
-      // Verificar e atualizar missões com base no nível atual
-      await _gameRepository.checkAndUpdateMissions(
-        userId: userId,
-        score: progress['max_score'] ?? 0,
-        level: progress['level'] ?? 1,
-      );
-
-      // Recarregar o progresso após atualizar as missões
-      final updatedProgress = await _gameRepository.getUserProgress(userId);
-      setState(() {
-        _gameProgress = updatedProgress;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Erro ao carregar progresso: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _gameProgress = gameData; // Assuming gameData has the expected keys
+          _isLoading = false;
+        });
+        if (kDebugMode) {
+          debugPrint('StatusScreen: _loadGameProgress: Loaded game status successfully.');
+        }
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('StatusScreen: _loadGameProgress: Error loading game progress: $e\n$stackTrace');
+      }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // Optionally, set an error message to display to the user
+        });
+      }
     }
   }
 

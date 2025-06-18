@@ -1,12 +1,11 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:viora/features/user/domain/entities/user_preferences.dart';
+import 'package:viora/features/user/domain/entities/user_preferences_entity.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 
 class PreferencesRepository {
   final _supabase = SupabaseConfig.client;
 
-  Future<UserPreferences> getUserPreferences(String userId) async {
+  Future<UserPreferencesEntity> getUserPreferences(String userId) async {
     try {
       debugPrint(
           'PreferencesRepository: Fetching preferences for user: $userId');
@@ -17,7 +16,7 @@ class PreferencesRepository {
           .single();
 
       debugPrint('PreferencesRepository: Raw response: $response');
-      return UserPreferences.fromJson(response);
+      return UserPreferencesEntity.fromJson(response);
     } catch (e) {
       debugPrint('PreferencesRepository: Error fetching preferences: $e');
       // Se não encontrar preferências, cria um novo registro com valores padrão
@@ -40,11 +39,11 @@ class PreferencesRepository {
           .single();
 
       debugPrint('PreferencesRepository: Created preferences: $response');
-      return UserPreferences.fromJson(response);
+      return UserPreferencesEntity.fromJson(response);
     }
   }
 
-  Future<void> updateUserPreferences(UserPreferences preferences) async {
+  Future<void> updateUserPreferences(UserPreferencesEntity preferences) async {
     final data = {
       'theme_mode': preferences.themeMode,
       'language': preferences.language,

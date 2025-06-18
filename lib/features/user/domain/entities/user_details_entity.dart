@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-class User {
+class UserDetailsEntity {
   final String id;
   final String name;
   final String email;
@@ -14,7 +14,7 @@ class User {
   @JsonKey(name: 'is_active')
   final int isActive;
 
-  User({
+  UserDetailsEntity({
     required this.id,
     required this.name,
     required this.email,
@@ -40,23 +40,23 @@ class User {
     };
   }
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory UserDetailsEntity.fromJson(Map<String, dynamic> json) {
+    return UserDetailsEntity(
       id: json['id'] as String,
       name: json['name'] as String,
       email: json['email'] as String,
       passwordHash: json['password_hash'] as String,
       passwordSalt: json['password_salt'] as String,
       avatarPath: json['avatar_path'] as String?,
-      createdAt: json['created_at'] is DateTime 
+      createdAt: json['created_at'] is DateTime
           ? (json['created_at'] as DateTime).toIso8601String()
           : json['created_at'] as String,
-      lastLogin: json['last_login'] != null 
-          ? (json['last_login'] is DateTime 
+      lastLogin: json['last_login'] != null
+          ? (json['last_login'] is DateTime
               ? (json['last_login'] as DateTime).toIso8601String()
               : json['last_login'] as String)
           : null,
-      isActive: json['is_active'] is bool 
+      isActive: json['is_active'] is bool
           ? (json['is_active'] as bool ? 1 : 0)
           : json['is_active'] as int,
     );
@@ -64,7 +64,7 @@ class User {
 
   static String dateTimeToIso8601(DateTime dateTime) => dateTime.toIso8601String();
 
-  static DateTime? iso8601ToDateTime(String? dateStr) => 
+  static DateTime? iso8601ToDateTime(String? dateStr) =>
       dateStr != null ? DateTime.parse(dateStr) : null;
 
   static int boolToInt(bool value) => value ? 1 : 0;

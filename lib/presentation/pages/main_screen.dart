@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
 import 'package:viora/presentation/widgets/viora_drawer.dart';
-import 'package:viora/features/game/presentation/screens/status_screen.dart';
-import 'package:viora/features/game/presentation/screens/missions_screen.dart';
+import 'package:viora/features/game/presentation/pages/status_screen.dart';
+import 'package:viora/features/game/presentation/pages/missions_screen.dart';
 import 'package:viora/features/user/presentation/pages/settings_screen.dart';
 import 'package:viora/features/user/presentation/pages/profile_screen.dart';
 import 'package:viora/l10n/app_localizations.dart';
@@ -20,6 +20,13 @@ class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _drawerAnimationController;
   late int _selectedIndex;
+
+  // Define the list of screens to be displayed in the body
+  final List<Widget> _screens = [
+    const StatusScreen(),
+    const MissionsScreen(),
+    const SettingsScreen(),
+  ];
 
   // final List<String> _sections = ['Status', 'Missões', 'Configurações']; // Will be initialized in build
 
@@ -102,19 +109,11 @@ class _MainScreenState extends State<MainScreen>
       ),
       body: Container(
         decoration: theme.gradientDecoration,
-        child: _selectedIndex == 0
-            ? const StatusScreen()
-            : _selectedIndex == 1
-                ? const MissionsScreen()
-                : _selectedIndex == 2
-                    ? const SettingsScreen()
-                    : Center(
-                        child: Text(
-                          // This case should ideally not be reached if selectedIndex is always valid
-                          'Conteúdo da seção ${sections[_selectedIndex]}',
-                          style: theme.futuristicBody,
-                        ),
-                      ),
+        // Use IndexedStack to preserve state of screens when switching
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: _screens,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

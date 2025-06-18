@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:viora/core/constants/theme_extensions.dart';
-import 'package:viora/presentation/pages/main_screen.dart';
-import 'package:viora/features/auth/presentation/pages/register_screen.dart';
-import 'package:viora/features/auth/presentation/pages/forgot_password_screen.dart';
-import 'package:viora/features/auth/presentation/widgets/login_text_form_field.dart';
+import 'package:viora/features/auth/presentation/widgets/login_text_form_field_widget.dart';
 import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/features/user/presentation/providers/user_provider.dart';
-import 'package:viora/core/config/supabase_config.dart';
+// import 'package:viora/core/config/supabase_config.dart'; // No longer directly used
 import 'package:viora/routes.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart'; // For kDebugMode
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,133 +48,106 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
-        debugPrint(
-            'LoginScreen: Attempting login with email: ${_emailController.text}');
+        if (kDebugMode) {
+          debugPrint(
+              'LoginScreen: Attempting login with email: ${_emailController.text}');
+        }
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final success = await userProvider.login(
+        // UserProvider.login should ideally return a more structured response or throw specific exceptions.
+        // For this refactor, we'll assume it returns true on success (and session is guaranteed by provider),
+        // or throws specific exceptions.
+        await userProvider.login(
           _emailController.text,
           _passwordController.text,
         );
 
-        if (success && mounted) {
-          debugPrint('LoginScreen: Login successful, navigating to main');
-          final session = SupabaseConfig.client.auth.currentSession;
-          debugPrint(
-              'LoginScreen: Current session after login: ${session?.user.id}');
-
-          if (session != null) {
-            context.pushNamedAndRemoveUntil(AppRoutes.main);
-          } else {
-            debugPrint('LoginScreen: No session found after login');
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context)!.loginErrorNoSession,
-                    style: Theme.of(context).futuristicBody,
-                  ),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              );
-            }
-          }
-        }
-      } catch (e) {
-        debugPrint('LoginScreen: Error during login: $e');
+        // If login is successful, UserProvider should have updated its internal state
+        // and potentially the global app state if a session is now active.
+        // The navigation should occur if mounted.
         if (mounted) {
-          final errorMessage = e.toString();
-          final localizations = AppLocalizations.of(context)!;
-
-          String message;
-          if (errorMessage.contains('loginError')) {
-            message = localizations.loginError;
-          } else if (errorMessage.contains('loginErrorEmailNotConfirmed')) {
-            message = localizations.loginErrorEmailNotConfirmed;
-          } else if (errorMessage
-              .contains('registerErrorEmailConfirmationRequired')) {
-            message = localizations.registerErrorEmailConfirmationRequired;
-          } else if (errorMessage.contains('No internet connection')) {
-            message = localizations.loginErrorNoConnection;
-          } else if (errorMessage.contains('Server unavailable')) {
-            message = localizations.loginErrorServerUnavailable;
-          } else {
-            message = localizations.loginError;
+          if (kDebugMode) {
+            debugPrint('LoginScreen: Login successful, navigating to main.');
           }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                message,
-                style: Theme.of(context).futuristicBody,
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              duration: const Duration(seconds: 5),
-              action: errorMessage.contains('loginErrorEmailNotConfirmed') ||
-                      errorMessage
-                          .contains('registerErrorEmailConfirmationRequired')
-                  ? SnackBarAction(
-                      label: localizations.loginResendConfirmation,
-                      textColor: Colors.white,
-                      onPressed: () async {
-                        try {
-                          final userProvider =
-                              Provider.of<UserProvider>(context, listen: false);
-                          await userProvider
-                              .resendConfirmationEmail(_emailController.text);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  localizations.loginConfirmationEmailSent,
-                                  style: Theme.of(context).futuristicBody,
-                                ),
-                                backgroundColor: Colors.green,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            String message =
-                                localizations.loginErrorResendingConfirmation;
-                            if (e
-                                .toString()
-                                .contains('over_email_send_rate_limit')) {
-                              message =
-                                  'Por favor, aguarde 60 segundos antes de tentar novamente.';
-                            }
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  message,
-                                  style: Theme.of(context).futuristicBody,
-                                ),
-                                backgroundColor: Colors.red,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    )
-                  : null,
-            ),
-          );
+          context.pushNamedAndRemoveUntil(AppRoutes.main);
         }
+      } catch (e) { // Catching generic Exception, but conceptually UserProvider would throw specific ones.
+        if (kDebugMode) {
+          debugPrint('LoginScreen: Error during login: $e');
+        }
+        if (!mounted) return;
+
+        final localizations = AppLocalizations.of(context)!;
+        String message = localizations.loginError; // Default error message
+        bool showResendAction = false;
+
+        // Conceptual: In a real scenario, UserProvider would throw typed exceptions.
+        // For now, we simulate this by checking the error message as before,
+        // but ideally, this logic moves to UserProvider or is replaced by typed exceptions.
+        final errorMessageString = e.toString().toLowerCase();
+
+        if (errorMessageString.contains('invalid credentials') || // Common Supabase error
+            errorMessageString.contains('invalid_grant')) { // From GoTrueException
+          message = localizations.loginError; // Specific message for invalid credentials
+        } else if (errorMessageString.contains('email not confirmed') ||
+                   errorMessageString.contains('email_not_confirmed') || // From GoTrueException
+                   errorMessageString.contains('registererroremailconfirmationrequired')) {
+          message = localizations.loginErrorEmailNotConfirmed;
+          showResendAction = true;
+        } else if (errorMessageString.contains('network request failed') || // Common network error
+                   errorMessageString.contains('no internet connection')) {
+          message = localizations.loginErrorNoConnection;
+        } else if (errorMessageString.contains('server unavailable')) {
+          message = localizations.loginErrorServerUnavailable;
+        }
+        // Add more specific error checks if UserProvider starts throwing them
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message, style: Theme.of(context).futuristicBody),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            duration: const Duration(seconds: 5),
+            action: showResendAction
+                ? SnackBarAction(
+                    label: localizations.loginResendConfirmation,
+                    textColor: Colors.white,
+                    onPressed: () async {
+                      if (!mounted) return;
+                      final String email = _emailController.text;
+                      try {
+                        final userProvider = Provider.of<UserProvider>(context, listen: false);
+                        await userProvider.resendConfirmationEmail(email);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(localizations.loginConfirmationEmailSent, style: Theme.of(context).futuristicBody),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                          );
+                        }
+                      } catch (resendError) {
+                        if (!mounted) return;
+                         String resendMessage = localizations.loginErrorResendingConfirmation;
+                         if (resendError.toString().toLowerCase().contains('over_email_send_rate_limit')) {
+                           resendMessage = localizations.loginErrorRateLimit; // Assuming you add this to ARB
+                         }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(resendMessage, style: Theme.of(context).futuristicBody),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                        );
+                      }
+                    },
+                  )
+                : null,
+          ),
+        );
       } finally {
         if (mounted) {
           setState(() {

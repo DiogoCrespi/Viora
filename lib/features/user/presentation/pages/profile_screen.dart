@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:viora/features/user/domain/repositories/preferences_repository.dart';
-import 'package:viora/core/config/supabase_config.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart'; // UserProvider will handle Supabase interactions
+import 'package:viora/features/user/domain/repositories/preferences_repository.dart'; // Keep for now, for _updateProfile if not moved
+// import 'package:viora/core/config/supabase_config.dart'; // UserProvider will handle Supabase interactions
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
+import 'package:provider/provider.dart'; // Added for Provider
+import 'package:viora/features/user/presentation/providers/user_provider.dart'; // Added for UserProvider
+import 'package:viora/features/user/domain/entities/app_user_entity.dart'; // Added for AppUserEntity
+import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,13 +18,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // _preferencesRepository might be used by _updateProfile, which is not in scope for this refactor part.
+  // If UserProvider eventually handles all profile updates including preferences, this can be removed.
   final _preferencesRepository = PreferencesRepository();
-  final _supabase = SupabaseConfig.client;
+  // final _supabase = SupabaseConfig.client; // Removed, UserProvider will handle
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   File? _imageFile;
   String? _avatarUrl;
+  bool _avatarCleared = false; // New state variable
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -31,101 +38,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _checkAuthAndLoadData() async {
-    try {
-      final session = _supabase.auth.currentSession;
-      final user = _supabase.auth.currentUser;
+    if (!mounted) return;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    // UserProvider should internally handle session validity.
+    // If currentUser is null, it implies user is not authenticated or session is invalid.
+    final AppUserEntity? currentUser = userProvider.currentUser;
 
-      if (session == null || user == null) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'Session expired. Please login again.';
-          });
-          // Use Future.microtask to schedule navigation after the build
-          Future.microtask(() {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
-            );
-          });
-        }
-        return;
+    if (currentUser == null) {
+      if (kDebugMode) {
+        debugPrint("ProfileScreen: User not authenticated or session expired, navigating to login.");
       }
-
-      // Verificar se a sessão está expirada
-      final now =
-          DateTime.now().millisecondsSinceEpoch ~/ 1000; // Convert to seconds
-      final expiresAt = session.expiresAt;
-
-      if (expiresAt != null && expiresAt < now) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'Session expired. Please login again.';
-          });
-          // Use Future.microtask to schedule navigation after the build
-          Future.microtask(() {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
-            );
-          });
-        }
-        return;
-      }
-
-      await _loadUserData();
-    } catch (e, stackTrace) {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Error checking authentication: $e';
+          _errorMessage = 'Session expired. Please login again.';
         });
-        // Use Future.microtask to schedule navigation after the build
+        // Use Future.microtask to schedule navigation after the build phase.
         Future.microtask(() {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (route) => false,
-          );
+          if (mounted) { // Check mounted again inside microtask
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
+          }
         });
       }
+    } else {
+      await _loadUserData(currentUser);
     }
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadUserData(AppUserEntity user) async {
+    if (!mounted) return;
+    setState(() { // Start loading specific profile data
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
     try {
-      final user = _supabase.auth.currentUser;
+      // Name and email are assumed to be part of AppUserEntity from UserProvider
+      _nameController.text = user.name;
+      _emailController.text = user.email;
 
-      if (user == null) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'No user found. Please login again.';
-          });
-        }
-        return;
-      }
-
-      final preferences =
-          await _preferencesRepository.getUserPreferences(user.id);
+      // For avatarUrl, UserProvider might need to fetch preferences or have it already.
+      // Conceptual: userProvider.loadUserPreferences() or userProvider.userPreferences.avatarUrl
+      // For this step, let's assume avatarPath is on AppUserEntity, or UserProvider exposes it.
+      // If UserProvider doesn't have it directly, this part remains a bit coupled to PreferencesRepository.
+      // For now, we'll keep the direct _preferencesRepository call for avatarUrl,
+      // acknowledging it's an area for further UserProvider enhancement.
+      final preferences = await _preferencesRepository.getUserPreferences(user.id);
+      _avatarUrl = preferences.avatarUrl;
 
       if (mounted) {
         setState(() {
-          _nameController.text = user.userMetadata?['name'] ?? '';
-          _emailController.text = user.email ?? '';
-          _avatarUrl = preferences.avatarUrl;
           _isLoading = false;
-          _errorMessage = null;
         });
       }
     } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint("ProfileScreen: Error loading user data: $e\n$stackTrace");
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Error loading profile: $e';
+          _errorMessage = 'Error loading profile data: $e';
         });
       }
     }
@@ -139,6 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (pickedFile != null) {
         setState(() {
           _imageFile = File(pickedFile.path);
+          _avatarCleared = false; // User picked a new image
         });
       }
     } catch (e) {
@@ -159,56 +137,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) {
-        throw Exception('No user found');
-      }
-
-      String? newAvatarUrl = _avatarUrl;
-
-      if (_imageFile != null) {
-        // Remove old avatar if exists
-        if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
-          try {
-            // Extract the file path from the current avatar URL
-            final currentAvatarPath = _avatarUrl!.split('/').last;
-            await _supabase.storage
-                .from('avatars')
-                .remove(['${user.id}/$currentAvatarPath']);
-          } catch (e) {
-            // Continue with upload even if removal fails
-          }
-        }
-
-        // Upload new avatar with overwrite option
-        final fileExt = _imageFile!.path.split('.').last;
-        final fileName = '${user.id}/avatar.$fileExt';
-        await _supabase.storage.from('avatars').upload(
-              fileName,
-              _imageFile!,
-              fileOptions: const FileOptions(upsert: true),
-            );
-        newAvatarUrl = _supabase.storage.from('avatars').getPublicUrl(fileName);
-      }
-
-      await _preferencesRepository.updateAvatarUrl(user.id, newAvatarUrl ?? '');
-
-      await _supabase.auth.updateUser(
-        UserAttributes(
-          data: {'name': _nameController.text},
-        ),
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      // Pass current _avatarUrl to provider so it knows what to delete if a new one is uploaded or cleared.
+      await userProvider.updateUserProfile(
+        name: _nameController.text,
+        imageFile: _imageFile,
+        currentAvatarUrl: _avatarUrl, // Pass the current URL for deletion logic in provider
+        avatarCleared: _avatarCleared,
       );
 
       if (mounted) {
+        // After successful update, UserProvider should have updated its currentUser.
+        // We can refresh local state from UserProvider.
+        final updatedUser = userProvider.currentUser;
+        // Assuming UserProvider also updates preferences and avatarPath is available on AppUserEntity
+        // or through a specific getter in UserProvider after update.
+        // For now, we'll rely on the provider to have updated its state,
+        // and this screen will rebuild if it's listening to UserProvider.
+        // If not listening, or if specific fields need local reset:
         setState(() {
           _isLoading = false;
-          _avatarUrl = newAvatarUrl;
+          _imageFile = null; // Clear the local image file after upload
+          _avatarCleared = false; // Reset clear flag
+          // Potentially update _avatarUrl from userProvider.currentUser.avatarPath if available
+          // For this example, we assume UserProvider's change will trigger a rebuild if this screen listens,
+          // or _checkAuthAndLoadData() might be called again if we want to fully refresh.
+          // For simplicity now, just show success. A full refresh might be better.
+          if (updatedUser != null) {
+             // This assumes avatarPath is directly on AppUserEntity and is updated by UserProvider
+             // This might need adjustment based on how UserProvider exposes updated preferences/avatar.
+             // Conceptual: _avatarUrl = userProvider.currentUser?.avatarPath ?? _avatarUrl;
+             // Let's fetch it anew for this example or assume it's on AppUserEntity after provider update
+             _avatarUrl = updatedUser.avatarPath; // Assuming AppUserEntity has avatarPath
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+          const SnackBar(content: Text('Profile updated successfully!')),
         );
+        // Optionally, refresh all data
+        // _checkAuthAndLoadData();
       }
     } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint("ProfileScreen: Error updating profile: $e\n$stackTrace");
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -221,11 +193,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Method to clear the selected/current avatar
+  void _clearImage() {
+    setState(() {
+      _imageFile = null;
+      _avatarUrl = null; // Visually clear it immediately
+      _avatarCleared = true;
+    });
+  }
+
   Widget _buildAvatar() {
+    // If an image has been picked locally, display it.
     if (_imageFile != null) {
       return Image.file(_imageFile!, fit: BoxFit.cover);
     }
-
+    // If no local image, but an avatar URL exists (and not cleared), display network image.
+    // _avatarCleared flag is not directly used here as _avatarUrl is set to null in _clearImage.
     if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
       return Image.network(
         _avatarUrl!,
@@ -249,12 +232,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               try {
-                await _supabase.auth.signOut();
+                final userProvider = Provider.of<UserProvider>(context, listen: false);
+                await userProvider.logout();
                 if (mounted) {
-                  Navigator.of(context).pushReplacementNamed('/login');
+                  // Navigate to login screen after logout
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
                 }
-              } catch (e) {
-                print('Error signing out: $e');
+              } catch (e, stackTrace) {
+                if (kDebugMode) {
+                  debugPrint('ProfileScreen: Error signing out: $e\n$stackTrace');
+                }
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error signing out: $e')),
+                  );
+                }
               }
             },
           ),

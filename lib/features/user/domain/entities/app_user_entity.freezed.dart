@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-AppUser _$AppUserFromJson(Map<String, dynamic> json) {
-  return _AppUser.fromJson(json);
+AppUserEntity _$AppUserEntityFromJson(Map<String, dynamic> json) {
+  return _AppUserEntity.fromJson(json);
 }
 
 /// @nodoc
-mixin _$AppUser {
+mixin _$AppUserEntity {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
@@ -36,19 +36,21 @@ mixin _$AppUser {
   @JsonKey(name: 'is_active')
   bool get isActive => throw _privateConstructorUsedError;
 
-  /// Serializes this AppUser to a JSON map.
+  /// Serializes this AppUserEntity to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of AppUser
+  /// Create a copy of AppUserEntity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $AppUserCopyWith<AppUser> get copyWith => throw _privateConstructorUsedError;
+  $AppUserEntityCopyWith<AppUserEntity> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $AppUserCopyWith<$Res> {
-  factory $AppUserCopyWith(AppUser value, $Res Function(AppUser) then) =
-      _$AppUserCopyWithImpl<$Res, AppUser>;
+abstract class $AppUserEntityCopyWith<$Res> {
+  factory $AppUserEntityCopyWith(
+          AppUserEntity value, $Res Function(AppUserEntity) then) =
+      _$AppUserEntityCopyWithImpl<$Res, AppUserEntity>;
   @useResult
   $Res call(
       {String id,
@@ -63,16 +65,16 @@ abstract class $AppUserCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
-    implements $AppUserCopyWith<$Res> {
-  _$AppUserCopyWithImpl(this._value, this._then);
+class _$AppUserEntityCopyWithImpl<$Res, $Val extends AppUserEntity>
+    implements $AppUserEntityCopyWith<$Res> {
+  _$AppUserEntityCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AppUser
+  /// Create a copy of AppUserEntity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -129,10 +131,11 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
 }
 
 /// @nodoc
-abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
-  factory _$$AppUserImplCopyWith(
-          _$AppUserImpl value, $Res Function(_$AppUserImpl) then) =
-      __$$AppUserImplCopyWithImpl<$Res>;
+abstract class _$$AppUserEntityImplCopyWith<$Res>
+    implements $AppUserEntityCopyWith<$Res> {
+  factory _$$AppUserEntityImplCopyWith(
+          _$AppUserEntityImpl value, $Res Function(_$AppUserEntityImpl) then) =
+      __$$AppUserEntityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -148,14 +151,14 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$AppUserImplCopyWithImpl<$Res>
-    extends _$AppUserCopyWithImpl<$Res, _$AppUserImpl>
-    implements _$$AppUserImplCopyWith<$Res> {
-  __$$AppUserImplCopyWithImpl(
-      _$AppUserImpl _value, $Res Function(_$AppUserImpl) _then)
+class __$$AppUserEntityImplCopyWithImpl<$Res>
+    extends _$AppUserEntityCopyWithImpl<$Res, _$AppUserEntityImpl>
+    implements _$$AppUserEntityImplCopyWith<$Res> {
+  __$$AppUserEntityImplCopyWithImpl(
+      _$AppUserEntityImpl _value, $Res Function(_$AppUserEntityImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AppUser
+  /// Create a copy of AppUserEntity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -170,7 +173,7 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? lastLogin = freezed,
     Object? isActive = null,
   }) {
-    return _then(_$AppUserImpl(
+    return _then(_$AppUserEntityImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -213,8 +216,8 @@ class __$$AppUserImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$AppUserImpl implements _AppUser {
-  const _$AppUserImpl(
+class _$AppUserEntityImpl implements _AppUserEntity {
+  const _$AppUserEntityImpl(
       {required this.id,
       required this.name,
       required this.email,
@@ -225,8 +228,8 @@ class _$AppUserImpl implements _AppUser {
       @JsonKey(name: 'last_login') this.lastLogin,
       @JsonKey(name: 'is_active') this.isActive = true});
 
-  factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
-      _$$AppUserImplFromJson(json);
+  factory _$AppUserEntityImpl.fromJson(Map<String, dynamic> json) =>
+      _$$AppUserEntityImplFromJson(json);
 
   @override
   final String id;
@@ -255,14 +258,14 @@ class _$AppUserImpl implements _AppUser {
 
   @override
   String toString() {
-    return 'AppUser(id: $id, name: $name, email: $email, passwordHash: $passwordHash, passwordSalt: $passwordSalt, avatarPath: $avatarPath, createdAt: $createdAt, lastLogin: $lastLogin, isActive: $isActive)';
+    return 'AppUserEntity(id: $id, name: $name, email: $email, passwordHash: $passwordHash, passwordSalt: $passwordSalt, avatarPath: $avatarPath, createdAt: $createdAt, lastLogin: $lastLogin, isActive: $isActive)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$AppUserImpl &&
+            other is _$AppUserEntityImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
@@ -285,24 +288,24 @@ class _$AppUserImpl implements _AppUser {
   int get hashCode => Object.hash(runtimeType, id, name, email, passwordHash,
       passwordSalt, avatarPath, createdAt, lastLogin, isActive);
 
-  /// Create a copy of AppUser
+  /// Create a copy of AppUserEntity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$AppUserImplCopyWith<_$AppUserImpl> get copyWith =>
-      __$$AppUserImplCopyWithImpl<_$AppUserImpl>(this, _$identity);
+  _$$AppUserEntityImplCopyWith<_$AppUserEntityImpl> get copyWith =>
+      __$$AppUserEntityImplCopyWithImpl<_$AppUserEntityImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AppUserImplToJson(
+    return _$$AppUserEntityImplToJson(
       this,
     );
   }
 }
 
-abstract class _AppUser implements AppUser {
-  const factory _AppUser(
+abstract class _AppUserEntity implements AppUserEntity {
+  const factory _AppUserEntity(
       {required final String id,
       required final String name,
       required final String email,
@@ -311,9 +314,10 @@ abstract class _AppUser implements AppUser {
       @JsonKey(name: 'avatar_path') final String? avatarPath,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
       @JsonKey(name: 'last_login') final DateTime? lastLogin,
-      @JsonKey(name: 'is_active') final bool isActive}) = _$AppUserImpl;
+      @JsonKey(name: 'is_active') final bool isActive}) = _$AppUserEntityImpl;
 
-  factory _AppUser.fromJson(Map<String, dynamic> json) = _$AppUserImpl.fromJson;
+  factory _AppUserEntity.fromJson(Map<String, dynamic> json) =
+      _$AppUserEntityImpl.fromJson;
 
   @override
   String get id;
@@ -340,10 +344,10 @@ abstract class _AppUser implements AppUser {
   @JsonKey(name: 'is_active')
   bool get isActive;
 
-  /// Create a copy of AppUser
+  /// Create a copy of AppUserEntity
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AppUserImplCopyWith<_$AppUserImpl> get copyWith =>
+  _$$AppUserEntityImplCopyWith<_$AppUserEntityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

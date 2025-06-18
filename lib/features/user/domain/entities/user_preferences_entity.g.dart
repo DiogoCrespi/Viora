@@ -6,9 +6,9 @@ part of 'user_preferences_entity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserPreferencesImpl _$$UserPreferencesImplFromJson(
+_$UserPreferencesEntityImpl _$$UserPreferencesEntityImplFromJson(
         Map<String, dynamic> json) =>
-    _$UserPreferencesImpl(
+    _$UserPreferencesEntityImpl(
       userId: json['user_id'] as String,
       themeMode: json['theme_mode'] as String?,
       language: json['language'] as String?,
@@ -18,8 +18,8 @@ _$UserPreferencesImpl _$$UserPreferencesImplFromJson(
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$UserPreferencesImplToJson(
-        _$UserPreferencesImpl instance) =>
+Map<String, dynamic> _$$UserPreferencesEntityImplToJson(
+        _$UserPreferencesEntityImpl instance) =>
     <String, dynamic>{
       'user_id': instance.userId,
       'theme_mode': instance.themeMode,

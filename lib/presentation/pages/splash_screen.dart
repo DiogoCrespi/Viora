@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // Added for debugPrint
 import 'package:flutter/material.dart';
 import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/config/supabase_config.dart';
@@ -98,9 +99,9 @@ class _SplashScreenState extends State<SplashScreen>
           arguments: arguments,
         );
       }
-    } catch (e) {
-      debugPrint('SplashScreen: Error checking initial route: $e');
-      // Em caso de erro, vai para o onboarding
+    } catch (e, stackTrace) {
+      debugPrint('SplashScreen: Error checking initial route: $e\nStackTrace: $stackTrace');
+      // Em caso de erro, vai para o onboarding como fallback seguro
       if (mounted) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       }

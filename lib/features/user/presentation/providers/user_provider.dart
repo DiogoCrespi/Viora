@@ -2,14 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/features/user/domain/repositories/user_repository.dart';
-import 'package:viora/features/user/domain/entities/app_user.dart';
+import 'package:viora/features/user/domain/entities/app_user_entity.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:viora/core/database/database_helper.dart';
 
 class UserProvider with ChangeNotifier {
   final SupabaseClient _supabase = SupabaseConfig.client;
   final IUserRepository _userRepository;
-  AppUser? _currentUser;
+  AppUserEntity? _currentUser;
   bool _isLoading = false;
   String? _error;
   DateTime? _lastPasswordResetRequest;
@@ -18,7 +17,7 @@ class UserProvider with ChangeNotifier {
       : _userRepository =
             UserRepositoryFactory.create(SupabaseConfig.client, db);
 
-  AppUser? get currentUser => _currentUser;
+  AppUserEntity? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -48,7 +47,7 @@ class UserProvider with ChangeNotifier {
           if (user == null) {
         debugPrint('UserProvider: Criando usuário no repositório');
             user = await _userRepository.createUser(
-          AppUser(
+          AppUserEntity(
             id: response.user!.id,
             name: response.user!.userMetadata?['name'] ?? email,
             email: email,
@@ -158,7 +157,7 @@ class UserProvider with ChangeNotifier {
 
       // Cria o usuário na tabela users do Supabase
       final user = await _userRepository.createUser(
-        AppUser(
+        AppUserEntity(
           id: authResponse.user!.id,
           name: name,
           email: email,
