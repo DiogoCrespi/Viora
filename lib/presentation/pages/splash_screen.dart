@@ -4,6 +4,8 @@ import 'package:viora/core/constants/app_theme.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:viora/features/user/presentation/providers/user_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,7 +25,9 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
-    _checkInitialRoute();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _restaurarSessaoEVerificarRota();
+    });
   }
 
   void _initializeAnimations() {
@@ -59,7 +63,13 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
   }
 
-  Future<void> _checkInitialRoute() async {
+  Future<void> _restaurarSessaoEVerificarRota() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.restoreSession();
+    await _initUserIdAndProgress();
+  }
+
+  Future<void> _initUserIdAndProgress() async {
     // Aguarda a animação terminar
     await Future.delayed(const Duration(milliseconds: 2500));
 
@@ -72,6 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
 
       // Verifica se há uma sessão ativa
       final session = SupabaseConfig.client.auth.currentSession;
+      debugPrint('SplashScreen: Verificando sessão: ${session?.user.id}');
 
       String targetRoute;
       Map<String, dynamic>? arguments;
@@ -80,15 +91,15 @@ class _SplashScreenState extends State<SplashScreen>
         // Usuário autenticado - vai para a tela principal
         targetRoute = AppRoutes.main;
         arguments = {'selectedIndex': 0};
-        debugPrint('SplashScreen: User authenticated, going to main');
+        debugPrint('SplashScreen: Usuário autenticado, indo para main');
       } else if (hasSeenOnboarding) {
         // Usuário já viu o onboarding mas não está logado
         targetRoute = AppRoutes.login;
-        debugPrint('SplashScreen: User has seen onboarding, going to login');
+        debugPrint('SplashScreen: Usuário já viu onboarding, indo para login');
       } else {
         // Primeira vez - mostra o onboarding
         targetRoute = AppRoutes.onboarding;
-        debugPrint('SplashScreen: First time user, going to onboarding');
+        debugPrint('SplashScreen: Primeira vez, indo para onboarding');
       }
 
       // Navega para a rota apropriada
@@ -100,7 +111,8 @@ class _SplashScreenState extends State<SplashScreen>
         );
       }
     } catch (e, stackTrace) {
-      debugPrint('SplashScreen: Error checking initial route: $e\nStackTrace: $stackTrace');
+      debugPrint(
+          'SplashScreen: Erro ao verificar rota inicial: $e\nStackTrace: $stackTrace');
       // Em caso de erro, vai para o onboarding como fallback seguro
       if (mounted) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
@@ -161,7 +173,7 @@ class _SplashScreenState extends State<SplashScreen>
                 },
               ),
               const SizedBox(height: 32),
-              
+
               // Título animado
               AnimatedBuilder(
                 animation: _animationController,
@@ -190,9 +202,9 @@ class _SplashScreenState extends State<SplashScreen>
                   );
                 },
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Subtítulo animado
               AnimatedBuilder(
                 animation: _animationController,
@@ -213,9 +225,9 @@ class _SplashScreenState extends State<SplashScreen>
                   );
                 },
               ),
-              
+
               const SizedBox(height: 64),
-              
+
               // Indicador de carregamento
               AnimatedBuilder(
                 animation: _animationController,
@@ -241,4 +253,4 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
-} 
+}

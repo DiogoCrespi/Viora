@@ -8,6 +8,7 @@ import 'package:viora/l10n/app_localizations.dart';
 import 'package:viora/features/user/presentation/providers/user_provider.dart';
 import 'package:viora/features/user/presentation/pages/profile_screen.dart';
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
+import 'package:flutter/foundation.dart'; // For debugPrint
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,11 +17,10 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-import 'package:flutter/foundation.dart'; // For debugPrint
-
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true; // Default value
-  bool _isLoadingNotifications = false; // To handle async loading of the setting
+  bool _isLoadingNotifications =
+      false; // To handle async loading of the setting
 
   @override
   void initState() {
@@ -47,17 +47,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // This part is highly dependent on how UserProvider and UserPreferencesEntity are structured/refactored later.
       // For now, we'll simulate loading it. If UserProvider.currentUser.preferences.notifs is not a thing,
       // this will just use the default.
-      dynamic userPrefs = userProvider.currentUser?.preferences; // This is purely conceptual
       bool initialSetting = true; // Default
-      if (userPrefs != null && userPrefs.containsKey('notificationsEnabled')) { // Highly conceptual check
-          initialSetting = userPrefs['notificationsEnabled'] as bool? ?? true;
-      } else {
-          // Fallback or fetch from a dedicated method if UserProvider doesn't embed all prefs
-          // For now, just using the default if not directly on a conceptual user object.
-          if (kDebugMode) {
-            debugPrint("SettingsScreen: Notification setting not found on UserProvider, using default.");
-          }
-      }
+      // Aqui você pode buscar as preferências do usuário de forma assíncrona se necessário
+      // Exemplo: final preferences = await PreferencesRepository().getUserPreferences(userProvider.currentUser?.id);
+      // if (preferences != null) initialSetting = preferences.notificationsEnabled;
+      // Por enquanto, mantemos o valor padrão
 
       if (mounted) {
         setState(() {
@@ -67,7 +61,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint("SettingsScreen: Error loading notification setting: $e\n$stackTrace");
+        debugPrint(
+            "SettingsScreen: Error loading notification setting: $e\n$stackTrace");
       }
       if (mounted) {
         setState(() {
@@ -89,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final Map<String, String> languages = {
       'en': AppLocalizations.of(context)!.languageEnglish,
       'pt': AppLocalizations.of(context)!.languagePortuguese,
-      // 'es': AppLocalizations.of(context)!.languageSpanish, // Assuming Spanish might be added later
+      'es': AppLocalizations.of(context)!.languageSpanish,
     };
 
     return Container(
@@ -132,8 +127,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           .notificationsSettingSubtitle, // Localized
                       Icons.notifications_outlined,
                       _notificationsEnabled,
-                       _isLoadingNotifications // Pass loading state to disable switch while loading initial value
-                          ? (bool _){} // No-op if loading
+                      _isLoadingNotifications // Pass loading state to disable switch while loading initial value
+                          ? (bool _) {} // No-op if loading
                           : (value) async {
                               if (!mounted) return;
                               setState(() {
@@ -141,25 +136,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 // Optionally, show a loading indicator specific to this switch
                               });
                               try {
-                                final userProvider = Provider.of<UserProvider>(context, listen: false);
-                                // Conceptual: UserProvider needs this method
-                                await userProvider.updateNotificationSetting(value);
+                                final userProvider = Provider.of<UserProvider>(
+                                    context,
+                                    listen: false);
+                                // await userProvider.updateNotificationSetting(value); // Método fictício, implementar depois
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsNotificationSuccess)),
+                                    SnackBar(
+                                        content: Text(AppLocalizations.of(
+                                                context)!
+                                            .profileSettingTitle)), // Mensagem genérica de sucesso
                                   );
                                 }
                               } catch (e, stackTrace) {
                                 if (kDebugMode) {
-                                  debugPrint("SettingsScreen: Error updating notification setting: $e\n$stackTrace");
+                                  debugPrint(
+                                      "SettingsScreen: Error updating notification setting: $e\n$stackTrace");
                                 }
                                 if (mounted) {
-                                  // Revert state if update failed
                                   setState(() {
                                     _notificationsEnabled = !value;
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsNotificationError), backgroundColor: Colors.red),
+                                    SnackBar(
+                                        content: Text(
+                                            AppLocalizations.of(context)!
+                                                .privacySettingTitle),
+                                        backgroundColor: Colors
+                                            .red), // Mensagem genérica de erro
                                   );
                                 }
                               }

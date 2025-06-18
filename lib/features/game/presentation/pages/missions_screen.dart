@@ -53,7 +53,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
     if (currentUserId == null) {
       if (kDebugMode) {
-        debugPrint('MissionsScreen: _loadUserId: User ID is null. Cannot load missions.');
+        debugPrint(
+            'MissionsScreen: _loadUserId: User ID is null. Cannot load missions.');
       }
       if (mounted) {
         setState(() {
@@ -74,7 +75,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
   Future<void> _loadMissions() async {
     if (_userId == null) {
       if (kDebugMode) {
-        debugPrint('MissionsScreen: _loadMissions: Aborted because userId is null.');
+        debugPrint(
+            'MissionsScreen: _loadMissions: Aborted because userId is null.');
       }
       return;
     }
@@ -86,13 +88,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
     try {
       if (kDebugMode) {
-        debugPrint('MissionsScreen: _loadMissions: Loading prepared missions for user $_userId');
+        debugPrint(
+            'MissionsScreen: _loadMissions: Loading prepared missions for user $_userId');
       }
-      // This new method in GameRepository will encapsulate the previous logic:
-      // 1. Get user progress.
-      // 2. Check and update mission statuses based on progress.
-      // 3. Fetch the (now potentially updated) list of user missions with details.
-      final missions = await _gameRepository.getPreparedUserMissions(_userId!);
+      // Usando o método getUserMissions que já existe no repositório
+      final missions = await _gameRepository.getUserMissions(_userId!);
 
       if (mounted) {
         setState(() {
@@ -100,12 +100,14 @@ class _MissionsScreenState extends State<MissionsScreen> {
           _isLoading = false;
         });
         if (kDebugMode) {
-          debugPrint('MissionsScreen: _loadMissions: Loaded ${missions.length} missions.');
+          debugPrint(
+              'MissionsScreen: _loadMissions: Loaded ${missions.length} missions.');
         }
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('MissionsScreen: _loadMissions: Error loading missions: $e\n$stackTrace');
+        debugPrint(
+            'MissionsScreen: _loadMissions: Error loading missions: $e\n$stackTrace');
       }
       if (mounted) {
         setState(() {

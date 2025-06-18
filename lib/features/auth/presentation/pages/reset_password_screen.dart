@@ -82,7 +82,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             (route) => false,
           );
         }
-      } catch (e) { // Conceptual: Catch specific exceptions like InvalidPasswordTokenException, PasswordTooWeakException etc.
+      } catch (e) {
+        // Conceptual: Catch specific exceptions like InvalidPasswordTokenException, PasswordTooWeakException etc.
         if (!mounted) return;
 
         if (kDebugMode) {
@@ -93,25 +94,31 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         final errorMessageString = e.toString().toLowerCase();
 
         // This mapping would be simplified if UserProvider threw typed exceptions
-        if (errorMessageString.contains('same_password') || // Example if Supabase/provider throws this
-            errorMessageString.contains('resetpasswordsamepassword')) { // Current custom
+        if (errorMessageString.contains(
+                'same_password') || // Example if Supabase/provider throws this
+            errorMessageString.contains('resetpasswordsamepassword')) {
+          // Current custom
           message = localizations.resetPasswordSamePassword;
         } else if (errorMessageString.contains('session_expired') || // Example
-                   errorMessageString.contains('resetpasswordsessionexpired')) {
+            errorMessageString.contains('resetpasswordsessionexpired')) {
           message = localizations.resetPasswordSessionExpired;
-        } else if (errorMessageString.contains('weak_password')) { // Example
-            message = localizations.registerErrorWeakPassword; // Re-use if applicable, or add new
-        } else if (errorMessageString.contains('invalid_token')) { // Example
-            message = localizations.resetPasswordErrorTokenInvalid; // Assuming this key exists
+        } else if (errorMessageString.contains('weak_password')) {
+          // Example
+          message = localizations
+              .registerErrorInvalidData; // Usando mensagem de erro genérica para senha fraca
+        } else if (errorMessageString.contains('invalid_token')) {
+          // Example
+          message = localizations
+              .resetPasswordError; // Usando mensagem de erro genérica para token inválido
         }
-
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message, style: Theme.of(context).futuristicBody),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         );
       } finally {

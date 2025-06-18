@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:viora/features/user/domain/entities/app_user_entity.dart';
+import 'package:viora/features/user/domain/entities/app_user.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:viora/core/database/migrations/initial_schema.dart';
@@ -206,7 +206,8 @@ class UserRepository {
         debugPrint('Database tables created successfully');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        debugPrint('Upgrading database from version $oldVersion to $newVersion');
+        debugPrint(
+            'Upgrading database from version $oldVersion to $newVersion');
         await InitialSchema.createTables(db);
         debugPrint('Database upgrade completed');
       },
@@ -311,7 +312,7 @@ class UserRepository {
 
         // Cria o usuário no SQLite
         final db = await _database;
-        
+
         // Verifica a estrutura da tabela antes da inserção
         final tableInfo = await db!.rawQuery('PRAGMA table_info(users)');
         debugPrint('Table structure before insert: $tableInfo');
@@ -377,7 +378,7 @@ class UserRepository {
     try {
       final db = await _database;
       final now = DateTime.now().toUtc().toIso8601String();
-      
+
       await db!.update(
         'users',
         {'last_login': now},
@@ -498,7 +499,7 @@ class UserRepository {
       if (userData['is_active'] is bool) {
         userData['is_active'] = (userData['is_active'] as bool) ? 1 : 0;
       }
-      
+
       await _dbInstance!.insert(
         'users',
         userData,

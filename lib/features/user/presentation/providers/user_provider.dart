@@ -2,13 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:viora/core/config/supabase_config.dart';
 import 'package:viora/features/user/domain/repositories/user_repository.dart';
-import 'package:viora/features/user/domain/entities/app_user_entity.dart';
+import 'package:viora/features/user/domain/entities/app_user.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:io';
 
 class UserProvider with ChangeNotifier {
   final SupabaseClient _supabase = SupabaseConfig.client;
   final IUserRepository _userRepository;
-  AppUserEntity? _currentUser;
+  AppUser? _currentUser;
   bool _isLoading = false;
   String? _error;
   DateTime? _lastPasswordResetRequest;
@@ -17,7 +18,7 @@ class UserProvider with ChangeNotifier {
       : _userRepository =
             UserRepositoryFactory.create(SupabaseConfig.client, db);
 
-  AppUserEntity? get currentUser => _currentUser;
+  AppUser? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -29,45 +30,44 @@ class UserProvider with ChangeNotifier {
 
       debugPrint('UserProvider: Tentando fazer login com email: $email');
       final response = await _supabase.auth.signInWithPassword(
-          email: email,
-          password: password,
-        );
+        email: email,
+        password: password,
+      );
 
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
-          }
+      }
 
-          debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
+      debugPrint('UserProvider: Autenticação no Supabase bem-sucedida');
       debugPrint('UserProvider: Session: ${response.session?.user.id}');
       debugPrint('UserProvider: User: ${response.user?.id}');
-          
-      // Buscar ou criar usuário no repositório
-          var user = await _userRepository.getUserByEmail(email);
 
-          if (user == null) {
-        debugPrint('UserProvider: Criando usuário no repositório');
-            user = await _userRepository.createUser(
-          AppUserEntity(
+      // Buscar ou criar usuário no repositório
+      var user = await _userRepository.getUserByEmail(email);
+      if (user == null) {
+        // Se o usuário não existe no repositório, criar um novo
+        user = await _userRepository.createUser(
+          AppUser(
             id: response.user!.id,
-            name: response.user!.userMetadata?['name'] ?? email,
+            name: response.user!.userMetadata?['name'] ?? email.split('@')[0],
             email: email,
-            passwordHash: '',
-            passwordSalt: '',
+            passwordHash: '', // Não armazenamos senha localmente
+            passwordSalt: '', // Não armazenamos salt localmente
             createdAt: DateTime.now(),
           ),
-            );
-          }
+        );
+      }
 
-          _currentUser = user;
-      _isLoading = false;
-          notifyListeners();
-          return true;
+      _currentUser = user;
+      notifyListeners();
+      return true;
     } catch (e) {
-      debugPrint('UserProvider: Erro durante o login: $e');
       _error = e.toString();
+      debugPrint('UserProvider: Erro durante login: $e');
+      return false;
+    } finally {
       _isLoading = false;
       notifyListeners();
-      rethrow;
     }
   }
 
@@ -123,10 +123,10 @@ class UserProvider with ChangeNotifier {
           throw Exception('registerErrorEmailInUse');
         }
       } catch (e) {
-          if (e.toString().contains('email_address_invalid')) {
-            throw Exception('registerErrorInvalidEmail');
-          }
-          rethrow;
+        if (e.toString().contains('email_address_invalid')) {
+          throw Exception('registerErrorInvalidEmail');
+        }
+        rethrow;
       }
 
       // Cria o usuário no Supabase Auth
@@ -157,7 +157,7 @@ class UserProvider with ChangeNotifier {
 
       // Cria o usuário na tabela users do Supabase
       final user = await _userRepository.createUser(
-        AppUserEntity(
+        AppUser(
           id: authResponse.user!.id,
           name: name,
           email: email,
@@ -225,6 +225,65 @@ class UserProvider with ChangeNotifier {
         throw Exception('loginErrorResendingConfirmation');
       }
       rethrow;
+    }
+  }
+
+  Future<void> updateUserProfile({
+    required String name,
+    File? imageFile,
+    String? currentAvatarUrl,
+    bool avatarCleared = false,
+  }) async {
+    // Aqui você pode implementar a lógica de upload de imagem, remoção de avatar, etc.
+    // Por enquanto, só atualiza o nome e o avatarPath (se fornecido)
+    await updateProfile(name, currentAvatarUrl);
+  }
+
+  /// Restaura a sessão do usuário ao iniciar o app
+  Future<void> restoreSession() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      final session = _supabase.auth.currentSession;
+      final user = _supabase.auth.currentUser;
+      if (session != null && user != null) {
+        debugPrint(
+            'UserProvider: Sessão encontrada ao iniciar o app: \\${user.id}');
+        // Buscar usuário no repositório pelo e-mail
+        final repoUser = user.email != null
+            ? await _userRepository.getUserByEmail(user.email!)
+            : null;
+        if (repoUser != null) {
+          _currentUser = repoUser;
+          debugPrint(
+              'UserProvider: Usuário restaurado do repositório: \\${repoUser.email}');
+        } else {
+          // Se não existir no repositório, cria um novo
+          _currentUser = await _userRepository.createUser(
+            AppUser(
+              id: user.id,
+              name:
+                  user.userMetadata?['name'] ?? user.email?.split('@')[0] ?? '',
+              email: user.email ?? '',
+              passwordHash: '',
+              passwordSalt: '',
+              createdAt: DateTime.now(),
+            ),
+          );
+          debugPrint(
+              'UserProvider: Usuário criado no repositório a partir da sessão.');
+        }
+      } else {
+        debugPrint(
+            'UserProvider: Nenhuma sessão ativa encontrada ao iniciar o app.');
+        _currentUser = null;
+      }
+    } catch (e) {
+      debugPrint('UserProvider: Erro ao restaurar sessão: $e');
+      _currentUser = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

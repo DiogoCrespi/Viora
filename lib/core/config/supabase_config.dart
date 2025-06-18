@@ -59,27 +59,31 @@ class SupabaseConfig {
           _supabaseUrl!.isEmpty ||
           _supabaseAnonKey == null ||
           _supabaseAnonKey!.isEmpty) {
-        _lastError =
-            'Supabase credentials not found or empty in .env file.';
+        _lastError = 'Supabase credentials not found or empty in .env file.';
         if (kDebugMode) {
           debugPrint('SupabaseConfig: initialize: Error: $_lastError');
         }
         throw Exception(_lastError);
       }
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: initialize: .env file loaded successfully.');
+        debugPrint(
+            'SupabaseConfig: initialize: .env file loaded successfully.');
       }
 
       await Supabase.initialize(
         url: _supabaseUrl!,
         anonKey: _supabaseAnonKey!,
-        debug: kDebugMode, // Enable Supabase internal debugging in debug mode
+        debug: kDebugMode,
+        storageOptions: const StorageClientOptions(
+          retryAttempts: 3,
+        ),
       );
 
       _initialized = true;
       _lastError = null; // Clear last error on successful initialization
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: initialize: Supabase initialized successfully.');
+        debugPrint(
+            'SupabaseConfig: initialize: Supabase initialized successfully.');
         debugPrint('SupabaseConfig: initialize: URL: $_supabaseUrl');
         debugPrint(
             'SupabaseConfig: initialize: Key: ${_supabaseAnonKey!.substring(0, 5)}...');
@@ -121,8 +125,7 @@ class SupabaseConfig {
 
   static Future<void> signOut() async {
     if (!_initialized) {
-      _lastError =
-          'Supabase not initialized. Cannot sign out.';
+      _lastError = 'Supabase not initialized. Cannot sign out.';
       if (kDebugMode) {
         debugPrint('SupabaseConfig: signOut: Error: $_lastError');
       }
@@ -149,11 +152,10 @@ class SupabaseConfig {
     required String password,
   }) async {
     if (!_initialized) {
-       _lastError =
-          'Supabase not initialized. Cannot sign in.';
-       if (kDebugMode) {
+      _lastError = 'Supabase not initialized. Cannot sign in.';
+      if (kDebugMode) {
         debugPrint('SupabaseConfig: signIn: Error: $_lastError');
-       }
+      }
       throw Exception(_lastError);
     }
     try {
@@ -164,7 +166,8 @@ class SupabaseConfig {
       //   throw Exception(_lastError);
       // }
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: signIn: Attempting to sign in user $email.');
+        debugPrint(
+            'SupabaseConfig: signIn: Attempting to sign in user $email.');
       }
       final response = await client.auth.signInWithPassword(
         email: email,
@@ -172,7 +175,8 @@ class SupabaseConfig {
       );
       _lastError = null; // Clear last error on successful sign in
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: signIn: User $email signed in successfully.');
+        debugPrint(
+            'SupabaseConfig: signIn: User $email signed in successfully.');
       }
       return response;
     } catch (e, stackTrace) {
@@ -190,11 +194,10 @@ class SupabaseConfig {
     required String password,
   }) async {
     if (!_initialized) {
-       _lastError =
-          'Supabase not initialized. Cannot sign up.';
-       if (kDebugMode) {
+      _lastError = 'Supabase not initialized. Cannot sign up.';
+      if (kDebugMode) {
         debugPrint('SupabaseConfig: signUp: Error: $_lastError');
-       }
+      }
       throw Exception(_lastError);
     }
     try {
@@ -205,7 +208,8 @@ class SupabaseConfig {
       //  throw Exception(_lastError);
       // }
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: signUp: Attempting to sign up user $email.');
+        debugPrint(
+            'SupabaseConfig: signUp: Attempting to sign up user $email.');
       }
       final response = await client.auth.signUp(
         email: email,
@@ -213,7 +217,8 @@ class SupabaseConfig {
       );
       _lastError = null; // Clear last error on successful sign up
       if (kDebugMode) {
-        debugPrint('SupabaseConfig: signUp: User $email signed up successfully (pending confirmation if applicable).');
+        debugPrint(
+            'SupabaseConfig: signUp: User $email signed up successfully (pending confirmation if applicable).');
       }
       return response;
     } catch (e, stackTrace) {

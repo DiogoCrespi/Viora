@@ -80,7 +80,6 @@ class _VioraDrawerContent extends StatelessWidget {
   }
 }
 
-// New private stateless widget for the Drawer Header
 class _DrawerHeader extends StatelessWidget {
   final ThemeData theme;
 
@@ -152,8 +151,8 @@ class _DrawerHeader extends StatelessWidget {
       ),
     );
   }
+}
 
-// New private stateless widget for Drawer Sections
 class _DrawerSections extends StatelessWidget {
   final int selectedIndex;
   final List<String> sections;
@@ -203,7 +202,7 @@ class _DrawerSections extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                _getIconForIndex(index),
+                getIconForIndex(index),
                 color: isSelected
                     ? AppTheme.metallicGold
                     : (theme.brightness == Brightness.light
@@ -228,18 +227,16 @@ class _DrawerSections extends StatelessWidget {
       },
     );
   }
+}
 
-// New private stateless widget for the Drawer Footer
 class _DrawerFooter extends StatelessWidget {
   final ThemeData theme;
-  final BuildContext buildContext; // Pass BuildContext for Provider & Navigator
+  final BuildContext buildContext;
 
   const _DrawerFooter({required this.theme, required this.buildContext});
 
   @override
   Widget build(BuildContext context) {
-    // Use the passed buildContext for Provider and Navigator operations
-    // to ensure it's the correct context from _VioraDrawerContent's build method.
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

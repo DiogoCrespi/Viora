@@ -7,7 +7,7 @@ import 'package:viora/features/user/domain/repositories/preferences_repository.d
 import 'package:viora/features/auth/presentation/pages/login_screen.dart';
 import 'package:provider/provider.dart'; // Added for Provider
 import 'package:viora/features/user/presentation/providers/user_provider.dart'; // Added for UserProvider
-import 'package:viora/features/user/domain/entities/app_user_entity.dart'; // Added for AppUserEntity
+import 'package:viora/features/user/domain/entities/app_user.dart'; // Added for AppUser
 import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 class ProfileScreen extends StatefulWidget {
@@ -40,22 +40,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _checkAuthAndLoadData() async {
     if (!mounted) return;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    // UserProvider should internally handle session validity.
-    // If currentUser is null, it implies user is not authenticated or session is invalid.
-    final AppUserEntity? currentUser = userProvider.currentUser;
+    final AppUser? currentUser = userProvider.currentUser;
 
     if (currentUser == null) {
       if (kDebugMode) {
-        debugPrint("ProfileScreen: User not authenticated or session expired, navigating to login.");
+        debugPrint(
+            "ProfileScreen: User not authenticated or session expired, navigating to login.");
       }
       if (mounted) {
         setState(() {
           _isLoading = false;
           _errorMessage = 'Session expired. Please login again.';
         });
-        // Use Future.microtask to schedule navigation after the build phase.
         Future.microtask(() {
-          if (mounted) { // Check mounted again inside microtask
+          if (mounted) {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -69,25 +67,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _loadUserData(AppUserEntity user) async {
+  Future<void> _loadUserData(AppUser user) async {
     if (!mounted) return;
-    setState(() { // Start loading specific profile data
+    setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      // Name and email are assumed to be part of AppUserEntity from UserProvider
       _nameController.text = user.name;
       _emailController.text = user.email;
 
-      // For avatarUrl, UserProvider might need to fetch preferences or have it already.
-      // Conceptual: userProvider.loadUserPreferences() or userProvider.userPreferences.avatarUrl
-      // For this step, let's assume avatarPath is on AppUserEntity, or UserProvider exposes it.
-      // If UserProvider doesn't have it directly, this part remains a bit coupled to PreferencesRepository.
-      // For now, we'll keep the direct _preferencesRepository call for avatarUrl,
-      // acknowledging it's an area for further UserProvider enhancement.
-      final preferences = await _preferencesRepository.getUserPreferences(user.id);
+      final preferences =
+          await _preferencesRepository.getUserPreferences(user.id);
       _avatarUrl = preferences.avatarUrl;
 
       if (mounted) {
@@ -142,7 +134,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await userProvider.updateUserProfile(
         name: _nameController.text,
         imageFile: _imageFile,
-        currentAvatarUrl: _avatarUrl, // Pass the current URL for deletion logic in provider
+        currentAvatarUrl:
+            _avatarUrl, // Pass the current URL for deletion logic in provider
         avatarCleared: _avatarCleared,
       );
 
@@ -164,11 +157,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // or _checkAuthAndLoadData() might be called again if we want to fully refresh.
           // For simplicity now, just show success. A full refresh might be better.
           if (updatedUser != null) {
-             // This assumes avatarPath is directly on AppUserEntity and is updated by UserProvider
-             // This might need adjustment based on how UserProvider exposes updated preferences/avatar.
-             // Conceptual: _avatarUrl = userProvider.currentUser?.avatarPath ?? _avatarUrl;
-             // Let's fetch it anew for this example or assume it's on AppUserEntity after provider update
-             _avatarUrl = updatedUser.avatarPath; // Assuming AppUserEntity has avatarPath
+            // This assumes avatarPath is directly on AppUserEntity and is updated by UserProvider
+            // This might need adjustment based on how UserProvider exposes updated preferences/avatar.
+            // Conceptual: _avatarUrl = userProvider.currentUser?.avatarPath ?? _avatarUrl;
+            // Let's fetch it anew for this example or assume it's on AppUserEntity after provider update
+            _avatarUrl =
+                updatedUser.avatarPath; // Assuming AppUserEntity has avatarPath
           }
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -232,19 +226,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               try {
-                final userProvider = Provider.of<UserProvider>(context, listen: false);
+                final userProvider =
+                    Provider.of<UserProvider>(context, listen: false);
                 await userProvider.logout();
                 if (mounted) {
                   // Navigate to login screen after logout
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
                     (route) => false,
                   );
                 }
               } catch (e, stackTrace) {
                 if (kDebugMode) {
-                  debugPrint('ProfileScreen: Error signing out: $e\n$stackTrace');
+                  debugPrint(
+                      'ProfileScreen: Error signing out: $e\n$stackTrace');
                 }
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

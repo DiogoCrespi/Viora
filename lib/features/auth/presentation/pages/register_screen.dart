@@ -110,11 +110,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // if email confirmation is required and UserProvider.register now signals this.
           // For now, direct navigation on success (no exception).
           if (kDebugMode) {
-            debugPrint('RegisterScreen: Registration successful, navigating to login.');
+            debugPrint(
+                'RegisterScreen: Registration successful, navigating to login.');
           }
           context.pushReplacementNamed(AppRoutes.login);
         }
-      } catch (e) { // Conceptual: Catch specific exceptions like EmailInUseException, WeakPasswordException etc.
+      } catch (e) {
+        // Conceptual: Catch specific exceptions like EmailInUseException, WeakPasswordException etc.
         if (!mounted) return;
 
         final localizations = AppLocalizations.of(context)!;
@@ -126,26 +128,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
 
         // This mapping would be simplified if UserProvider threw typed exceptions
-        if (errorMessageString.contains('email_already_in_use') || // Supabase specific
-            errorMessageString.contains('registererroremailinuse')) { // Current custom
+        if (errorMessageString
+                .contains('email_already_in_use') || // Supabase specific
+            errorMessageString.contains('registererroremailinuse')) {
+          // Current custom
           message = localizations.registerErrorEmailInUse;
-        } else if (errorMessageString.contains('weak password')) { // Supabase specific
-             message = localizations.registerErrorWeakPassword; // Assuming this key exists or will be added
+        } else if (errorMessageString.contains('weak password')) {
+          // Supabase specific
+          message = localizations
+              .registerErrorInvalidData; // Usando mensagem de erro genérica para senha fraca
         } else if (errorMessageString.contains('network request failed')) {
           message = localizations.registerErrorNoConnection;
         } else if (errorMessageString.contains('server unavailable')) {
           message = localizations.registerErrorServerUnavailable;
         } else if (errorMessageString.contains('invalid data') ||
-                   errorMessageString.contains('registererrorinvaliddata')) {
+            errorMessageString.contains('registererrorinvaliddata')) {
           message = localizations.registerErrorInvalidData;
         } else if (errorMessageString.contains('email confirmation required') ||
-                   errorMessageString.contains('registererroremailconfirmationrequired')) {
+            errorMessageString
+                .contains('registererroremailconfirmationrequired')) {
           // UserProvider.register might handle this by not throwing an error but returning a specific success state,
           // or by throwing a specific EmailConfirmationRequiredException.
           // For now, if UserProvider throws for this, we show the message.
           message = localizations.registerErrorEmailConfirmationRequired;
-        } else if (errorMessageString.contains('invalid email') || // Supabase specific for format
-                   errorMessageString.contains('registererrorinvalidemail')) {
+        } else if (errorMessageString
+                .contains('invalid email') || // Supabase specific for format
+            errorMessageString.contains('registererrorinvalidemail')) {
           message = localizations.registerErrorInvalidEmail;
         }
 

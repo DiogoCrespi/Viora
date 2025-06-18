@@ -172,7 +172,7 @@ class GameRepository {
       try {
         final currentProgress = await getUserProgress(userId);
         final currentLevel = currentProgress['level'] as int;
-        final currentExp = currentProgress['xp'] as int;
+        final currentExp = currentProgress['experience'] as int;
         final currentMaxScore = currentProgress['max_score'] as int? ?? 0;
 
         // Calcula XP baseado na pontuação
@@ -204,7 +204,7 @@ class GameRepository {
       final db = await _dbHelper.database;
       final currentProgress = await getUserProgress(userId);
       final currentLevel = currentProgress['level'] as int;
-      final currentExp = currentProgress['xp'] as int;
+      final currentExp = currentProgress['experience'] as int;
       final currentMaxScore = currentProgress['max_score'] as int? ?? 0;
 
       // Calcula XP baseado na pontuação
@@ -246,53 +246,58 @@ class GameRepository {
   Future<Map<String, dynamic>> getUserProgress(String userId) async {
     try {
       // Verificar se o userId é um UUID válido
-      if (!_isValidUUID(userId)) {
-        print('UserId inválido: $userId. Usando banco de dados local.');
-        return _getUserProgressLocal(userId);
-      }
-
-      // Buscar progresso do usuário no Supabase
-      final progress = await _supabase
-          .from('game_progress')
-          .select(
-              'id, user_id, level, experience, max_score, missions_completed, last_played')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-      if (progress == null) {
-        // Criar novo progresso
-        final now = DateTime.now().toIso8601String();
-        final newProgress = {
-          'user_id': userId,
-          'level': 1,
-          'experience': 0,
-          'max_score': 0,
-          'missions_completed': 0,
-          'last_played': now,
-        };
-
+      if (_isValidUUID(userId)) {
         try {
-          await _supabase.from('game_progress').insert(newProgress);
-          print('Novo progresso criado com sucesso no Supabase');
-          return newProgress;
+          // Buscar progresso do usuário
+          final response = await _supabase
+              .from('game_progress')
+              .select()
+              .eq('user_id', userId)
+              .order('created_at', ascending: false)
+              .limit(1)
+              .single();
+
+          if (response != null) {
+            // Buscar missões concluídas
+            final completedMissions = await _supabase
+                .from('user_missions')
+                .select()
+                .eq('user_id', userId)
+                .eq('status', 'completed');
+
+            final missionsCompleted = completedMissions.length;
+
+            // Atualizar o contador de missões concluídas
+            await _supabase.from('game_progress').update({
+              'missions_completed': missionsCompleted,
+              'updated_at': DateTime.now().toIso8601String(),
+            }).eq('user_id', userId);
+
+            return {
+              'level': response['level'] ?? 1,
+              'experience': response['experience'] ?? 0,
+              'max_score': response['max_score'] ?? 0,
+              'missions_completed': missionsCompleted,
+              'last_played': response['last_played'],
+            };
+          }
         } catch (e) {
-          print('Erro ao criar novo progresso no Supabase: $e');
-          // Em caso de erro no Supabase, usar SQLite local
-          return _getUserProgressLocal(userId);
+          print('Erro ao buscar progresso do usuário: $e');
+          // Continua para buscar do SQLite
         }
       }
 
-      // Adicionar timestamps padrão se não existirem
-      final now = DateTime.now().toIso8601String();
-      return {
-        ...progress,
-        'created_at': progress['created_at'] ?? now,
-        'updated_at': progress['updated_at'] ?? now,
-      };
+      // Se não encontrar no Supabase ou userId não é UUID, busca do SQLite
+      return _getUserProgressLocal(userId);
     } catch (e) {
       print('Erro ao buscar progresso do usuário: $e');
-      // Em caso de erro no Supabase, usar SQLite local
-      return _getUserProgressLocal(userId);
+      return {
+        'level': 1,
+        'experience': 0,
+        'max_score': 0,
+        'missions_completed': 0,
+        'last_played': null,
+      };
     }
   }
 
@@ -364,7 +369,30 @@ class GameRepository {
         }
       }
 
-      return results.first;
+      // Buscar missões concluídas
+      final completedMissions = await db.rawQuery('''
+        SELECT COUNT(*) as count
+        FROM user_missions
+        WHERE user_id = ? AND status = 'completed'
+      ''', [userId]);
+
+      final missionsCompleted = completedMissions.first['count'] as int;
+
+      // Atualizar o contador de missões concluídas
+      await db.update(
+        'game_progress',
+        {
+          'missions_completed': missionsCompleted,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'user_id = ?',
+        whereArgs: [userId],
+      );
+
+      final progress = results.first;
+      progress['missions_completed'] = missionsCompleted;
+
+      return progress;
     } catch (e) {
       print('_getUserProgressLocal: Erro ao buscar progresso local: $e');
       return {
@@ -390,9 +418,9 @@ class GameRepository {
           // Buscar missões do usuário com detalhes
           final response = await _supabase
               .from('user_missions')
-              .select('*, missions(*)')
+              .select('*, missions!inner(*)')
               .eq('user_id', userId)
-              .order('missions.required_level');
+              .order('missions(required_level)', ascending: true);
 
           print('Missões encontradas no Supabase: ${response.length}');
 
@@ -405,9 +433,9 @@ class GameRepository {
             // Buscar novamente após inicialização
             final missionsAfterInit = await _supabase
                 .from('user_missions')
-                .select('*, missions(*)')
+                .select('*, missions!inner(*)')
                 .eq('user_id', userId)
-                .order('missions.required_level');
+                .order('missions(required_level)', ascending: true);
 
             print('Missões após inicialização: ${missionsAfterInit.length}');
 
@@ -547,7 +575,7 @@ class GameRepository {
               .from('user_missions')
               .select('*, missions!inner(*)')
               .eq('user_id', userId)
-              .order('missions(required_level)', ascending: true);
+              .order('missions.required_level', ascending: true);
 
           if (response != null && response.isNotEmpty) {
             return response.map((mission) {
@@ -1068,6 +1096,8 @@ class GameRepository {
             return;
           }
 
+          int completedMissionsCount = 0;
+
           // Atualizar status das missões
           for (var mission in userMissions) {
             final missionData = mission['missions'];
@@ -1081,8 +1111,9 @@ class GameRepository {
             print('Nível necessário: $requiredLevel');
             print('Score necessário: $requiredScore');
 
-            // Se a missão já está concluída, pular
+            // Se a missão já está concluída, incrementar contador
             if (currentStatus == 'completed') {
+              completedMissionsCount++;
               print('Missão já concluída, pulando');
               continue;
             }
@@ -1105,6 +1136,7 @@ class GameRepository {
                   .from('user_missions')
                   .update({'status': 'completed'}).eq('id', missionId);
               print('Missão concluída com sucesso');
+              completedMissionsCount++;
 
               // Adicionar XP ao usuário
               final xpReward = missionData['xp_reward'];
@@ -1115,6 +1147,14 @@ class GameRepository {
               );
             }
           }
+
+          // Atualizar o contador de missões concluídas no progresso do usuário
+          await _supabase.from('game_progress').update({
+            'missions_completed': completedMissionsCount,
+            'updated_at': DateTime.now().toIso8601String(),
+          }).eq('user_id', userId);
+
+          print('Total de missões concluídas: $completedMissionsCount');
         } catch (e) {
           print('Erro ao atualizar missões no Supabase: $e');
           // Continua para atualizar localmente
@@ -1336,8 +1376,7 @@ class GameRepository {
     required int level,
   }) async {
     try {
-      print(
-          'Verificando e atualizando missões localmente para o usuário: $userId');
+      print('Verificando e atualizando missões locais para o usuário: $userId');
       final db = await _dbHelper.database;
 
       // Buscar missões do usuário
@@ -1349,13 +1388,13 @@ class GameRepository {
         ORDER BY m.required_level
       ''', [userId]);
 
-      print('Missões locais encontradas: ${userMissions.length}');
-
       if (userMissions.isEmpty) {
         print('Nenhuma missão local encontrada, inicializando missões');
         await _initializeMissionsLocal(userId);
         return;
       }
+
+      int completedMissionsCount = 0;
 
       // Atualizar status das missões
       for (var mission in userMissions) {
@@ -1363,55 +1402,57 @@ class GameRepository {
         var currentStatus = mission['status'] as String;
         final requiredLevel = mission['required_level'] as int;
         final requiredScore = mission['required_score'] as int;
-        final title = mission['title'] as String;
 
-        print('Verificando missão local: $title');
-        print('Status atual: $currentStatus');
-        print('Nível necessário: $requiredLevel');
-        print('Score necessário: $requiredScore');
-
-        // Se a missão já está concluída, pular
+        // Se a missão já está concluída, incrementar contador
         if (currentStatus == 'completed') {
-          print('Missão local já concluída, pulando');
+          completedMissionsCount++;
           continue;
         }
 
         // Se o nível atual é maior ou igual ao nível necessário, desbloquear a missão
         if (level >= requiredLevel &&
             (currentStatus == 'locked' || currentStatus == 'pending')) {
-          print('Desbloqueando missão local: $title');
           await db.update(
             'user_missions',
             {'status': 'available'},
             where: 'user_id = ? AND mission_id = ?',
             whereArgs: [userId, missionId],
           );
-          print('Missão local desbloqueada com sucesso');
-          currentStatus = 'available';
         }
 
         // Verificar se a missão foi concluída
         if (level >= requiredLevel &&
             score >= requiredScore &&
             currentStatus != 'completed') {
-          print('Concluindo missão local: $title');
           await db.update(
             'user_missions',
             {'status': 'completed'},
             where: 'user_id = ? AND mission_id = ?',
             whereArgs: [userId, missionId],
           );
-          print('Missão local concluída com sucesso');
+          completedMissionsCount++;
 
           // Adicionar XP ao usuário
           final xpReward = mission['xp_reward'] as int;
-          print('Adicionando $xpReward XP ao usuário localmente');
           await _updateUserProgressLocal(
             userId: userId,
             xp: xpReward,
           );
         }
       }
+
+      // Atualizar o contador de missões concluídas no progresso do usuário
+      await db.update(
+        'game_progress',
+        {
+          'missions_completed': completedMissionsCount,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'user_id = ?',
+        whereArgs: [userId],
+      );
+
+      print('Total de missões concluídas localmente: $completedMissionsCount');
     } catch (e) {
       print('Erro ao verificar e atualizar missões localmente: $e');
     }

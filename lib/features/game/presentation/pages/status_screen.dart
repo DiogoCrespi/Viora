@@ -59,7 +59,8 @@ class _StatusScreenState extends State<StatusScreen> {
 
     if (currentUserId == null) {
       if (kDebugMode) {
-        debugPrint('StatusScreen: _initUserIdAndProgress: User ID is null. Cannot load game progress.');
+        debugPrint(
+            'StatusScreen: _initUserIdAndProgress: User ID is null. Cannot load game progress.');
       }
       if (mounted) {
         setState(() {
@@ -87,31 +88,51 @@ class _StatusScreenState extends State<StatusScreen> {
 
     try {
       if (kDebugMode) {
-        debugPrint('StatusScreen: _loadGameProgress: Loading comprehensive game status for user $userId');
+        debugPrint(
+            'StatusScreen: _loadGameProgress: Loading comprehensive game status for user $userId');
       }
-      // This new method in GameRepository will encapsulate the previous logic:
-      // 1. Get user progress (which might internally also update/check missions).
-      // 2. Return all necessary data for the status screen.
-      // For now, we assume it returns a map compatible with _gameProgress structure.
-      final gameData = await _gameRepository.getComprehensiveGameStatus(userId);
+
+      // Carregar progresso do jogo
+      final gameData = await _gameRepository.getUserProgress(userId);
+
+      // Carregar missões do usuário para contar as concluídas
+      final userMissions = await _gameRepository.getUserMissions(userId);
+      final completedMissions = userMissions
+          .where((mission) => mission['status'] == 'completed')
+          .length;
 
       if (mounted) {
         setState(() {
-          _gameProgress = gameData; // Assuming gameData has the expected keys
+          _gameProgress = {
+            'level': gameData['level'] ?? 1,
+            'experience': gameData['experience'] ?? 0,
+            'max_score': gameData['max_score'] ?? 0,
+            'missions_completed': completedMissions,
+          };
           _isLoading = false;
         });
+
+        // Atualizar o progresso no banco de dados
+        await _gameRepository.updateGameProgress(
+          userId,
+          gameData['max_score'] ?? 0,
+          0, // duration não é relevante aqui
+        );
+
         if (kDebugMode) {
-          debugPrint('StatusScreen: _loadGameProgress: Loaded game status successfully.');
+          debugPrint(
+              'StatusScreen: _loadGameProgress: Loaded game status successfully.');
+          debugPrint('Missões concluídas: $completedMissions');
         }
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('StatusScreen: _loadGameProgress: Error loading game progress: $e\n$stackTrace');
+        debugPrint(
+            'StatusScreen: _loadGameProgress: Error loading game progress: $e\n$stackTrace');
       }
       if (mounted) {
         setState(() {
           _isLoading = false;
-          // Optionally, set an error message to display to the user
         });
       }
     }

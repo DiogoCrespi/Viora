@@ -70,7 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           context.pushNamedAndRemoveUntil(AppRoutes.main);
         }
-      } catch (e) { // Catching generic Exception, but conceptually UserProvider would throw specific ones.
+      } catch (e) {
+        // Catching generic Exception, but conceptually UserProvider would throw specific ones.
         if (kDebugMode) {
           debugPrint('LoginScreen: Error during login: $e');
         }
@@ -85,16 +86,22 @@ class _LoginScreenState extends State<LoginScreen> {
         // but ideally, this logic moves to UserProvider or is replaced by typed exceptions.
         final errorMessageString = e.toString().toLowerCase();
 
-        if (errorMessageString.contains('invalid credentials') || // Common Supabase error
-            errorMessageString.contains('invalid_grant')) { // From GoTrueException
-          message = localizations.loginError; // Specific message for invalid credentials
+        if (errorMessageString
+                .contains('invalid credentials') || // Common Supabase error
+            errorMessageString.contains('invalid_grant')) {
+          // From GoTrueException
+          message = localizations
+              .loginError; // Specific message for invalid credentials
         } else if (errorMessageString.contains('email not confirmed') ||
-                   errorMessageString.contains('email_not_confirmed') || // From GoTrueException
-                   errorMessageString.contains('registererroremailconfirmationrequired')) {
+            errorMessageString
+                .contains('email_not_confirmed') || // From GoTrueException
+            errorMessageString
+                .contains('registererroremailconfirmationrequired')) {
           message = localizations.loginErrorEmailNotConfirmed;
           showResendAction = true;
-        } else if (errorMessageString.contains('network request failed') || // Common network error
-                   errorMessageString.contains('no internet connection')) {
+        } else if (errorMessageString
+                .contains('network request failed') || // Common network error
+            errorMessageString.contains('no internet connection')) {
           message = localizations.loginErrorNoConnection;
         } else if (errorMessageString.contains('server unavailable')) {
           message = localizations.loginErrorServerUnavailable;
@@ -106,7 +113,8 @@ class _LoginScreenState extends State<LoginScreen> {
             content: Text(message, style: Theme.of(context).futuristicBody),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             duration: const Duration(seconds: 5),
             action: showResendAction
                 ? SnackBarAction(
@@ -116,30 +124,41 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (!mounted) return;
                       final String email = _emailController.text;
                       try {
-                        final userProvider = Provider.of<UserProvider>(context, listen: false);
+                        final userProvider =
+                            Provider.of<UserProvider>(context, listen: false);
                         await userProvider.resendConfirmationEmail(email);
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(localizations.loginConfirmationEmailSent, style: Theme.of(context).futuristicBody),
+                              content: Text(
+                                  localizations.loginConfirmationEmailSent,
+                                  style: Theme.of(context).futuristicBody),
                               backgroundColor: Colors.green,
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
                             ),
                           );
                         }
                       } catch (resendError) {
                         if (!mounted) return;
-                         String resendMessage = localizations.loginErrorResendingConfirmation;
-                         if (resendError.toString().toLowerCase().contains('over_email_send_rate_limit')) {
-                           resendMessage = localizations.loginErrorRateLimit; // Assuming you add this to ARB
-                         }
+                        String resendMessage =
+                            localizations.loginErrorResendingConfirmation;
+                        if (resendError
+                            .toString()
+                            .toLowerCase()
+                            .contains('over_email_send_rate_limit')) {
+                          resendMessage = localizations
+                              .loginError; // Usando mensagem de erro genérica
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(resendMessage, style: Theme.of(context).futuristicBody),
+                            content: Text(resendMessage,
+                                style: Theme.of(context).futuristicBody),
                             backgroundColor: Colors.red,
                             behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
                           ),
                         );
                       }
