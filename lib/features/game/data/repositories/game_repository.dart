@@ -722,9 +722,10 @@ class GameRepository {
 
       if (existingMissions.isEmpty) {
         print('Criando missões padrão no Supabase');
-        // Criar missões padrão
+        // Criar missões padrão com IDs fixos
         final defaultMissions = [
           {
+            'id': '00000000-0000-0000-0000-000000000001',
             'title': 'Primeiros Passos',
             'description': 'Alcance 100 pontos em uma partida',
             'type': 'score',
@@ -735,6 +736,7 @@ class GameRepository {
             'updated_at': DateTime.now().toIso8601String(),
           },
           {
+            'id': '00000000-0000-0000-0000-000000000002',
             'title': 'Iniciante',
             'description': 'Alcance 500 pontos em uma partida',
             'type': 'score',
@@ -745,6 +747,7 @@ class GameRepository {
             'updated_at': DateTime.now().toIso8601String(),
           },
           {
+            'id': '00000000-0000-0000-0000-000000000003',
             'title': 'Intermediário',
             'description': 'Alcance o nível 2',
             'type': 'level',
@@ -755,6 +758,7 @@ class GameRepository {
             'updated_at': DateTime.now().toIso8601String(),
           },
           {
+            'id': '00000000-0000-0000-0000-000000000004',
             'title': 'Avançado',
             'description': 'Alcance 1000 pontos em uma partida',
             'type': 'score',
@@ -765,6 +769,7 @@ class GameRepository {
             'updated_at': DateTime.now().toIso8601String(),
           },
           {
+            'id': '00000000-0000-0000-0000-000000000005',
             'title': 'Mestre',
             'description': 'Alcance o nível 3',
             'type': 'level',
@@ -791,8 +796,7 @@ class GameRepository {
             await _supabase.from('user_missions').insert({
               'user_id': userId,
               'mission_id': result['id'],
-              'status':
-                  mission == defaultMissions.first ? 'available' : 'locked',
+              'status': mission == defaultMissions.first ? 'available' : 'locked',
               'created_at': DateTime.now().toIso8601String(),
               'updated_at': DateTime.now().toIso8601String(),
             });
