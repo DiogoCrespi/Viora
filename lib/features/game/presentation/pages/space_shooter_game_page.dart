@@ -316,6 +316,10 @@ class SpaceGame extends FlameGame
     add(BackgroundComponent());
     player = Player();
     add(player);
+    // Centralizar o player no modo mouse ao iniciar
+    if (isMouseControl) {
+      player.target = Vector2(size.x / 2, size.y * 0.8);
+    }
     scoreText = TextComponent(
       text: 'Score: 0',
       position: Vector2(20, 20),
